@@ -4,7 +4,6 @@ import CreatePostForm from '../components/CreatePostForm';
 import PostContainer from '../components/PostContainer';
 import usePosts from '../services/usePosts';
 import useComments from '../services/useComments';
-import { Button } from '@mui/material'; 
 import { deleteCookie } from '../services/cookie';
 
 const Home = ({ loggedIn, username, setLoggedIn }) => {

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // Import useRouter from next/router
 import { useToasts } from 'react-toast-notifications';
 import RegisterForm from '../components/registerForm';
-import { setCookie } from '../services/cookie';
 import { RegisterUser } from '../services/register_auth';
 
 const Register = (props) => {
@@ -92,23 +91,20 @@ const Register = (props) => {
             const responseData = await RegisterUser(data);
 
             if (responseData.success === true) {
-                addToast('Authentication successful!', {
+                addToast('Registration successful!', {
                     appearance: 'success',
                     autoDismiss: true,
                 });
-                props.setLoggedIn(true);
-                props.setEmail(responseData.email);
-                console.log(responseData.email)
-                router.push('/'); // Use router.push for navigation
+                router.push('/login'); // Use router.push for navigation
             } else {
-                addToast('Authentication failed. Please check your credentials. Error: ' + responseData.message, {
+                addToast('Registration failed. Please check your credentials. Error: ' + responseData.message, {
                     appearance: 'error',
                     autoDismiss: true,
                 });
             }
         } catch (error) {
             console.error(error);
-            addToast('Error during authentication: ' + error.message, {
+            addToast('Error during Registration: ' + error.message, {
                 appearance: 'error',
                 autoDismiss: true,
             });
