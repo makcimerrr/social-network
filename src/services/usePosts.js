@@ -1,0 +1,48 @@
+import { useState, useEffect } from 'react';
+
+const usePosts = () => {
+  const [posts, setPosts] = useState([]);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/post');
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data);
+      } else {
+        console.error('Failed to fetch posts:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const createPost = async (formData) => {
+    console.log(formData)
+    try {
+      const response = await fetch('http://localhost:8080/post', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        fetchPosts();
+      } else {
+        console.error('Create a post failed:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error during creation of a post:', error);
+    }
+  };
+
+  return { posts, fetchPosts, createPost };
+};
+
+export default usePosts;
