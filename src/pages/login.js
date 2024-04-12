@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // Import useRouter from next/router
 import { useToasts } from 'react-toast-notifications';
-import LoginComponent from '../components/loginForm';
-import { setCookie } from '../services/cookie';
 import { loginUser } from '../services/login_auth';
 import LoginForm from '../components/loginForm';
 

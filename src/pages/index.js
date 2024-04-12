@@ -4,7 +4,7 @@ import CreatePostForm from '../components/CreatePostForm';
 import PostContainer from '../components/PostContainer';
 import usePosts from '../services/usePosts';
 import useComments from '../services/useComments';
-import { deleteCookie } from '../services/cookie';
+
 
 const Home = ({ loggedIn, username, setLoggedIn }) => {
   const router = useRouter(); // Using Next.js useRouter hook
@@ -14,6 +14,7 @@ const Home = ({ loggedIn, username, setLoggedIn }) => {
   const handleCreatePost = async (formData) => {
     createPost(formData);
   };
+
   const handleCreateComment = async (formData) => {
     await createComment(formData);
     fetchPosts();
@@ -56,6 +57,6 @@ const Home = ({ loggedIn, username, setLoggedIn }) => {
 
     </div>
   );
-};
+}
 
 export default Home;

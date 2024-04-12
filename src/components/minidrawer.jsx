@@ -152,7 +152,7 @@ export default function MiniDrawer() {
             </ListItemIcon>
             <ListItemText primary="Register" />
           </ListItemButton>
-          <ListItemButton selected={router.pathname === '/profile'} component={Link} href="/profile">
+          <ListItemButton selected={router.pathname === '/user'} component={Link} href="/user">
             <ListItemIcon>
               <AccountBoxIcon/>
             </ListItemIcon>

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
+	"reflect"
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,44 +15,98 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// On ne veut que une requête GET (usage getUsers dans index.js).
-	if r.Method != "GET" {
-		http.Error(w, "405 method not allowed.", http.StatusMethodNotAllowed)
+	// On check dans la présence d'un param id dans l'url.
+
+	// Retrieve user ID from session cookie
+	cookie, err := r.Cookie("session")
+	if err != nil {
 		return
 	}
 
-	// On check dans la présence d'un param id dans l'url.
-	id := r.URL.Query().Get("id")
-	// Si aucun id, on récupère l'ensemble des users de la database.
-	if id == "" {
-		users, err := FindAllUsers()
-		if err != nil {
-			http.Error(w, "500 internal server error", http.StatusInternalServerError)
-			return
+	foundVal := cookie.Value
+	curr, err := CurrentUser(foundVal)
+	if err != nil {
+		return
+	}
+	id := curr.Id
+
+	switch r.Method {
+	case "POST":
+
+		fmt.Println("post")
+
+		if id != 0 {
+
+			db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+			if err != nil {
+				fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+			}
+			// Toggle the privacy setting
+			_, err = db.Exec("UPDATE USERS SET PrivateProfile = CASE WHEN PrivateProfile = 1 THEN 0 ELSE 1 END WHERE ID = ?", id)
+			if err != nil {
+				fmt.Println("Erreur lors de la mise à jour du profil utilisateur:", err)
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			// Retrieve the updated user information
+			var user User
+			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", id).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
+			if err != nil {
+				fmt.Println("Erreur lors de la récupération des données utilisateur:", err)
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			resp, err := json.Marshal(user)
+			if err != nil {
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write(resp)
 		}
-		// On renvoit une array de structures users.
-		resp, err := json.Marshal(users)
-		if err != nil {
-			http.Error(w, "500 internal server error", http.StatusInternalServerError)
-			return
+
+	case "GET":
+
+		if id == 0 {
+			users, err := FindAllUsers()
+			if err != nil {
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+			// On renvoit une array de structures users.
+			resp, err := json.Marshal(users)
+			if err != nil {
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write(resp)
+			// Sinon on recherche un user par son id.
+		} else {
+
+			db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+			if err != nil {
+				fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+			}
+
+			var user User
+			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", id).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
+			fmt.Println(user)
+
+			// On renvoit la structure user recherchée.
+			resp, err := json.Marshal(user)
+			if err != nil {
+				http.Error(w, "500 internal server error", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write(resp)
 		}
-		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
-		// Sinon on recherche un user par son id.
-	} else {
-		user, err := FindUserByParam("id", id)
-		if err != nil {
-			http.Error(w, "500 internal server error", http.StatusInternalServerError)
-			return
-		}
-		// On renvoit la structure user recherchée.
-		resp, err := json.Marshal(user)
-		if err != nil {
-			http.Error(w, "500 internal server error", http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
+	default:
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
@@ -78,22 +132,25 @@ func FindAllUsers() ([]User, error) {
 }
 
 // Récupération d'un user en fonction d'un paramètre, exemple id.
-func FindUserByParam(parameter, data string) (User, error) {
+func FindUserByParam(parameter string, data int) (User, error) {
 	var q *sql.Rows
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
 	}
 	defer db.Close()
+	fmt.Println(reflect.TypeOf(data), data)
 
 	switch parameter {
 	case "id":
-		i, err := strconv.Atoi(data)
+		fmt.Println("look id")
 		if err != nil {
+			fmt.Println("error1")
 			return User{}, errors.New("id must be an integer")
 		}
-		q, err = db.Query(`SELECT * FROM USERS WHERE ID = ?`, i)
+		q, err = db.Query(`SELECT * FROM USERS WHERE ID = ?`, data)
 		if err != nil {
+			fmt.Println("error12")
 			return User{}, errors.New("could not find id")
 		}
 	case "username":
@@ -112,9 +169,10 @@ func FindUserByParam(parameter, data string) (User, error) {
 
 	user, err := ConvertRowToUser(q)
 	if err != nil {
+		fmt.Println("errconv")
 		return User{}, errors.New("failed to convert")
 	}
-
+	fmt.Println(user)
 	return user[0], nil
 }
 

@@ -3,6 +3,7 @@ import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
 
+
 const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
   const getPrivacyLabel = (privacy) => {
     switch (privacy) {
