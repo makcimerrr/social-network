@@ -1,154 +1,126 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router'; // Import useRouter from next/router
-import { useToasts } from 'react-toast-notifications';
-import RegisterForm from '../components/registerForm';
-import { RegisterUser } from '../services/register_auth';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import RegisterForm from '../components/RegisterForm';
+import { RegisterUser } from '../services/useRegister';
+import toast from 'react-hot-toast';
 
 const Register = (props) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [emailError, setEmailError] = useState('');
-    const [passwordError, setPasswordError] = useState('');
-
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [firstNameError, setFirstNameError] = useState('');
-    const [lastNameError, setLastNameError] = useState('');
-
-    const [dateOfBirth, setDateOfBirth] = useState('');
-    const [avatar, setAvatar] = useState('');
-    const [dateOfBirthError, setDateOfBirthError] = useState('');
-    const [avatarError, setAvatarError] = useState('');
-
-    const [nickname, setNickname] = useState('');
-    const [bio, setBio] = useState('');
-    const [nicknameError, setNicknameError] = useState('');
-    const [bioError, setBioError] = useState('');
-
-    const { addToast } = useToasts();
-    const router = useRouter(); // Use useRouter from next/router
-
+    const [form, setForm] = useState({
+        email: '',
+        password: '',
+        firstname: '',
+        lastname: '',
+        dateofbirth: '',
+        avatar: '',
+        nickname: '',
+        aboutme: '',
+        privateprofile: '',
+    });
+    const router = useRouter();
+    const [formErrors, setFormErrors] = useState({});
     const onRegisterClick = async () => {
-        setEmailError('');
-        setPasswordError('');
+        let valid = true;
 
-        if ('' === email) {
-            setEmailError('Please enter your email');
-            return;
+        if ('' === form.email) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                email: 'Please enter your email',
+            }));
+            valid = false;
+        }else if (!form.email.includes('@') || !form.email.includes('.')) {
+            setFormErrors ( prevErrors => ({
+                ...prevErrors,
+                email: "Please enter a valid email address",
+            }));
+            valid = false;
         }
-
-        if ('' === password) {
-            setPasswordError('Please enter a password');
-            return;
+        if ('' === form.password) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                password: "Please enter a password",
+            }));
+            valid = false;
+        }else if ((form.password).length < 7) {
+            setFormErrors(prevErrors =>({
+                ...prevErrors,
+                password : 'The password must be 8 characters or longer',
+            }));
+            valid = false;
         }
-
-        if ('' === firstName) {
-            setFirstNameError('Please enter your first name');
-            return;
+        if ('' === form.firstname) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                firstname : 'Please enter your first name',
+            }));
+            valid = false;
         }
-        if ('' === lastName) {
-            setLastNameError('Please enter your last name');
-            return;
+        if ('' === form.lastname) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                lastname : 'Please enter your last name',
+            }));
+            valid = false;
         }
-
-        if ('' === dateOfBirth) {
-            setDateOfBirthError('Please enter your date of birth');
-            return;
+        if ('' === form.dateofbirth) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                dateofbirth : 'Please enter your date of birth',
+            }));
+            valid = false;
         }
-
-        if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            setEmailError('Please enter a valid email')
-            return
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(form.nickname)) {
+            setFormErrors( prevErrors => ({
+                ...prevErrors,
+                nickname : 'Nickname should not contain special characters.',
+            }));
+            valid = false;
         }
-
-        if (password.length < 7) {
-            setPasswordError('The password must be 8 characters or longer');
-            return;
+        if ((form.aboutme).length > 200) {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                aboutme : 'Bio should not exceed 200 characters.',
+            }));
+            valid = false;
         }
-
-        if (/[!@#$%^&*(),.?":{}|<>]/.test(nickname)) {
-            setNicknameError('Nickname should not contain special characters.');
-            return;
-        }
-
-        if (bio.length > 200) {
-            setBioError('Bio should not exceed 200 characters.');
-            return;
-        }
-
-        try {
-            const data = {
-                email: email,
-                password: password,
-                firstName: firstName,
-                lastName: lastName,
-                dateOfBirth: dateOfBirth,
-                avatar: avatar,
-                nickname: nickname,
-                bio: bio
-            };
-
-            const responseData = await RegisterUser(data);
-
-            if (responseData.success === true) {
-                addToast('Registration successful!', {
-                    appearance: 'success',
-                    autoDismiss: true,
-                });
-                router.push('/login'); // Use router.push for navigation
-            } else {
-                addToast('Registration failed. Please check your credentials. Error: ' + responseData.message, {
-                    appearance: 'error',
-                    autoDismiss: true,
+        if (valid === true) {
+            try {
+                const responseData = await RegisterUser(form);
+                if (responseData.success === true) {
+                    toast.success('Registration successful!', {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '👏',
+                        style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                    });
+                    router.push('/login');
+                } else {
+                    toast.error('Registration failed. Please check your credentials. Error: ' + responseData.message, {
+                        duration: 4000,
+                        position: 'top-center',
+                        style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error('Error during registration: ' + error.message, {
+                    duration: 4000,
+                    position: 'top-center',
+                    style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
                 });
             }
-        } catch (error) {
-            console.error(error);
-            addToast('Error during Registration: ' + error.message, {
-                appearance: 'error',
-                autoDismiss: true,
-            });
-        }
-    };
-
+        };
+    }
     return (
-
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
 
         <RegisterForm
-            email={email}
-            setEmail={setEmail}
-            password={password}
-            setPassword={setPassword}
-            emailError={emailError}
-            passwordError={passwordError}
-
-            firstName={firstName}
-            setFirstName={setFirstName}
-            lastName={lastName}
-            setLastName={setLastName}
-            firstNameError={firstNameError}
-            lastNameError={lastNameError}
-
-            dateOfBirth={dateOfBirth}
-            setDateOfBirth={setDateOfBirth}
-            avatar={avatar}
-            setAvatar={setAvatar}
-            dateOfBirthError={dateOfBirthError}
-            avatarError={avatarError}
-
-            nickname={nickname}
-            setNickname={setNickname}
-            bio={bio}
-            setBio={setBio}
-            nicknameError={nicknameError}
-            bioError={bioError}
-
+            form={form}
+            setForm={setForm}
+            formErrors={formErrors}
+            setFormErrors={setFormErrors}
             onRegisterClick={onRegisterClick}
         />
-
         </div>
     );
 };
-
 export default Register;

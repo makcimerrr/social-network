@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -136,11 +135,6 @@ func NewComment(c Comment) error {
 
 	dt := time.Now().Format("01-02-2006 15:04:05")
 
-	fmt.Println(reflect.TypeOf(c.Post_id), c.Post_id)
-	fmt.Println(reflect.TypeOf(c.User_id), c.User_id)
-	fmt.Println(reflect.TypeOf(c.Content), c.Content)
-	fmt.Println(reflect.TypeOf(dt), dt)
-
 	_, err = db.Exec(`INSERT INTO COMMENT(IDPost, UserID, CommentContent, Date, Image) values(?, ?, ?, ?, ?)`, c.Post_id, c.User_id, c.Content, dt, c.Image)
 	if err != nil {
 		return err
@@ -167,7 +161,6 @@ func FindCommentByParam(param, data string) ([]Comment, error) {
 	if err != nil {
 		return []Comment{}, errors.New("not an integer")
 	}
-	fmt.Println(param)
 	switch param {
 	case "id":
 		q, err = db.Query(`SELECT * FROM COMMENT WHERE IDComment = ?`, i)
@@ -175,7 +168,6 @@ func FindCommentByParam(param, data string) ([]Comment, error) {
 			return []Comment{}, errors.New("could not find id")
 		}
 	case "post_id":
-		fmt.Println(data)
 		q, err = db.Query(`SELECT * FROM COMMENT WHERE IDPost = ?`, i)
 		if err != nil {
 			return []Comment{}, errors.New("could not find post_id")

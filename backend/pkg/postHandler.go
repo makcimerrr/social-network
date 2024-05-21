@@ -24,8 +24,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		var posts []Post
 		var err error
 
-		param := r.URL.Query().Get("param")
-
+		param := r.URL.Query().Get("id")
+		//fmt.Println(param)
 		// Si pas d'argument renseigné on récupère l'ensemble des posts.
 		if param == "" {
 			posts, err = FindAllPosts()
@@ -36,12 +36,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Sinon on recherche en fonction du paramètre fourni.
 		} else {
-			data := r.URL.Query().Get("data")
-			if data == "" {
-				http.Error(w, "400 bad request", http.StatusBadRequest)
-				return
-			}
-			posts, err = FindPostByParam(param, data)
+			posts, err = FindPostByParam(param)
 			if err != nil {
 				http.Error(w, "500 internal server error", http.StatusInternalServerError)
 				return
@@ -183,34 +178,23 @@ func FindAllPosts() ([]Post, error) {
 }
 
 // Récupération des posts en fonction d'un paramétre, exemple filtre d'une catégorie.
-func FindPostByParam(parameter, data string) ([]Post, error) {
-	var q *sql.Rows
+func FindPostByParam(data string) ([]Post, error) {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
 	}
 	defer db.Close()
 
-	switch parameter {
-	case "id":
-		i, err := strconv.Atoi(data)
-		if err != nil {
-			return []Post{}, errors.New("id must be an integer")
-		}
-		q, err = db.Query(`SELECT * FROM POST WHERE IDPost = ? ORDER BY IDPost DESC`, i)
-		if err != nil {
-			return []Post{}, errors.New("could not find id")
-		}
-	case "user_id":
-		q, err = db.Query(`SELECT * FROM POST WHERE UserID = ? ORDER BY IDPost DESC`, data)
-		if err != nil {
-			return []Post{}, errors.New("could not find any posts by that user")
-		}
-	default:
-		return []Post{}, errors.New("cannot search by that parameter")
+	i, err := strconv.Atoi(data)
+	if err != nil {
+		return []Post{}, errors.New("id must be an integer")
+	}
+	rows, err := db.Query(`SELECT * FROM POST ORDER BY IDPost DESC`)
+	if err != nil {
+		return []Post{}, errors.New("failed to find posts")
 	}
 
-	posts, err := ConvertRowToPost(q)
+	posts, err := ConvertRowsToPost(rows, i)
 	if err != nil {
 		return []Post{}, errors.New("failed to convert")
 	}
@@ -228,6 +212,27 @@ func ConvertRowToPost(rows *sql.Rows) ([]Post, error) {
 			break
 		}
 		posts = append(posts, p)
+	}
+	return posts, nil
+}
+
+// Mise en forme des rows en une array de structures Post.
+func ConvertRowsToPost(rows *sql.Rows, i int) ([]Post, error) {
+	var posts []Post
+	for rows.Next() {
+		var p Post
+		err := rows.Scan(&p.Id, &p.User_id, &p.Title, &p.Content, &p.Date, &p.Image, &p.Private, &p.Likes, &p.NbComments)
+		if err != nil {
+			break
+		}
+		if p.Private == 0 {
+			posts = append(posts, p)
+		} else if p.Private == 1 {
+			posts = append(posts, p)
+		} else if p.Private == 2 {
+			posts = append(posts, p)
+		}
+
 	}
 	return posts, nil
 }

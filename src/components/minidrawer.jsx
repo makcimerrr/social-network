@@ -20,9 +20,12 @@ import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
 import RegisterIcon from '@mui/icons-material/HowToReg';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import LogoutIcon from '@mui/icons-material/Logout'; // Nouvel import pour l'icône de déconnexion
+import { cookie } from '../services/useCookie';
+import toast from 'react-hot-toast';
+
 
 const drawerWidth = 240;
-
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -31,7 +34,6 @@ const openedMixin = (theme) => ({
   }),
   overflowX: 'hidden',
 });
-
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -43,7 +45,6 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -51,7 +52,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
-
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
@@ -69,12 +69,10 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }));
-
 const DrawerContainer = styled(Box)({
   zIndex: 1, // Higher z-index to ensure content appears above the drawer
   position: 'relative', // Make sure position is relative for z-index to work
 });
-
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     width: drawerWidth,
@@ -91,20 +89,46 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
   }),
 );
-
-export default function MiniDrawer() {
+export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const router = useRouter(); // Using Next.js's useRouter hook
-
+  //const { addToast } = useToasts();
+  const onButtonClick = async () => {
+    if (loggedIn) {
+      try {
+        const data = {
+          test: 1,
+        };
+        const responseData = await cookie(data);
+        if (responseData.success === true) {
+          toast('Logout successful!');
+          setLoggedIn(false);
+          router.push('/');
+        } else {
+          toast('Logout failed.Error: ' + responseData.message, {
+            appearance: 'error',
+            autoDismiss: true,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        toast('Error during logout: ' + error.message, {
+          duration: 4000,
+          position: 'top-center',
+          style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+        });
+      }
+    } else {
+      router.push('/login');
+    }
+  };
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
   return (
     <DrawerContainer>
       <CssBaseline />
@@ -134,30 +158,52 @@ export default function MiniDrawer() {
           </IconButton>
         </DrawerHeader>
         <List>
-          <ListItemButton selected={router.pathname === '/'} component={Link} href="/">
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItemButton>
-          <ListItemButton selected={router.pathname === '/login'} component={Link} href="/login">
-            <ListItemIcon>
-              <LoginIcon />
-            </ListItemIcon>
-            <ListItemText primary="Login" />
-          </ListItemButton>
-          <ListItemButton selected={router.pathname === '/register'} component={Link} href="/register">
-            <ListItemIcon>
-              <RegisterIcon />
-            </ListItemIcon>
-            <ListItemText primary="Register" />
-          </ListItemButton>
-          <ListItemButton selected={router.pathname === '/user'} component={Link} href="/user">
-            <ListItemIcon>
-              <AccountBoxIcon/>
-            </ListItemIcon>
-            <ListItemText primary="Profile" />
-          </ListItemButton>
+          {loggedIn ? ( // Afficher les boutons de menu en fonction de l'état de connexion
+            <>
+            <ListItemButton selected={router.pathname === '/'} component={Link} to="/">
+                <ListItemIcon>
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </ListItemButton>
+              <ListItemButton onClick={onButtonClick}>
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItemButton>
+              <ListItemButton 
+    selected={router.pathname === '/user?id=' + id.toString()} 
+    component={Link} 
+    href={'/user?id=' + id.toString()}
+>                <ListItemIcon>
+                  <AccountBoxIcon />
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </ListItemButton>
+            </>
+          ) : (
+            <>
+              <ListItemButton selected={router.pathname === '/'} component={Link} to="/">
+                <ListItemIcon>
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </ListItemButton>
+              <ListItemButton selected={router.pathname === '/login'} component={Link} href="/login">
+                <ListItemIcon>
+                  <LoginIcon />
+                </ListItemIcon>
+                <ListItemText primary="Login" />
+              </ListItemButton>
+              <ListItemButton selected={router.pathname === '/register'} component={Link} href="/register">
+                <ListItemIcon>
+                  <RegisterIcon />
+                </ListItemIcon>
+                <ListItemText primary="Register" />
+              </ListItemButton>
+            </>
+          )}
         </List>
       </Drawer>
     </DrawerContainer>

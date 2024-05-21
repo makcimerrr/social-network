@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,23 +18,23 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// On check dans la présence d'un param id dans l'url.
 
-	// Retrieve user ID from session cookie
-	cookie, err := r.Cookie("session")
-	if err != nil {
-		return
-	}
-
-	foundVal := cookie.Value
-	curr, err := CurrentUser(foundVal)
-	if err != nil {
-		return
-	}
-	id := curr.Id
-
 	switch r.Method {
 	case "POST":
 
-		fmt.Println("post")
+		// Retrieve user ID from session cookie
+		cookie, err := r.Cookie("session")
+		if err != nil {
+			return
+		}
+
+		foundVal := cookie.Value
+		curr, err := CurrentUser(foundVal)
+		if err != nil {
+			return
+		}
+		id := curr.Id
+
+		fmt.Println("id:", id)
 
 		if id != 0 {
 
@@ -69,12 +70,26 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "GET":
 
-		if id == 0 {
-			users, err := FindAllUsers()
+		id := r.URL.Query().Get("id")
+
+		if id == "" || id == "0" {
+			db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 			if err != nil {
-				http.Error(w, "500 internal server error", http.StatusInternalServerError)
-				return
+				fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
 			}
+
+			rows, err := db.Query("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS ORDER BY ID ASC")
+
+			var users []User
+			for rows.Next() {
+				var user User
+				err := rows.Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
+				if err != nil {
+					break
+				}
+				users = append(users, user)
+			}
+			fmt.Println(users)
 			// On renvoit une array de structures users.
 			resp, err := json.Marshal(users)
 			if err != nil {
@@ -92,9 +107,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var user User
-			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", id).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
+			i, err := strconv.Atoi(id)
+			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", i).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
 			fmt.Println(user)
-
 			// On renvoit la structure user recherchée.
 			resp, err := json.Marshal(user)
 			if err != nil {
@@ -104,6 +119,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			w.Write(resp)
 		}
+
 	default:
 		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -118,7 +134,7 @@ func FindAllUsers() ([]User, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query(`SELECT * FROM USERS ORDER BY Nickname ASC`)
+	rows, err := db.Query(`SELECT * FROM USERS ORDER BY ID ASC`)
 	if err != nil {
 		return []User{}, errors.New("failed to find users")
 	}
@@ -145,12 +161,10 @@ func FindUserByParam(parameter string, data int) (User, error) {
 	case "id":
 		fmt.Println("look id")
 		if err != nil {
-			fmt.Println("error1")
 			return User{}, errors.New("id must be an integer")
 		}
 		q, err = db.Query(`SELECT * FROM USERS WHERE ID = ?`, data)
 		if err != nil {
-			fmt.Println("error12")
 			return User{}, errors.New("could not find id")
 		}
 	case "username":

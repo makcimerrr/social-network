@@ -1,5 +1,14 @@
 package pkg
 
+import "net/http"
+
+var Sessions = map[string]SessionUser{}
+
+type SessionUser struct {
+	email  string
+	Cookie *http.Cookie
+}
+
 type User struct { //Sert a Register et le profil
 	Id              int    `json:"id"`
 	Email           string `json:"email"`
@@ -56,4 +65,41 @@ type Like struct {
 	User_id int  `json:"user_id"`
 	Post_Id int  `json:"post_id"`
 	Like    bool `json:"liked"`
+}
+
+type Message struct {
+	Id          int    `json:"id"`
+	Sender_id   int    `json:"sender_id"`
+	Receiver_id int    `json:"receiver_id"`
+	Content     string `json:"content"`
+	Date        string `json:"date"`
+	Msg_type    string `json:"msg_type"`
+	User_id     int    `json:"user_id"`
+	ImageData   string `json:"image_data"`
+}
+
+type Chat struct {
+	User_one int
+	User_two int
+	Time     int
+}
+
+type OnlineUsers struct {
+	UserIds  []int  `json:"user_ids"`
+	Msg_type string `json:"msg_type"`
+}
+
+type Group struct {
+	NameGroup      string
+	Description    string
+	UserID_Creator int
+	MemberGroup    []User
+	Event          EventGroup
+	Image          []byte `json:"image"`
+}
+type EventGroup struct {
+	UserIDCreatorEvent int
+	Title              string
+	Date               string
+	Description        string
 }

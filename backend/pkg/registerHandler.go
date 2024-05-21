@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 )
@@ -66,7 +67,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		if registerData.PrivateProfile == "yes" {
 			Privacy = 0
 		}
-		_, err = db.Exec("INSERT INTO USERS (Email, Password, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", registerData.Email, registerData.Password, registerData.Firstname, registerData.Lastname, registerData.DateOfBirth, registerData.Avatar, registerData.Nickname, registerData.AboutMe, Privacy)
+
+		encryptPassword, _ := bcrypt.GenerateFromPassword([]byte(registerData.Password), bcrypt.DefaultCost)
+
+		_, err = db.Exec("INSERT INTO USERS (Email, Password, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", registerData.Email, encryptPassword, registerData.Firstname, registerData.Lastname, registerData.DateOfBirth, registerData.Avatar, registerData.Nickname, registerData.AboutMe, Privacy)
 		if err != nil {
 			log.Fatal(err)
 			return

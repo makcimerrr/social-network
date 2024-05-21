@@ -2,9 +2,13 @@ import React from 'react';
 import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+
 
 
 const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
+  const router = useRouter();
   const getPrivacyLabel = (privacy) => {
     switch (privacy) {
       case 0:
@@ -34,7 +38,10 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                     {post.content}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    Posted by User ID: {post.user_id}
+                    Posted by{' '}
+                    <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${post.user_id}`)}>
+                      User ID: {post.user_id}
+                    </Typography>
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
                     Date: {post.date}
@@ -61,12 +68,12 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                   )}
 
 
-              <div>
-                Comments :
-                <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
-                <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
-              </div>
-              </CardContent>
+                  <div>
+                    Comments :
+                    <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
+                    <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
+                  </div>
+                </CardContent>
               </Card>
             </li>
           ))}

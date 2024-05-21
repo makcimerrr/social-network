@@ -43,6 +43,9 @@ func StartServer() {
 
 	r := mux.NewRouter()
 
+	hub := pkg.NewHub()
+	go hub.Run()
+
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, World!"))
 	})
@@ -52,6 +55,14 @@ func StartServer() {
 	r.HandleFunc("/comment", pkg.CommentHandler)
 	r.HandleFunc("/like", pkg.LikeHandler)
 	r.HandleFunc("/user", pkg.UserHandler)
+	r.HandleFunc("/chat", pkg.ChatHandler)
+	r.HandleFunc("/message", pkg.MessageHandler)
+	r.HandleFunc("/follow", pkg.FollowHandler)
+	r.HandleFunc("/logout", pkg.LogoutHandler)
+	r.HandleFunc("/session", pkg.SessionHandler)
+	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		pkg.ServeWs(hub, w, r)
+	})
 
 	// nécessaire pour éviter l'erreur CORS
 	headers := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})

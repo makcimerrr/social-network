@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 const usePosts = () => {
   const [posts, setPosts] = useState([]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (id) => {
     try {
-      const response = await fetch('http://localhost:8080/post');
+      console.log("fetch for id:", id)
+      const response = await fetch(`http://localhost:8080/post?id=${id}`);
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
@@ -16,10 +17,6 @@ const usePosts = () => {
       console.error('Error fetching posts:', error);
     }
   };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
 
   const createPost = async (formData) => {
     console.log(formData)

@@ -3,8 +3,8 @@ import useUsers from '../services/useUsers';
 import ProfileContainer from '../components/ProfileContainer';
 
 
-const User = () => {
-  const { users, fetchUsers } = useUsers();
+const User = ({id}) => {
+  const { users, userPosts, fetchUsers } = useUsers();
 
   const togglePrivacy = async () => {
     try {
@@ -16,7 +16,7 @@ const User = () => {
             credentials: "include",
         });
         if (response.ok) {
-            fetchUsers();
+            fetchUsers(response.ID);
         }
         if (!response.ok) {
             throw new Error('Failed to update privacy setting');
@@ -26,17 +26,9 @@ const User = () => {
     }
 };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-
-      <h1>User Page</h1>
-      {/* Display fetched users */}
-      <ProfileContainer users={users} togglePrivacy={togglePrivacy}/>
-
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <ProfileContainer users={users} userPosts={userPosts} togglePrivacy={togglePrivacy} id={id}/>
       </div>
 
 );

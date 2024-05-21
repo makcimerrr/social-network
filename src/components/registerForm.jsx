@@ -1,99 +1,150 @@
-// registerForm.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import PasswordStrengthMeter from '../services/passwordStrengh';
+import PasswordStrengthMeter from '../services/usePasswordStrength';
 
-const RegisterForm = ({ email, setEmail, password, setPassword, emailError, passwordError, firstName, setFirstName, lastName, setLastName, firstNameError, lastNameError, dateOfBirth, setDateOfBirth, avatar, setAvatar, dateOfBirthError, avatarError, nickname, setNickname, bio, setBio, nicknameError, bioError, onRegisterClick }) => {
+const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }) => {
+
+    const [isFixed, setIsFixed] = useState(false);
+    const [fixedHeight, setFixedHeight] = useState(0);
+
+
+
+    useEffect(() => {
+        const hasErrors = Object.values(formErrors).some(error => error !== '');
+        setIsFixed(hasErrors);
+
+        // Calculer la hauteur de la div fixe
+        const mainContainer = document.querySelector('.mainContainer');
+        if (mainContainer) {
+            setFixedHeight(mainContainer.offsetHeight);
+        }
+    }, [formErrors]);
+
+
+    const handleDataChange = (field, value) => {
+        setForm(prevForm => ({
+            ...prevForm,
+            [field]: value
+        }));
+
+        if (formErrors[field] && value !== '') {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                [field]: ''
+            }));
+        }
+    };
+    const handleDateChange = (date) => {
+        setForm(prevForm => ({
+            ...prevForm,
+            dateofbirth: date
+        }));
+
+        if (formErrors.dateofbirth && date !== '') {
+            setFormErrors(prevErrors => ({
+                ...prevErrors,
+                dateofbirth: ''
+            }));
+        }
+    };
+
+
+    const marginTopThreshold = 50; // Seuil de la marge supérieure
+
+    const marginTop = marginTopThreshold > 0 ? Math.min(marginTopThreshold, 50) : 0;
+
 
     return (
-        <div className={'mainContainer'} style={{ marginTop: '50px' }}>
-            <div className={'titleContainer'}>
+        <div className={`mainContainer ${isFixed ? 'fixed' : ''}`} style={{ marginTop: '50px', maxHeight: '1000px' }}>
+
+        <div className={'titleContainer'}>
                 <div>Register</div>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
-                    value={email}
+                    value={form.email}
                     placeholder="Enter your email here"
-                    onChange={(ev) => setEmail(ev.target.value)}
+                    onChange={(ev) => handleDataChange('email', ev.target.value)}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{emailError}</label>
+                <label className="errorLabel">{formErrors.email}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
-                    value={password}
+                    value={form.password}
                     placeholder="Enter your password here"
-                    onChange={(ev) => setPassword(ev.target.value)}
+                    onChange={(ev) => handleDataChange('password', ev.target.value)}
                     className={'inputBox'}
                     type="password"
                 />
-
-                <PasswordStrengthMeter password={password} />
-                <label className="errorLabel">{passwordError}</label>
+                <PasswordStrengthMeter password={form.password} />
+                <label className="errorLabel">{formErrors.password}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
-                    value={firstName}
+                    value={form.firstname}
                     placeholder="Enter your first name here"
-                    onChange={(ev) => setFirstName(ev.target.value)}
+                    onChange={(ev) => handleDataChange('firstname', ev.target.value)}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{firstNameError}</label>
+                <label className="errorLabel">{formErrors.firstname}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
-                    value={lastName}
+                    value={form.lastname}
                     placeholder="Enter your last name here"
-                    onChange={(ev) => setLastName(ev.target.value)}
+                    onChange={(ev) => handleDataChange('lastname', ev.target.value)}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{lastNameError}</label>
+                <label className="errorLabel">{formErrors.lastname}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <DatePicker
-                    selected={dateOfBirth}
+                    selected={form.dateofbirth}
                     placeholderText="Select your date of birth"
-                    onChange={date => setDateOfBirth(date)}
+                    onChange={handleDateChange}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{dateOfBirthError}</label>
+                <label className="errorLabel">{formErrors.dateofbirth}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={(ev) => setAvatar(ev.target.files[0])}
+                    onChange={(ev) => handleDataChange('avatar', ev.target.value[0])}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{avatarError}</label>
+                <label className="errorLabel">{formErrors.avatar}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
-                    value={nickname}
+                    value={form.nickname}
                     placeholder="Enter your nickname (optional)"
-                    onChange={(ev) => setNickname(ev.target.value)}
+                    onChange={(ev) => handleDataChange('nickname', ev.target.value)}
                     className={'inputBox'}
                 />
-                <label className="errorLabel">{nicknameError}</label>
+                <label className="errorLabel">{formErrors.nickname}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <textarea
-                    value={bio}
+                    value={form.aboutme}
                     placeholder="Enter your bio (optional)"
-                    onChange={(ev) => setBio(ev.target.value)}
+                    onChange={(ev) => handleDataChange('aboutme', ev.target.value)}
                     className={'inputBox'}
                     maxLength={200} // Example max length of 200 characters
+                    // Empeche etirement horizontal mais vertical oui
+                    style={{ resize: 'vertical'}}
                 />
-                <label className="errorLabel">{bioError}</label>
+                <label className="errorLabel">{formErrors.aboutme}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
@@ -102,5 +153,4 @@ const RegisterForm = ({ email, setEmail, password, setPassword, emailError, pass
         </div>
     );
 };
-
 export default RegisterForm;
