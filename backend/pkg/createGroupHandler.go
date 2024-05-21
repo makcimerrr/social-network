@@ -68,9 +68,9 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifDataBase(registerData Group, db *sql.DB) error {
-	if registerData.NameGroup != "" {
+	if registerData.Title != "" {
 		var existingNameGroup string
-		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.NameGroup).Scan(&existingNameGroup)
+		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.Title).Scan(&existingNameGroup)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -114,7 +114,7 @@ func GetName(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
 }
 
 func InsertIntoDataBase(registerData Group, db *sql.DB, IDownerOfTheGroup int) error {
-	_, err := db.Exec(`INSERT INTO LISTGROUPS (NameGroup, AboutUs, UserID_Creator) VALUES (?, ?, ?)`, registerData.NameGroup, registerData.Description, IDownerOfTheGroup)
+	_, err := db.Exec(`INSERT INTO LISTGROUPS (NameGroup, AboutUs, UserID_Creator) VALUES (?, ?, ?)`, registerData.Title, registerData.AboutGroup, IDownerOfTheGroup)
 	if err != nil {
 		fmt.Println("Error while inserting into the database:", err)
 		return err

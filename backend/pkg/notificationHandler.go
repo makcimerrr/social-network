@@ -137,7 +137,7 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		var currentUser User
 		var currentGroup Group
 		var currentInformation []interface{}
-		err = rowsComment.Scan(&currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroup.NameGroup, &currentGroup.Image, &currentGroup.Description)
+		err = rowsComment.Scan(&currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroup.Title, &currentGroup.Image, &currentGroup.AboutGroup)
 		CheckErr(err, "listComment, db rowsComment.Next scan")
 		currentInformation = append(currentInformation, currentUser)  // information sur l'utilisateur
 		currentInformation = append(currentInformation, currentGroup) // information sur le groupe
@@ -159,7 +159,7 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		var currentGroup Group
 		var currentEvent EventGroup
 		var currentInformation []interface{}
-		err = rowsComment.Scan(&currentEvent.Date, &currentEvent.Title, &currentEvent.UserIDCreatorEvent, &currentGroup.NameGroup, &currentGroup.Image, &currentGroup.Description)
+		err = rowsComment.Scan(&currentEvent.Date, &currentEvent.Title, &currentEvent.UserIDCreatorEvent, &currentGroup.Title, &currentGroup.Image, &currentGroup.AboutGroup)
 		CheckErr(err, "listComment, db rowsComment.Next scan")
 		currentInformation = append(currentInformation, currentGroup) // information sur le groupe
 		currentInformation = append(currentInformation, currentEvent) // information sur l'event

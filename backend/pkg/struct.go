@@ -96,8 +96,8 @@ type OnlineUsers struct {
 
 type Group struct {
 	IdGroup        int
-	NameGroup      string
-	Description    string
+	Title          string
+	AboutGroup     string
 	UserID_Creator int
 	MemberGroup    []User
 	Event          EventGroup
