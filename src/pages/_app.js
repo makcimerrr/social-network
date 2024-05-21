@@ -1,11 +1,11 @@
 import '../styles/globals.css'
 import { useEffect, useState, useRef } from 'react'
-import { Toaster } from 'react-hot-toast';
 import { session } from '../services/useCookie'
-import MiniDrawer from '../components/MiniDrawer'
+import Minidrawer from '../components/minidrawer'
 import { startWS } from '@/services/useWebsocket';
 import { useRouter } from 'next/router';
 import usePosts from '../services/usePosts';
+import { Toaster } from 'react-hot-toast';
 
 
 
@@ -38,8 +38,8 @@ function MyApp({ Component, pageProps }) {
 
   return (
       <div>
-        <MiniDrawer loggedIn={loggedIn} setLoggedIn={setLoggedIn} id={id} />
-        <Component {...pageProps} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setId={setId} id={id} />
+        <Minidrawer loggedIn={loggedIn} setLoggedIn={setLoggedIn} id={id}/>
+        <Component {...pageProps} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setId={setId} id={id}/>
         <Toaster/>
       </div>
   )
