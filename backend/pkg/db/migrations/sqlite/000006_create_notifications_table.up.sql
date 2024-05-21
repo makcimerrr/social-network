@@ -24,6 +24,10 @@ CREATE TABLE IF NOT EXISTS NOTIFICATIONS
     INTEGER
     DEFAULT
     0,
+    IDFollow
+    INTEGER
+    DEFAULT
+    0,
     UserID_Receiver
     INTEGER,
     Date

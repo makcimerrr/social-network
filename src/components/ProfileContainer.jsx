@@ -1,11 +1,10 @@
-
-
 import React from 'react';
-import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
-import CommentContainer from '../components/CommentContainer';
+import { useRouter } from 'next/router';
+import PostContainer from '../components/PostContainer';
 
-
-const ProfileContainer = ({ users, userPosts, togglePrivacy, id }) => {
+const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefollow, id, handleCreateComment, handlePostLike }) => {
+    // console.log('users in ProfileContainer :', users)
+    const router = useRouter();
     const getPrivacyLabel = (privateprofile) => {
         privateprofile = parseInt(privateprofile);
         switch (privateprofile) {
@@ -18,84 +17,112 @@ const ProfileContainer = ({ users, userPosts, togglePrivacy, id }) => {
         }
     };
 
+    const followButton = () => {
+        const isFollowing = users.listfollowers && users.listfollowers.some(user => user.id === id);
+        const isPendingValidation = users.ListFollowersToValidate && users.ListFollowersToValidate.some(user => user.id === id);
+        console.log('isPendingValidation : ', isPendingValidation)
+        let buttonText;
+        if (isPendingValidation) {
+            buttonText = 'Cancel follow request';
+        } else {
+            buttonText = isFollowing ? 'Stop follow' : 'Follow';
+        }
+
+        return (
+            <div>
+                {isPendingValidation && <p>Waiting to validation</p>}
+                <button onClick={follow}>{buttonText}</button>
+            </div>
+        );
+    };
+
+    const followList = (title, list) => (
+        <details>
+            <summary>{title}</summary>
+            {list.map(follower => (
+                <div key={follower.id}>
+                    <a onClick={() => router.push(`/user?id=${follower.id}`)}>• {follower.firstname} {follower.lastname} {follower.nickname ? `(${follower.nickname})` : ''}</a>
+                </div>
+            ))}
+        </details>
+    );
+
+    const followRequestList = (list) => (
+        <div>
+            {list.map(follower => (
+                <div key={follower.id}>
+                    <p>• {follower.firstname} {follower.lastname} {follower.nickname ? `(${follower.nickname})` : ''}</p>
+                    <button onClick={() => validatefollow(true, follower.id)}>Accept follower</button>
+                    <button onClick={() => validatefollow(false, follower.id)}>Reject follower</button>
+                </div>
+            ))}
+        </div>
+    );
+
+    const filteredPosts = userPosts.filter(post => post.user_id === id);
+
+
+
     return (
         <div>
 
-<h2>Infos</h2>
+            <h2>Infos</h2>
+
+            <p>Nickname: {users.nickname}</p>
+            <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
+            {users.privateprofile === 1 || users.id === id &&
+            <>
             <p>ID: {users.id}</p>
             <p>Email: {users.email}</p>
             <p>Firstname: {users.firstname}</p>
             <p>Lastname: {users.lastname}</p>
             <p>Date of Birth: {users.dateofbirth}</p>
             <p>Avatar: {users.avatar}</p>
-            <p>Nickname: {users.nickname}</p>
             <p>About Me: {users.aboutme}</p>
-            <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
-
+            <p>Point of Interest: {users.pointofinterest}</p>
+            </>
+            }
             {users.id === id ? (
                 <>
-                    <p>List of follows/followers</p>
                     <button onClick={togglePrivacy}>Toggle Privacy</button>
-                    {users.privateprofile == 0 && <p>Accept/Reject Demands</p>}
+                    <p>Follow Section</p>
+                    {users.listfollowers && (
+                        <div>{followList("List of followers", users.listfollowers)}</div>
+                    )}
+                    {users.listfollowings && (
+                        <div>{followList("List of followings", users.listfollowings)}</div>
+                    )}
+
+                    {users.ListFollowersToValidate && (
+                        <div>
+                            <p>Accept/Reject Demands</p>
+                            <div>{followRequestList(users.ListFollowersToValidate)}</div>
+                        </div>
+                    )}
                 </>
             ) : (
                 <>
-                {users.privateprofile == 1 && <p>List of follows/followers</p>}
-                <p>Ask/Stop follow</p>
+                    {followButton()}
+
+                    {users.privateprofile == 1 && users.listfollowers && (
+                        <div>{followList("List of followers", users.listfollowers)}</div>
+                    )}
+
+                    {users.privateprofile == 1 && users.listfollowings && (
+                        <div>{followList("List of followings", users.listfollowings)}</div>
+                    )}
                 </>
             )}
 
-            <p>Point of Interest: {users.pointofinterest}</p>
 
-<h2>My Posts</h2>
-{userPosts && (
-  <ul>
-    {userPosts.map(post => (
-      <li key={post.id}>
-        {post.user_id === id && (
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              {post.title}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              {post.content}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              Posted by{' '}
-              <Typography variant="body2" color="primary" component="a">
-                User ID: {post.user_id}
-              </Typography>
-            </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              Date: {post.date}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              Privacy: {getPrivacyLabel(post.privacy)}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              Likes: {post.likes}
-            </Typography>
-            {post.image && (
-              <img
-                src={`data:image/jpeg;base64,${post.image}`}
-                alt="Selected Image"
-              />
+            {users.privateprofile === 1 || users.id === id &&
+            <>
+            {filteredPosts && (
+                <PostContainer posts={filteredPosts} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
             )}
-
-
-            <div>
-              Comments :
-              <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
-            </div>
-          </CardContent>
-        </Card>
-        )}
-      </li>
-    ))}
-  </ul>
-)}
-</div>
+            </>
+            }
+        </div>
     );
 };
 

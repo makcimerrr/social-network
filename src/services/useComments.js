@@ -17,12 +17,7 @@ const useComments = (post_id) => {
     }
   };
 
-  useEffect(() => {
-    if (post_id) {
-      fetchComments();
-    }
-  }, [post_id]);
-  
+
   const createComment = async (formData) => {
     console.log(formData)
     try {

@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
-	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -25,22 +25,12 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		var err error
 
 		param := r.URL.Query().Get("id")
-		//fmt.Println(param)
-		// Si pas d'argument renseigné on récupère l'ensemble des posts.
-		if param == "" {
-			posts, err = FindAllPosts()
-			if err != nil {
-				http.Error(w, "500 internal server error", http.StatusInternalServerError)
-				return
-			}
+		fmt.Println(param)
 
-			// Sinon on recherche en fonction du paramètre fourni.
-		} else {
-			posts, err = FindPostByParam(param)
-			if err != nil {
-				http.Error(w, "500 internal server error", http.StatusInternalServerError)
-				return
-			}
+		posts, err = FindPostByParam(param)
+		if err != nil {
+			http.Error(w, "500 internal server error", http.StatusInternalServerError)
+			return
 		}
 
 		// On renvoit l'array de structures Post.
@@ -71,6 +61,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "400 bad request: invalid privacy value", http.StatusBadRequest)
 			return
 		}
+
+		var listuserautorized []string
+		if privateInt == 2 {
+			listuserautorizedString := r.FormValue("selectedFollowers")
+			listuserautorized = strings.Split(listuserautorizedString, ",")
+		}
+
 		newPost.Private = privateInt
 		_, imageHeader, err := r.FormFile("image")
 		if err != nil && err != http.ErrMissingFile {
@@ -88,7 +85,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			defer file.Close()
 
 			// Read the file data
-			fileBytes, err := ioutil.ReadAll(file)
+			fileBytes, err := io.ReadAll(file)
 			if err != nil {
 				http.Error(w, "500 internal server error: "+err.Error(), http.StatusInternalServerError)
 				return
@@ -110,7 +107,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Call the function to create a new post
-		err = NewPost(newPost, curr)
+		err = NewPost(newPost, curr, listuserautorized)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
@@ -132,7 +129,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Création d'un nouveau post.
-func NewPost(p Post, u User) error {
+func NewPost(p Post, u User, listuserautorized []string) error {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
@@ -141,40 +138,30 @@ func NewPost(p Post, u User) error {
 
 	dt := time.Now().Format("01-02-2006 15:04:05")
 
-	fmt.Println(reflect.TypeOf(u.Id), u.Id)
-	fmt.Println(reflect.TypeOf(p.Title), p.Title)
-	fmt.Println(reflect.TypeOf(p.Content), p.Content)
-	fmt.Println(reflect.TypeOf(dt), dt)
-	fmt.Println(reflect.TypeOf(p.Private), p.Private)
-	fmt.Println(reflect.TypeOf(p.Likes), p.Likes)
-
-	_, err = db.Exec(`INSERT INTO POST(UserID, Title, PostContent, Date, Image, Private, Likes, NbComments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, u.Id, p.Title, p.Content, dt, p.Image, p.Private, p.Likes, p.NbComments)
+	postInsert, err := db.Exec(`INSERT INTO POST(UserID, Title, PostContent, Date, Image, Private, Likes, NbComments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, u.Id, p.Title, p.Content, dt, p.Image, p.Private, p.Likes, p.NbComments)
 	if err != nil {
-		fmt.Println("error exec")
+		fmt.Println("error exec", err)
 		return err
 	}
+
+	if len(listuserautorized) > 0 {
+		// Récupérer l'ID généré lors de l'insertion du post
+		lastInsertId, err := postInsert.LastInsertId()
+		if err != nil {
+			fmt.Println("error getting last insert id")
+			return err
+		}
+
+		for i := 0; i < len(listuserautorized); i++ {
+			_, err = db.Exec(`INSERT INTO POSTSELECTUSERS (IDPost, UserID) VALUES (?, ?)`, lastInsertId, listuserautorized[i])
+			if err != nil {
+				fmt.Println("error exec listuserautorized")
+				return err
+			}
+		}
+	}
+
 	return nil
-}
-
-// Récupération de tous les posts de la database.
-func FindAllPosts() ([]Post, error) {
-	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
-	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
-	}
-	defer db.Close()
-
-	rows, err := db.Query(`SELECT * FROM POST ORDER BY IDPost DESC`)
-	if err != nil {
-		return []Post{}, errors.New("failed to find posts")
-	}
-
-	posts, err := ConvertRowToPost(rows)
-	if err != nil {
-		return []Post{}, errors.New("failed to convert")
-	}
-
-	return posts, nil
 }
 
 // Récupération des posts en fonction d'un paramétre, exemple filtre d'une catégorie.
@@ -185,18 +172,26 @@ func FindPostByParam(data string) ([]Post, error) {
 	}
 	defer db.Close()
 
-	i, err := strconv.Atoi(data)
-	if err != nil {
-		return []Post{}, errors.New("id must be an integer")
-	}
 	rows, err := db.Query(`SELECT * FROM POST ORDER BY IDPost DESC`)
 	if err != nil {
 		return []Post{}, errors.New("failed to find posts")
 	}
+	var posts []Post
+	if data != "" {
 
-	posts, err := ConvertRowsToPost(rows, i)
-	if err != nil {
-		return []Post{}, errors.New("failed to convert")
+		i, err := strconv.Atoi(data)
+		if err != nil {
+			return []Post{}, errors.New("id must be an integer")
+		}
+		posts, err = ConvertRowsToPost(db, rows, i)
+		if err != nil {
+			return []Post{}, errors.New("failed to convert")
+		}
+	} else {
+		posts, err = ConvertRowToPost(rows)
+		if err != nil {
+			return []Post{}, errors.New("failed to convert")
+		}
 	}
 
 	return posts, nil
@@ -217,22 +212,37 @@ func ConvertRowToPost(rows *sql.Rows) ([]Post, error) {
 }
 
 // Mise en forme des rows en une array de structures Post.
-func ConvertRowsToPost(rows *sql.Rows, i int) ([]Post, error) {
+func ConvertRowsToPost(db *sql.DB, rows *sql.Rows, i int) ([]Post, error) {
 	var posts []Post
+	listOfFollow := ListFollow(i, "followings", 0)
+
 	for rows.Next() {
 		var p Post
 		err := rows.Scan(&p.Id, &p.User_id, &p.Title, &p.Content, &p.Date, &p.Image, &p.Private, &p.Likes, &p.NbComments)
 		if err != nil {
+			fmt.Println("err scan ConvertRowsToPost", err)
 			break
 		}
-		if p.Private == 0 {
+		if p.User_id == i || p.Private == 1 {
 			posts = append(posts, p)
-		} else if p.Private == 1 {
-			posts = append(posts, p)
+		} else if p.Private == 0 {
+			for _, followedUser := range listOfFollow {
+				if p.User_id == followedUser.Id {
+					posts = append(posts, p)
+					break
+				}
+			}
 		} else if p.Private == 2 {
-			posts = append(posts, p)
+			autorized := 0
+			stmt, errdb := db.Prepare("SELECT ID FROM POSTSELECTUSERS WHERE IDPost = ? AND UserID = ?")
+			CheckErr(errdb, "Requete DB ConvertRowsToPost")
+			stmt.QueryRow(p.Id, i).Scan(&autorized)
+			if autorized > 0 {
+				posts = append(posts, p)
+			}
+		} else {
+			fmt.Println("PROBLEME ConvertRowsToPost")
 		}
-
 	}
 	return posts, nil
 }

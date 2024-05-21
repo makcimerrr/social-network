@@ -21,6 +21,10 @@ type User struct { //Sert a Register et le profil
 	AboutMe         string `json:"aboutme"`
 	PrivateProfile  string `json:"privateprofile"`
 	PointOfInterest string `json:"pointofinterest"` //Join variables
+
+	ListFollowings          []User `json:"listfollowings"`
+	ListFollowers           []User `json:"listfollowers"`
+	ListFollowersToValidate []User `json:"ListFollowersToValidate"`
 }
 type Session struct {
 	Session_uuid string
@@ -54,6 +58,7 @@ type Followers struct {
 	UserId_Follower  int    `json:"userid_follower"`
 	DateFollow       string `json:"datefollow"`
 	ValidateFollow   bool   `json:"validatefollow"`
+	Action           string `json:"action"`
 }
 
 type Resp struct {
@@ -90,6 +95,7 @@ type OnlineUsers struct {
 }
 
 type Group struct {
+	IdGroup        int
 	NameGroup      string
 	Description    string
 	UserID_Creator int
@@ -102,4 +108,9 @@ type EventGroup struct {
 	Title              string
 	Date               string
 	Description        string
+}
+
+type InviteInTheGroup struct {
+	NameOfGroup     string `json:"nameOfGroup"`
+	NameOfThePerson string `json:"nameOfThePerson"`
 }

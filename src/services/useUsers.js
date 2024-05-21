@@ -6,23 +6,26 @@ const useUsers = () => {
     const [userPosts, setUserPosts] = useState([]);
     const router = useRouter();
 
-    const fetchUsers = async () => {
-      try {
-        const id = router.query.id; // Extract id from the query parameters
-        if (!id) return; // Check if id is available
-        const response = await fetch(`http://localhost:8080/user?id=${id}`, {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUsers(data);
-        } else {
-          console.error('Failed to fetch users:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
+  const fetchUsers = async (ID) => {
+    try {
+      let id = router.query.id;
+      if (!id) {
+        id = ID;
+      }; 
+      const response = await fetch(`http://localhost:8080/user?id=${id}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("test: data in fetchUsers : ", data)
+        setUsers(data);
+      } else {
+        console.error('Failed to fetch users:', response.statusText);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
     const fetchUserPosts = async () => {
       try {
@@ -45,7 +48,7 @@ const useUsers = () => {
       fetchUserPosts();// Fetch users when component mounts or when id changes
     }, [router.query.id]);
 
-    return { users, userPosts, fetchUsers };
+    return { users, userPosts, fetchUsers, fetchUserPosts };
 };
 
 export default useUsers;

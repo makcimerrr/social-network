@@ -1,10 +1,11 @@
+import { useEffect } from "react";
+
 
 
 export var firstId = 512;
 export var offset = 0;
 export let counter = 0
 export var unread = []
-export var currId = 0
 export var currUsername = ""
 export var allUsers = []
 export var online = []
@@ -32,14 +33,12 @@ export async function getUsers() {
     await getData('http://localhost:8080/user')
         .then(value => {
             allUsers = value
-            console.log(allUsers)
         }).catch(err => {
             console.log(err)
         })
 }
 
 export async function updateUsers(currId) {
-    console.log(currId)
     await getData('http://localhost:8080/chat?user_id=' + currId)
         .then(value => {
             var newUsers = []
@@ -50,17 +49,20 @@ export async function updateUsers(currId) {
             }
             let otherUsers = allUsers.filter(x => !newUsers.includes(x));
             allUsers = newUsers.concat(otherUsers);
-            console.log("update:", allUsers)
             createUsers(allUsers, conn, currId)
         }).catch(err => {
             console.log(err)
         })
 }
 
+
+
+
 export function startWS(currId) {
 
 
     console.log("call startWS JS")
+    console.log(currId)
     if (window["WebSocket"]) {
         conn = new WebSocket("ws://localhost:8080/ws");
 
@@ -115,9 +117,7 @@ export function startWS(currId) {
             } else if (data.msg_type === "online") {
                 // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
                 online = data.user_ids;
-                getUsers().then(function () {
-                    updateUsers(currId);
-                });
+                getUsers()
             }
         };
     } else {
@@ -168,7 +168,6 @@ export async function createUsers(userdata, conn, currId) {
 
     userdata.map(({ id, nickname }) => {
 
-        console.log(nickname)
         // Pour ne pas s'afficher soit même
         if (id == currId) {
             return
@@ -203,28 +202,32 @@ export async function createUsers(userdata, conn, currId) {
 
         // En cas de click sur un utilisateur, on check la DB message et on ouvre une fenêtre de chat.
         user.addEventListener("click", function (e) {
-            resetScroll();
-            if (typeof conn === "undefined") {
-                // Protection si problème de WS.
-                return;
-            }
-            // On récupère les logs si ils existent.
-            let resp = getData('http://localhost:8080/message?receiver=' + id + '&firstId=' + firstId);
-            resp.then(value => {
-                let rIdStr = user.getAttribute("id");
-                const regex = /id/i;
-                const rId = parseInt(rIdStr.replace(regex, ''));
-                if (value && value.length > 0) {
-                    const lastIndex = value.length - 1;
-                    firstId = value[lastIndex].id;
-                    lastFetchedId = firstId;
-                }
-                counter = 0;
-                // Ouverture d'une fenêtre de chat.
-                OpenChat(rId, conn, value, currId, firstId);
-            }).catch();
+            GetElementToOpenChat(id, user, currId)  
         });
     })
+}
+
+export function GetElementToOpenChat(id, user, currId) {
+    resetScroll();
+    if (typeof conn === "undefined") {
+        // Protection si problème de WS.
+        return;
+    }
+    // On récupère les logs si ils existent.
+    let resp = getData('http://localhost:8080/message?receiver=' + id + '&firstId=' + firstId);
+    resp.then(value => {
+        let rIdStr = user.getAttribute("id");
+        const regex = /id/i;
+        const rId = parseInt(rIdStr.replace(regex, ''));
+        if (value && value.length > 0) {
+            const lastIndex = value.length - 1;
+            firstId = value[lastIndex].id;
+            lastFetchedId = firstId;
+        }
+        counter = 0;
+        // Ouverture d'une fenêtre de chat.
+        OpenChat(rId, conn, value, currId, firstId);
+    }).catch();
 }
 
 let log;
@@ -238,7 +241,7 @@ if (typeof document !== 'undefined') {
 export { log };
 
 
-export function appendLog(container, msg, date) {
+export function appendLog(container, msg, date, prepend = false) {
     // Retrieve the log element
     var log = document.querySelector(".chat");
     if (!log) {
@@ -253,14 +256,20 @@ export function appendLog(container, msg, date) {
     }
 
     var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-    log.appendChild(container);
-    container.append(msg);
-    msg.append(date)
-
-    // Scroll to bottom if necessary
-    if (doScroll) {
-        log.scrollTop = log.scrollHeight - log.clientHeight;
+    if (prepend) {
+        if (log.firstChild) {
+            log.insertBefore(container, log.firstChild);
+        } else {
+            log.appendChild(container);
+        }
+    } else {
+        log.appendChild(container);
     }
+    container.appendChild(msg);
+    msg.appendChild(date);
+
+    // Scroll to bottom regardless of prepend or append
+    log.scrollTop = log.scrollHeight;
 }
 
 export function resetScroll() {
@@ -319,19 +328,23 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         firstId = firstId + 10;
         let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
         resp.then(value => {
-            console.log(value.length)
             if (value && value.length > 0) {
                 const lastIndex = value.length - 1;
                 firstId = value[lastIndex].id;
                 lastFetchedId = firstId;
             }
-            CreateMessages(value, currId);
+            OpenChat(rid, conn, value, currId, firstId)
             chatBox.scrollTop = chatBox.scrollHeight;
         }).catch();
     });
 
+    document.querySelector(".emoji-icon").addEventListener("click", function () {
+        var chatBox = document.querySelector('.chat');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
     // Même chose pour "entrée".
-    document.querySelector("#chat-input").addEventListener("keydown", function (event) {
+/*     document.querySelector("#chat-input").addEventListener("keydown", function (event) {
         if (event.keyCode === 13) {
 
             offset = 0;
@@ -344,11 +357,11 @@ export function OpenChat(rid, conn, data, currId, firstId) {
                     firstId = value[lastIndex].id;
                     lastFetchedId = firstId;
                 }
-                CreateMessages(value, currId);
+                OpenChat(rid, conn, value, currId, firstId)
                 chatBox.scrollTop = chatBox.scrollHeight;
             }).catch();
         }
-    });
+    }); */
 
     var offset = 10;
     var lastFetchedId = null;
@@ -357,7 +370,6 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     debouncedScrollHandler = debounce(function () {
 
         if (chatBox.scrollTop === 0) {
-            console.log(offset)
             let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
             resp.then(value => {
                 value = value.filter(message => message.id !== lastFetchedId);
@@ -394,35 +406,36 @@ export function OpenChat(rid, conn, data, currId, firstId) {
 }
 
 export function CreateMessages(data, currId) {
-    console.log("msg", data)
     const chatBox = document.querySelector('.chat');
-    // On scrute en descendant pour écrire le plus ancien en premier.
-    for (let i = data.length - 1; i >= 0; i--) {
+
+    // Iterate over the data array from the beginning
+    for (let i = 0; i < data.length; i++) {
         const { id, sender_id, content, date } = data[i];
 
-        // Check doublon
+        // Check for duplicates
         if (document.getElementById(`message-${id}`)) {
             continue;
         }
+        // Create message elements
+        const messageContainer = document.createElement("div");
+        messageContainer.className = sender_id === currId ? "sender-container" : "receiver-container";
 
-        // Création du message avec la mise en forme correspondate si "receiver" ou "sender".
-        const receiverContainer = document.createElement("div");
-        receiverContainer.className = sender_id == currId ? "sender-container" : "receiver-container";
+        const message = document.createElement("div");
+        message.className = sender_id === currId ? "sender" : "receiver";
+        message.innerText = content;
 
-        const receiver = document.createElement("div");
-        receiver.className = sender_id == currId ? "sender" : "receiver";
-        receiver.innerText = content;
+        const messageDate = document.createElement("div");
+        messageDate.className = sender_id === currId ? "chat-time-left" : "chat-time";
+        messageDate.innerText = date.slice(0, -3);
 
-        const messagedate = document.createElement("div");
-        messagedate.className = sender_id == currId ? "chat-time-left" : "chat-time";
-        messagedate.innerText = date.slice(0, -3);
+        messageContainer.id = `message-${id}`;
 
-        receiverContainer.id = `message-${id}`;
-
-        // On "append" avec la fonction ci-dessus dans notre container "chat".
-        appendLog(receiverContainer, receiver, messagedate, true);
-        chatBox.scrollTop = chatBox.scrollHeight;
+        // Append message elements to the chat box
+        appendLog(messageContainer, message, messageDate, true);
     }
+
+    // Scroll to the bottom of the chat box
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 

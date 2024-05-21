@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"reflect"
 	"strconv"
 )
 
@@ -34,7 +33,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		id := curr.Id
 
-		fmt.Println("id:", id)
+		fmt.Println("id current user:", id)
 
 		if id != 0 {
 
@@ -87,9 +86,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					break
 				}
+				// user.ListFollowings = ListFollow(user.Id, "followings", 0, db)
+				// user.ListFollowers = ListFollow(user.Id, "followers", 0, db)
 				users = append(users, user)
 			}
-			fmt.Println(users)
+
 			// On renvoit une array de structures users.
 			resp, err := json.Marshal(users)
 			if err != nil {
@@ -109,7 +110,12 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			var user User
 			i, err := strconv.Atoi(id)
 			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", i).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
-			fmt.Println(user)
+
+			// fmt.Println("ELSE")
+			user.ListFollowings = ListFollow(user.Id, "followings", 0)
+			user.ListFollowers = ListFollow(user.Id, "followers", 0)
+			user.ListFollowersToValidate = ListFollow(user.Id, "followers", 1)
+
 			// On renvoit la structure user recherchée.
 			resp, err := json.Marshal(user)
 			if err != nil {
@@ -155,11 +161,11 @@ func FindUserByParam(parameter string, data int) (User, error) {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
 	}
 	defer db.Close()
-	fmt.Println(reflect.TypeOf(data), data)
+	// fmt.Println(reflect.TypeOf(data), data)
 
 	switch parameter {
 	case "id":
-		fmt.Println("look id")
+		// fmt.Println("look id")
 		if err != nil {
 			return User{}, errors.New("id must be an integer")
 		}

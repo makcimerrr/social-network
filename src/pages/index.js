@@ -4,15 +4,15 @@ import CreatePostForm from '../components/CreatePostForm';
 import PostContainer from '../components/PostContainer';
 import usePosts from '../services/usePosts';
 import useComments from '../services/useComments';
+import useUsers from '../services/useUsers';
 import { conn, sendMsg } from '../services/useWebsocket';
-import ChatContainer from '../components/ChatContainer';
-import UserContainer from '../components/UserContainer';
 
 
 const Home = ({ loggedIn, id }) => {
   const router = useRouter();
   const { posts, createPost, fetchPosts } = usePosts();
   const { comments, createComment } = useComments();
+  const { users, fetchUsers } = useUsers();
 
   const onButtonClick = async () => {
     if (!loggedIn) {
@@ -21,22 +21,21 @@ const Home = ({ loggedIn, id }) => {
   };
 
   useEffect(() => {
-    if (id) { // Vérifie si id n'est pas vide
-      console.log(id);
-      fetchPosts(id);
-    }
-  }, [id]);
-
-
+    if (loggedIn) {
+    console.log(id)
+    fetchPosts(id);
+  }
+  }, [loggedIn]);
 
   const handleCreatePost = async (formData) => {
-    createPost(formData);
+    await createPost(formData);
+    fetchPosts(id);
     sendMsg(conn, 0, { value: "New Post" }, 'post')
   };
 
   const handleCreateComment = async (formData) => {
     await createComment(formData);
-    fetchPosts();
+    fetchPosts(id);
     sendMsg(conn, 0, { value: "New Comment" }, 'comment')
   };
 
@@ -52,7 +51,7 @@ const Home = ({ loggedIn, id }) => {
       });
 
       if (response.ok) {
-        fetchPosts();
+        fetchPosts(id);
       } else {
         console.error('Failed to like the post:', response.statusText);
       }
@@ -69,11 +68,8 @@ const Home = ({ loggedIn, id }) => {
       <>
         {loggedIn ? (
           <>
-
             <div className='test'>
-              <UserContainer />
-              <ChatContainer />
-              <CreatePostForm handleCreatePost={handleCreatePost} />
+              <CreatePostForm handleCreatePost={handleCreatePost} fetchUsers={fetchUsers} id={id} users={users}/>
               <PostContainer posts={posts} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
             </div>
           </>

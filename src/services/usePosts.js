@@ -30,7 +30,6 @@ const usePosts = () => {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
-        fetchPosts();
       } else {
         console.error('Create a post failed:', response.statusText);
       }

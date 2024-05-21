@@ -2,7 +2,6 @@ import React from 'react';
 import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 
