@@ -71,16 +71,16 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
             <p>Nickname: {users.nickname}</p>
             <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
             {users.privateprofile === 1 || users.id === id &&
-            <>
-            <p>ID: {users.id}</p>
-            <p>Email: {users.email}</p>
-            <p>Firstname: {users.firstname}</p>
-            <p>Lastname: {users.lastname}</p>
-            <p>Date of Birth: {users.dateofbirth}</p>
-            <p>Avatar: {users.avatar}</p>
-            <p>About Me: {users.aboutme}</p>
-            <p>Point of Interest: {users.pointofinterest}</p>
-            </>
+                <>
+                    <p>ID: {users.id}</p>
+                    <p>Email: {users.email}</p>
+                    <p>Firstname: {users.firstname}</p>
+                    <p>Lastname: {users.lastname}</p>
+                    <p>Date of Birth: {users.dateofbirth}</p>
+                    <p>Avatar: {users.avatar}</p>
+                    <p>About Me: {users.aboutme}</p>
+                    <p>Point of Interest: {users.pointofinterest}</p>
+                </>
             }
             {users.id === id ? (
                 <>
@@ -115,12 +115,12 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
             )}
 
 
-            {users.privateprofile === 1 || users.id === id &&
-            <>
-            {filteredPosts && (
-                <PostContainer posts={filteredPosts} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
-            )}
-            </>
+            {users.privateprofile === 1 || users.id === id && filteredPosts !== null &&
+                <>
+                    {filteredPosts && (
+                        <PostContainer posts={filteredPosts} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
+                    )}
+                </>
             }
         </div>
     );
