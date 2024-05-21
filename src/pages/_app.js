@@ -1,7 +1,7 @@
 import '../styles/globals.css'
 import { useEffect, useState, useRef } from 'react'
 import { session } from '../services/useCookie'
-import Minidrawer from '../components/minidrawer'
+import MiniDrawer from '../components/MiniDrawer'
 import { startWS } from '@/services/useWebsocket';
 import { useRouter } from 'next/router';
 import usePosts from '../services/usePosts';
@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
       <div>
-        <Minidrawer loggedIn={loggedIn} setLoggedIn={setLoggedIn} id={id}/>
+        <MiniDrawer loggedIn={loggedIn} setLoggedIn={setLoggedIn} id={id}/>
         <Component {...pageProps} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setId={setId} id={id}/>
         <Toaster/>
       </div>

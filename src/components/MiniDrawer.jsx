@@ -90,7 +90,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
   }),
 );
-export default function Minidrawer({ loggedIn, setLoggedIn, id }) {
+export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const router = useRouter(); // Using Next.js's useRouter hook
