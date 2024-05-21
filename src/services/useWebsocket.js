@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-
+import toast from "react-hot-toast";
 
 
 export var firstId = 512;
@@ -56,11 +55,7 @@ export async function updateUsers(currId) {
 }
 
 
-
-
 export function startWS(currId) {
-
-
     console.log("call startWS JS")
     console.log(currId)
     if (window["WebSocket"]) {
@@ -84,6 +79,18 @@ export function startWS(currId) {
             if (data.msg_type === "post") {
                 // Nouveau post, on notifie les autres utilisateurs d'un nouveau post, pas géré pour les commentaires.
                 console.log("new post")
+                toast(
+                    <span>
+                        New post !Click <a href="/" onClick={() => window.location.reload()}>here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '👏',
+                    }
+                );
+
+
             } else if (data.msg_type === "msg") {
                 // Message chat, on regarde si on est l'émetteur ou le destinataire, on créé la div correspondante, et on "append" le message.
                 var senderContainer = document.createElement("div");
@@ -166,7 +173,7 @@ export async function createUsers(userdata, conn, currId) {
         return
     }
 
-    userdata.map(({ id, nickname }) => {
+    userdata.map(({id, nickname}) => {
 
         // Pour ne pas s'afficher soit même
         if (id == currId) {
@@ -177,7 +184,6 @@ export async function createUsers(userdata, conn, currId) {
         user.setAttribute("id", ('id' + id))
 
         // Répartition des users selon leur statut.
-
 
 
         var chatusername = document.createElement("p");
@@ -202,7 +208,7 @@ export async function createUsers(userdata, conn, currId) {
 
         // En cas de click sur un utilisateur, on check la DB message et on ouvre une fenêtre de chat.
         user.addEventListener("click", function (e) {
-            GetElementToOpenChat(id, user, currId)  
+            GetElementToOpenChat(id, user, currId)
         });
     })
 }
@@ -238,7 +244,7 @@ if (typeof document !== 'undefined') {
     log = document.querySelector(".chat")
 }
 
-export { log };
+export {log};
 
 
 export function appendLog(container, msg, date, prepend = false) {
@@ -317,7 +323,6 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     });
 
 
-
     // Envoi du message si click.
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
@@ -344,24 +349,24 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     });
 
     // Même chose pour "entrée".
-/*     document.querySelector("#chat-input").addEventListener("keydown", function (event) {
-        if (event.keyCode === 13) {
+    /*     document.querySelector("#chat-input").addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
 
-            offset = 0;
-            sendMsg(conn, rid, msg, 'msg');
-            firstId = firstId + 10;
-            let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
-            resp.then(value => {
-                if (value && value.length > 0) {
-                    const lastIndex = value.length - 1;
-                    firstId = value[lastIndex].id;
-                    lastFetchedId = firstId;
-                }
-                OpenChat(rid, conn, value, currId, firstId)
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }).catch();
-        }
-    }); */
+                offset = 0;
+                sendMsg(conn, rid, msg, 'msg');
+                firstId = firstId + 10;
+                let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
+                resp.then(value => {
+                    if (value && value.length > 0) {
+                        const lastIndex = value.length - 1;
+                        firstId = value[lastIndex].id;
+                        lastFetchedId = firstId;
+                    }
+                    OpenChat(rid, conn, value, currId, firstId)
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }).catch();
+            }
+        }); */
 
     var offset = 10;
     var lastFetchedId = null;
@@ -410,7 +415,7 @@ export function CreateMessages(data, currId) {
 
     // Iterate over the data array from the beginning
     for (let i = 0; i < data.length; i++) {
-        const { id, sender_id, content, date } = data[i];
+        const {id, sender_id, content, date} = data[i];
 
         // Check for duplicates
         if (document.getElementById(`message-${id}`)) {
