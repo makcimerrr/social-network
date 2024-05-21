@@ -24,6 +24,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ChatIcon from '@mui/icons-material/Chat';
 import { cookie } from '../services/useCookie';
+import Groups2Icon from '@mui/icons-material/Groups2';
 
 
 const drawerWidth = 240;
@@ -190,12 +191,22 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
                 </ListItemIcon>
                 <ListItemText primary="Chat" />
               </ListItemButton>
+
+              <ListItemButton selected={router.pathname === '/'} component={Link} to="/group">
+                <ListItemIcon>
+                  <Groups2Icon/>
+                </ListItemIcon>
+                <ListItemText primary="Group" />
+              </ListItemButton>
+
               <ListItemButton onClick={onButtonClick}>
                 <ListItemIcon>
                   <LogoutIcon />
                 </ListItemIcon>
                 <ListItemText primary="Logout" />
               </ListItemButton>
+
+
             </>
           ) : (
             <>
