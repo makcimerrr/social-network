@@ -47,6 +47,7 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer db.Close()
+
 	var userid int
 	err = Getverif(db, w, r)
 	fmt.Println(userid)
@@ -77,25 +78,22 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 	//var missing int
 
-	var isError bool
-	var existingUserID int
 	// verif si l'utilisateur invité existe
+	fmt.Println("AVANT LA REQUETE")
+	fmt.Println(invite.NameOfThePerson)
 
-	err := db.QueryRow("SELECT ID FROM USERS WHERE FirstName = ? AND Nickname = ?", invite.NameOfThePerson).Scan(&existingUserID)
-	fmt.Println(err)
+	rows, err := db.Query("SELECT ID FROM USERS WHERE FirstName = ? OR Nickname = ?", invite.NameOfThePerson, invite.NameOfThePerson)
 	if err != nil {
-		isError = true
-		fmt.Println("User doesn't exist !! ")
-		fmt.Println(isError)
+		fmt.Println("Erreur lors de l'exécution de la requête :", err)
 		return err
-		/*jsonResponse := map[string]interface{}{
-			"success": false,
-			"message": "Nickname déjà utilisé",
-		}*/
 	}
-	fmt.Println("User ID:", existingUserID)
+	defer rows.Close()
 
-	fmt.Println("la personne est bien dans la base de données")
-
-	return nil
+	if rows.Next() {
+		fmt.Println("La personne est bien dans la base de données")
+		return nil
+	} else {
+		fmt.Println("Aucun utilisateur trouvé avec ce nom ou ce surnom.")
+		return nil
+	}
 }
