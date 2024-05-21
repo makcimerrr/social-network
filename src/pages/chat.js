@@ -18,10 +18,8 @@ const Chat = ({ loggedIn, id }) => {
 
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
 
-        <div className='test'>
-        <UserContainer />
         <ChatContainer />
-        </div>
+        <UserContainer />
     </div>
     
       )

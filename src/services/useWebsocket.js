@@ -112,7 +112,25 @@ export function startWS(currId) {
                     return u[0] == id;
                 });
 
-                if (document.querySelector('.chat-wrapper').style.display == "none") {
+
+                const chatWrapper = document.querySelector('.chat-wrapper');
+                if (!chatWrapper || chatWrapper.style.display !== 'flex') {
+                    toast(
+                        <span>
+                        New message from {data.sender_id}!
+                    </span>,
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '💻',
+                            style: {
+                                backgroundColor: 'rgba(157,161,157,0.5)', color: 'white',
+                            },
+                        }
+                    );
+                }
+
+                if (chatWrapper && chatWrapper.style.display === 'none') {
                     if (unreadMsgs.length == 0) {
                         unread.push([data.sender_id, 1]);
                     } else {
@@ -167,8 +185,9 @@ export function sendMsg(conn, rid, msg, msg_type) {
 export async function createUsers(userdata, conn, currId) {
     await sleep(1000);
     const offlineUsers = document.querySelector('.offline-users');
-
-    offlineUsers.innerHTML = ""
+    if (offlineUsers) {
+        offlineUsers.innerHTML = ""
+    }
     if (userdata == null) {
         return
     }
@@ -189,7 +208,9 @@ export async function createUsers(userdata, conn, currId) {
         var chatusername = document.createElement("p");
         chatusername.innerText = nickname
         user.appendChild(chatusername)
-        offlineUsers.appendChild(user)
+        if (offlineUsers) {
+            offlineUsers.appendChild(user)
+        }
         /*         var msgNotification = document.createElement("div");
                 msgNotification.className = "msg-notification"
                 msgNotification.innerText = 1
@@ -377,7 +398,15 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         if (chatBox.scrollTop === 0) {
             let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
             resp.then(value => {
+                if (value == null) {
+                    return;
+                }
+                if (value.length == 0) {
+                    return;
+
+                }
                 value = value.filter(message => message.id !== lastFetchedId);
+
 
                 if (value.length > 0) {
                     const lastIndex = value.length - 1;
