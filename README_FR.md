@@ -1,10 +1,12 @@
 # SOCIAL NETWORK
 
 <div align="center" markdown>
+
 # Langue du Readme
 🌏
 [**English**](https://zone01normandie.org/git/mcatelai/social-network-next/src/branch/master/README.md) | 
 Français
+
 </div>
 
 ## 📝 Descriptif
