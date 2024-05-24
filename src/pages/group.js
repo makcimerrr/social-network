@@ -102,24 +102,20 @@ const Group = (props) => {
 
 
     const onInviteClick = async () => {
-        console.log("test validation invitation")
         console.log(formInvite)
 
         const responseData = await InviteInMyGroup(formInvite);
 
         if (responseData.success === true) {
-            toast.success('Authentication successful!', {
+            toast.success("Invitation envoyé" + '👏', {
                 duration: 4000,
                 position: 'top-center',
                 style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
                 icon: '👏',
             });
-            props.setLoggedIn(true);
-            props.setId(responseData.id)
-            startWS(responseData.id);
-            router.push('/');
+
         } else {
-            toast.error('Error: ' + responseData.message, {
+            toast.error(responseData.message, {
                 duration: 4000,
                 position: 'top-center',
                 style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},

@@ -42,13 +42,29 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	var groupid int
 	var myid int
 
-	/*err, myid = WhoAmI(db, w, r)
+	err, myid = WhoAmI(db, w, r)
 	if err != nil {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			return
+		}
 		return
-	}*/
+	}
 
 	err, groupid = GetGroupID(db, w, r)
 	if err != nil {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			return
+		}
 		return
 	}
 
@@ -75,13 +91,15 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse := map[string]interface{}{
 		"success": true,
-		"message": "You can't invite Yourself",
-		"error":   "Trying to invite yourself",
 	}
 	err = json.NewEncoder(w).Encode(jsonResponse)
 	if err != nil {
+		fmt.Println("Error encoding JSON response:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println("Invitation envoyée")
 
 	//si la personne existe dans la base de données ou si elle n'est pas déjà dans le groupe.
 	//err = CheckConditions(db, w, r, invite)
@@ -92,42 +110,18 @@ func GetGroupID(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int)
 
 	groupid := 0
 
-	err := db.QueryRow("SELECT IDGroup FROM LISTGROUPS WHERE NameGroup = ?", invite.NameOfGroup).Scan(&groupid)
-	if err != nil {
-		jsonResponse := map[string]interface{}{
-			"success": false,
-			"message": "Error while executing the request",
-			"error":   "Trying to invite yourself",
-		}
-		err := json.NewEncoder(w).Encode(jsonResponse)
-		if err != nil {
-			return err, 0
-		}
-		return err, 0
-	}
+	db.QueryRow("SELECT IDGroup FROM LISTGROUPS WHERE NameGroup = ?", invite.NameOfGroup).Scan(&groupid)
 
 	if groupid != 0 {
 		fmt.Println("La personne est bien dans la base de données")
 		return nil, groupid
 	} else {
-		jsonResponse := map[string]interface{}{
-			"success": false,
-			"message": "Person not found in the database",
-			"error":   "Trying to invite yourself",
-		}
-		err := json.NewEncoder(w).Encode(jsonResponse)
-		if err != nil {
-			return err, 0
-		}
-		return err, 0
+		return fmt.Errorf("Le groupe n'existe pas !"), 0
 	}
 
 }
 
 func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request, myid int) (error, int) {
-	//var missing int
-
-	// verif si l'utilisateur invité existe
 	fmt.Println("AVANT LA REQUETE")
 	fmt.Println(invite.NameOfThePerson)
 	fmt.Println(myid)
@@ -137,11 +131,9 @@ func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request, myid int) (err
 
 	if myid == existingUserID {
 		return fmt.Errorf("Vous ne pouvez pas vous ajouter vous-même"), 0
-
-	} else if myid == 0 {
-		return fmt.Errorf("Aucun utilisateur trouvé avec ce nom ou ce surnom"), 0
-	} else {
-		// Gérer les autres erreurs
+	} else if existingUserID != 0 {
 		return nil, existingUserID
+	} else {
+		return fmt.Errorf("Aucun utilisateur trouvé avec ce nom ou ce surnom"), 0
 	}
 }
