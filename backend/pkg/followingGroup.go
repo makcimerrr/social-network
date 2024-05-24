@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 var invite InviteInTheGroup
@@ -30,17 +31,6 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("name of the person", invite.NameOfThePerson)
 	fmt.Println("avant recupération du cookie")
 
-	cookie, err := r.Cookie("session")
-	if err != nil {
-		// Gérer l'erreur si le cookie n'est pas trouvé
-		http.Error(w, "Session cookie not found", http.StatusUnauthorized)
-		return
-	}
-
-	fmt.Println("après recupération du cookie")
-
-	fmt.Println("Session cookie value:", cookie.Value)
-
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
@@ -49,51 +39,113 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var userid int
-	err = Getverif(db, w, r)
-	fmt.Println(userid)
+	var groupid int
+	var myid int
+
+	/*err, myid = WhoAmI(db, w, r)
+	if err != nil {
+		return
+	}*/
+
+	err, groupid = GetGroupID(db, w, r)
+	if err != nil {
+		return
+	}
+
+	err, userid = Getverif(db, w, r, myid)
+	if err != nil {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "Pas ce que je veux",
+			"error":   "Trying to invite yourself",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	fmt.Println("PASSE LES TESTS")
+	now := time.Now()
+	date := now.Format("2006-01-02 15:04:05")
+
+	InsertNotif(groupid, userid, date, "groupInvite", db)
+
+	jsonResponse := map[string]interface{}{
+		"success": true,
+		"message": "You can't invite Yourself",
+		"error":   "Trying to invite yourself",
+	}
+	err = json.NewEncoder(w).Encode(jsonResponse)
+	if err != nil {
+		return
+	}
+
 	//si la personne existe dans la base de données ou si elle n'est pas déjà dans le groupe.
 	//err = CheckConditions(db, w, r, invite)
 	//notification.InsertNotification(w, r, db, invite.NameOfThePerson, "invite", invite.NameOfGroup)
 }
 
-/*func CheckConditions(w http.ResponseWriter, r *http.Request, db *sql.DB, invite InviteInTheGroup) error {
+func GetGroupID(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
 
-	if NameGroup != "" {
-		var existingNameGroup string
-		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.NameGroup).Scan(&existingNameGroup)
+	groupid := 0
 
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return nil
-			}
-			return err
+	err := db.QueryRow("SELECT IDGroup FROM LISTGROUPS WHERE NameGroup = ?", invite.NameOfGroup).Scan(&groupid)
+	if err != nil {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "Error while executing the request",
+			"error":   "Trying to invite yourself",
 		}
-		return fmt.Errorf("Group name already exists")
-
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			return err, 0
+		}
+		return err, 0
 	}
-	return nil
 
-}*/
+	if groupid != 0 {
+		fmt.Println("La personne est bien dans la base de données")
+		return nil, groupid
+	} else {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "Person not found in the database",
+			"error":   "Trying to invite yourself",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			return err, 0
+		}
+		return err, 0
+	}
 
-func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
+}
+
+func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request, myid int) (error, int) {
 	//var missing int
 
 	// verif si l'utilisateur invité existe
 	fmt.Println("AVANT LA REQUETE")
 	fmt.Println(invite.NameOfThePerson)
 
-	rows, err := db.Query("SELECT ID FROM USERS WHERE FirstName = ? OR Nickname = ?", invite.NameOfThePerson, invite.NameOfThePerson)
+	existingUserID := 0
+
+	err := db.QueryRow("SELECT ID FROM USERS WHERE FirstName = ? OR Nickname = ?", invite.NameOfThePerson, invite.NameOfThePerson).Scan(&existingUserID)
 	if err != nil {
 		fmt.Println("Erreur lors de l'exécution de la requête :", err)
-		return err
+		return err, 0
 	}
-	defer rows.Close()
+	if myid == existingUserID {
+		fmt.Println("Vous ne pouvez pas vous ajouter vous-même")
+		return fmt.Errorf("Vous ne pouvez pas vous ajouter vous-même"), 0
 
-	if rows.Next() {
-		fmt.Println("La personne est bien dans la base de données")
-		return nil
-	} else {
+	} else if existingUserID == 0 {
 		fmt.Println("Aucun utilisateur trouvé avec ce nom ou ce surnom.")
-		return nil
+		return fmt.Errorf("Aucun utilisateur trouvé avec ce nom ou ce surnom"), 0
+	} else {
+		// Gérer les autres erreurs
+		return nil, existingUserID
 	}
 }

@@ -77,15 +77,15 @@ export const InviteInMyGroup = async (formInvite) => {
                 console.log(data);
                 return { success: true, data };
             } else {
-                console.error('Invite group failed:', data ? data.message : 'No response body');
+                console.error('LAAAAAAAAAAAAAAAAAAAAAA', data);
                 return { success: false, message: data ? data.message : 'No response body' };
             }
         } else {
-            console.error('Invite group failed:', response.statusText);
+            console.error('LAAAAAAAAAAAAAAAAAAAAAA', response.statusText);
             return { success: false, message: response.statusText };
         }
     } catch (error) {
-        console.error('Error during invitation of group:', error);
+        console.log('LAAAAAAAAAAAAAAAAAAAAAA', error);
         return { success: false, message: error.message };
     }
 }

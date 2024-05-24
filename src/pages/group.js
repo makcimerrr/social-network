@@ -4,6 +4,8 @@ import GroupForm from "../components/GroupForm";
 
 
 import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
+import toast from "react-hot-toast";
+import {startWS} from "@/services/useWebsocket";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -24,14 +26,18 @@ const Group = (props) => {
     const [inviteErrors, setInviteErrors] = useState({});
 
 
-    //pour fetcher tout les groupes dont l'utilisateur est chef
+    //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const result = await getGroup();
                 if (result.success) {
+
                     setData(result.data);
+
+
                 } else {
+
                     console.error('Failed to get group data:', result.message);
                 }
             } catch (error) {
@@ -99,15 +105,26 @@ const Group = (props) => {
         console.log("test validation invitation")
         console.log(formInvite)
 
-            const reponseData = await InviteInMyGroup(formInvite);
-            if (reponseData.success) {
+        const responseData = await InviteInMyGroup(formInvite);
 
-            } else {
-                console.error('Invitation failed:', reponseData.message);
-
-            }
-
-
+        if (responseData.success === true) {
+            toast.success('Authentication successful!', {
+                duration: 4000,
+                position: 'top-center',
+                style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                icon: '👏',
+            });
+            props.setLoggedIn(true);
+            props.setId(responseData.id)
+            startWS(responseData.id);
+            router.push('/');
+        } else {
+            toast.error('Error: ' + responseData.message, {
+                duration: 4000,
+                position: 'top-center',
+                style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+            });
+        }
     }
 
 
@@ -127,7 +144,10 @@ const Group = (props) => {
                 setInviteErrors={setInviteErrors}
                 formInvite={formInvite}
                 onInviteClick={onInviteClick}
+
             />
+            {setInviteErrors && <p>{setInviteErrors}</p>}
+
         </div>
     );
 };

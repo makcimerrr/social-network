@@ -1,9 +1,6 @@
 *{
     margin: 0;
     padding: 0;
-    overflow:hidden;
-    background: red;
-
 }
 
 .main-container {
@@ -12,30 +9,26 @@
 }
 
 .inviteinmygroup {
-    position: absolute;
-    background: rebeccapurple;
-    margin-right: 270px;
-    margin-bottom: 30%;
+    background: whitesmoke;
 }
 
 .group-list {
-    position: absolute;
-    flex-direction: column;
     width: 100vh;
-    margin-left: 100vh;
     overflow:scroll;
     max-height: 400px;
-    max-width: 40%;
     background: whitesmoke;
-    margin-bottom: 27%;
 }
 
+.allform {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 20px;
+
+}
 
 .creategroupContainer {
-    position: absolute;
-    background: yellow;
-    margin-right: 1200px;
-    margin-bottom: 50px;
+    background: whitesmoke;
 }
 
 

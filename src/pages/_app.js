@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import '../styles/group.css';
 import { useEffect, useState, useRef } from 'react'
 import { session } from '../services/useCookie'
 import MiniDrawer from '../components/MiniDrawer'

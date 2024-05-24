@@ -17,7 +17,7 @@ func InsertNotif(ID, UserID_Followers int, date, optionType string, db *sql.DB) 
 		request = "INSERT INTO NOTIFICATIONS(IDPost,UserID_Receiver,Date) Values(?,?,?)"
 	case "comment":
 		request = "INSERT INTO NOTIFICATIONS(IDComment,UserID_Receiver,Date) Values(?,?,?)"
-	case "group":
+	case "groupInvite":
 		request = "INSERT INTO NOTIFICATIONS(IDGroup,UserID_Receiver,Date) Values(?,?,?)"
 	case "event":
 		request = "INSERT INTO NOTIFICATIONS(IDEvent,UserID_Receiver,Date) Values(?,?,?)"
