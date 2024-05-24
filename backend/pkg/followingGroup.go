@@ -54,10 +54,11 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 
 	err, userid = Getverif(db, w, r, myid)
 	if err != nil {
+		fmt.Println("IIIIIIICCCCCCCIIIIIII")
+		fmt.Println(err)
 		jsonResponse := map[string]interface{}{
 			"success": false,
-			"message": "Pas ce que je veux",
-			"error":   "Trying to invite yourself",
+			"message": err.Error(),
 		}
 		err := json.NewEncoder(w).Encode(jsonResponse)
 		if err != nil {
@@ -129,20 +130,15 @@ func Getverif(db *sql.DB, w http.ResponseWriter, r *http.Request, myid int) (err
 	// verif si l'utilisateur invité existe
 	fmt.Println("AVANT LA REQUETE")
 	fmt.Println(invite.NameOfThePerson)
-
+	fmt.Println(myid)
 	existingUserID := 0
 
-	err := db.QueryRow("SELECT ID FROM USERS WHERE FirstName = ? OR Nickname = ?", invite.NameOfThePerson, invite.NameOfThePerson).Scan(&existingUserID)
-	if err != nil {
-		fmt.Println("Erreur lors de l'exécution de la requête :", err)
-		return err, 0
-	}
+	db.QueryRow("SELECT ID FROM USERS WHERE FirstName = ? OR Nickname = ?", invite.NameOfThePerson, invite.NameOfThePerson).Scan(&existingUserID)
+
 	if myid == existingUserID {
-		fmt.Println("Vous ne pouvez pas vous ajouter vous-même")
 		return fmt.Errorf("Vous ne pouvez pas vous ajouter vous-même"), 0
 
-	} else if existingUserID == 0 {
-		fmt.Println("Aucun utilisateur trouvé avec ce nom ou ce surnom.")
+	} else if myid == 0 {
 		return fmt.Errorf("Aucun utilisateur trouvé avec ce nom ou ce surnom"), 0
 	} else {
 		// Gérer les autres erreurs
