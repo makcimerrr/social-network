@@ -11,6 +11,11 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
         }
     };
 
+    const handleGroupClick = (group) => {
+
+        console.log("Group clicked: ", group);
+    };
+
     return (
         <div className={'mainContainer'}>
 
@@ -103,9 +108,11 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                 <h1>Own Group</h1>
                 <hr/>
                 {data && data.map((group, index) => (
-                    <div key={index}>
-                        <h2>Title :{group.Title} </h2>
-                        <h2>About Group :{group.AboutGroup} </h2>
+                    <div key={index} id={`group-${index}`}>
+                        <button onClick={() => handleGroupClick(group)}>
+                            <h2>Title :{group.Title} </h2>
+                            <h2>About Group :{group.AboutGroup} </h2>
+                        </button>
                         <hr/>
                     </div>
                 ))}

@@ -13,10 +13,11 @@
 }
 
 .group-list {
-    width: 100vh;
-    overflow:scroll;
-    max-height: 400px;
-    background: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 0 auto;
+    max-width: 600px;
 }
 
 .allform {
@@ -29,6 +30,37 @@
 
 .creategroupContainer {
     background: whitesmoke;
+}
+
+.group-list div {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.2);
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.group-list div:hover {
+    transform: scale(1.05);
+}
+
+.group-list h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.group-list button {
+    background: none;
+    border: none;
+    text-align: left;
+    display: block;
+    width: 100%;
+    padding: 0;
+}
+
+.group-list button:focus {
+    outline: none;
 }
 
 
