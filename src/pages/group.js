@@ -30,10 +30,10 @@ const Group = (props) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await getGroup();
+                const result = await getGroup(props);
                 if (result.success) {
-
                     setData(result.data);
+
 
 
                 } else {
@@ -84,14 +84,22 @@ const Group = (props) => {
 
             try {
                 console.log(form)
-                const responseData = await createGroup(form);
+                const responseData = await createGroup(form,props);
                 if (responseData.success) {
 
+                    toast.success("Group Created" + '👏', {
+                        duration: 4000,
+                        position: 'top-center',
+                        style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                        icon: '👏',
+                    });
+
                 } else {
-                    console.error('Create group failed:', responseData.message);
-                  /*  addToast(responseData.message, {
-                        appearance: 'error',
-                    });*/
+                    toast.error("This Group Already Exist", {
+                        duration: 4000,
+                        position: 'top-center',
+                        style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+                    });
                 }
             } catch (error) {
                 console.error('Error during creation of group:', error);
@@ -102,9 +110,8 @@ const Group = (props) => {
 
 
     const onInviteClick = async () => {
-        console.log(formInvite)
 
-        const responseData = await InviteInMyGroup(formInvite);
+        const responseData = await InviteInMyGroup(formInvite,props);
 
         if (responseData.success === true) {
             toast.success("Invitation envoyé" + '👏', {

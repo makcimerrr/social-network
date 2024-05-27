@@ -18,18 +18,12 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Received invite in Go:", string(body))
-
 	err = json.Unmarshal(body, &invite)
 	if err != nil {
 		fmt.Println("Error unmarshalling request body:", err)
 		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("name of the group", invite.NameOfGroup)
-	fmt.Println("name of the person", invite.NameOfThePerson)
-	fmt.Println("avant recupération du cookie")
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -40,20 +34,6 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 
 	var userid int
 	var groupid int
-	var myid int
-
-	err, myid = WhoAmI(db, w, r)
-	if err != nil {
-		jsonResponse := map[string]interface{}{
-			"success": false,
-			"message": err.Error(),
-		}
-		err := json.NewEncoder(w).Encode(jsonResponse)
-		if err != nil {
-			return
-		}
-		return
-	}
 
 	err, groupid = GetGroupID(db, w, r)
 	if err != nil {
@@ -68,10 +48,8 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err, userid = Getverif(db, w, r, myid)
+	err, userid = Getverif(db, w, r, invite.ID)
 	if err != nil {
-		fmt.Println("IIIIIIICCCCCCCIIIIIII")
-		fmt.Println(err)
 		jsonResponse := map[string]interface{}{
 			"success": false,
 			"message": err.Error(),
@@ -83,7 +61,6 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("PASSE LES TESTS")
 	now := time.Now()
 	date := now.Format("2006-01-02 15:04:05")
 

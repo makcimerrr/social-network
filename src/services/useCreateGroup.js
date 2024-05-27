@@ -1,10 +1,11 @@
-export const createGroup = async (form) => {
+export const createGroup = async (form,props) => {
     try {
         console.log(form)
+        console.log(props.id)
 
         const response = await fetch('http://localhost:8080/creategroup', {
             method: 'POST',
-            body: JSON.stringify(form),
+            body: JSON.stringify({...form,  id : props.id}),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -30,10 +31,11 @@ export const createGroup = async (form) => {
     }
 };
 
-export const getGroup = async () => {
+export const getGroup = async (props) => {
     try {
         const response = await fetch('http://localhost:8080/getallgroups', {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify(props.id),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -56,7 +58,7 @@ export const getGroup = async () => {
     }
 }
 
-export const InviteInMyGroup = async (formInvite) => {
+export const InviteInMyGroup = async (formInvite,props) => {
     if (!formInvite.nameOfGroup || !formInvite.nameOfThePerson) {
         console.error('Error: nameOfGroup or nameOfThePerson is undefined or empty');
         return { success: false, message: 'nameOfGroup or nameOfThePerson is undefined or empty' };
@@ -64,7 +66,7 @@ export const InviteInMyGroup = async (formInvite) => {
     try {
         const response = await fetch('http://localhost:8080/inviteinmygroup', {
             method: 'POST',
-            body: JSON.stringify(formInvite),
+            body: JSON.stringify({...formInvite,  id : props.id}),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -77,15 +79,15 @@ export const InviteInMyGroup = async (formInvite) => {
                 console.log(data);
                 return { success: true, data };
             } else {
-                console.error('LAAAAAAAAAAAAAAAAAAAAAA', data);
+                console.error(data);
                 return { success: false, message: data ? data.message : 'No response body' };
             }
         } else {
-            console.error('LAAAAAAAAAAAAAAAAAAAAAA', response.statusText);
+            console.error(response.statusText);
             return { success: false, message: response.statusText };
         }
     } catch (error) {
-        console.log('LAAAAAAAAAAAAAAAAAAAAAA', error);
+        console.log(error);
         return { success: false, message: error.message };
     }
 }

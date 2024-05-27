@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -18,9 +19,17 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var MyId int
-	err, MyId = WhoAmI(db, w, r)
+
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error reading request body:", err)
+		return
+	}
+
+	err = json.Unmarshal(body, &MyId)
+	if err != nil {
+		fmt.Println("Error unmarshalling request body:", err)
+		http.Error(w, "Error unmarshalling request body", http.StatusBadRequest)
 		return
 	}
 
@@ -41,7 +50,6 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 
 		groups = append(groups, group)
 	}
-	fmt.Println(groups)
 
 	// Set the content type to application/json
 	w.Header().Set("Content-Type", "application/json")
@@ -49,32 +57,5 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	// Write the status code to the response and the JSON data
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
-	fmt.Println("GetAllGroups called")
-}
-
-func WhoAmI(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
-	var missing int
-
-	cookie, err := r.Cookie("session")
-	if err != nil {
-		// Gérer l'erreur si le cookie n'est pas trouvé
-		http.Error(w, "Session cookie not found", http.StatusUnauthorized)
-		return err, missing
-	}
-
-	fmt.Println("Session cookie value:", cookie.Value)
-
-	var userID int
-	err = db.QueryRow("SELECT UserID FROM SESSIONS WHERE SessionToken = ?", cookie.Value).Scan(&userID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			fmt.Println("No user found for this sessionToken")
-		} else {
-			fmt.Println("Error when searching for the user:", err)
-		}
-		return err, missing
-	}
-
-	return nil, userID
 
 }

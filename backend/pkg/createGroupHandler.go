@@ -10,20 +10,14 @@ import (
 
 func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	var registerData Group
-	fmt.Println("CreateGroupHandler called")
 
 	if err := json.NewDecoder(r.Body).Decode(&registerData); err != nil {
-		fmt.Println("1")
 		bodyBytes, _ := ioutil.ReadAll(r.Body)
 		bodyString := string(bodyBytes)
-		fmt.Println("2")
 		fmt.Printf("Request body: %s\n", bodyString) // Print the request body
-		fmt.Println("3")
 		http.Error(w, fmt.Sprintf("Error decoding request body: %v. Body: %s", err, bodyString), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("Received data in Go:", registerData)
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -43,10 +37,9 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var IDownerOfTheGroup int
-	err, IDownerOfTheGroup = GetName(db, w, r)
+	err, registerData.ID = GetName(db, w, r)
 
-	err = InsertIntoDataBase(registerData, db, IDownerOfTheGroup)
+	err = InsertIntoDataBase(registerData, db, registerData.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		jsonResponse := map[string]interface{}{
@@ -69,8 +62,7 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 func VerifDataBase(registerData Group, db *sql.DB) error {
 	if registerData.Title != "" {
-		var existingNameGroup string
-		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.Title).Scan(&existingNameGroup)
+		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.Title).Scan(&registerData.ID)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
