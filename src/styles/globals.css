@@ -1,6 +1,8 @@
 @import url(../styles/App.css);
 @import url(../styles/index.css);
 @import url(../styles/password.css);
+@import url(../styles/group.css);
+@import url(../styles/notif.css);
 
 
 .password-strength-meter {

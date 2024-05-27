@@ -2,6 +2,7 @@ package backend
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -51,6 +52,8 @@ func StartServer() {
 	})
 	r.HandleFunc("/login", pkg.LoginHandler)
 	r.HandleFunc("/register", pkg.RegisterHandler)
+	r.HandleFunc("/notif", pkg.NotifHandler)
+	r.HandleFunc("/delete-notification", pkg.DeleteNotificationHandler)
 	r.HandleFunc("/post", pkg.PostHandler)
 	r.HandleFunc("/comment", pkg.CommentHandler)
 	r.HandleFunc("/like", pkg.LikeHandler)
@@ -80,4 +83,28 @@ func StartServer() {
 
 	fmt.Println("Server listening on :8080...")
 	log.Fatal(server.ListenAndServe())
+}
+
+func DeleteNotification(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var data struct {
+		NotificationID int `json:"notification_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Ici, vous supprimez la notification avec l'ID fourni de votre base de données
+
+	jsonResponse := map[string]interface{}{
+		"success": true,
+		"message": "Notification deleted successfully",
+	}
+	json.NewEncoder(w).Encode(jsonResponse)
 }
