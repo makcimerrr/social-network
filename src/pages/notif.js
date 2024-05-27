@@ -32,11 +32,6 @@ const NotificationFetcher = (form) => {
         }
     };
 
-    /*const removeNotification = (id) => {
-        setNotifications(notifications.filter(notif => notif.id !== id));
-
-    };*/
-
     const removeNotification = async (id) => {
         try {
             const response = await fetch('http://localhost:8080/delete-notification', {
