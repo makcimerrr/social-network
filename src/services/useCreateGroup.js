@@ -91,3 +91,34 @@ export const InviteInMyGroup = async (formInvite,props) => {
         return { success: false, message: error.message };
     }
 }
+
+export const getOneGroup = async (id) => {
+
+    let IdAfterConvert = (parseInt(id, 10));
+
+
+    try {
+        const response = await fetch('http://localhost:8080/getonegroup', {
+            method: 'POST',
+            body: JSON.stringify({idGroup:IdAfterConvert}),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            console.error('Get group failed:', response.statusText);
+            return { success: false, message: response.statusText };
+        }
+
+        const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
+        return { success: true, data };
+    } catch (error) {
+        const errorMessage = error.message ? error.message : 'An error occurred';
+
+        console.error('Error:', errorMessage);
+
+        return {success: false, message: errorMessage};
+    }
+}

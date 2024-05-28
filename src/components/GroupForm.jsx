@@ -1,4 +1,5 @@
 import React, { useState } from 'react';import DatePicker from 'react-datepicker';
+import { useRouter } from 'next/router';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick }) => {
@@ -10,10 +11,12 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
             setInviteError(result.message);
         }
     };
+    const router = useRouter();
+
 
     const handleGroupClick = (group) => {
-
         console.log("Group clicked: ", group);
+        router.push('/detail_group?id=' + group.IdGroup);
     };
 
     return (
