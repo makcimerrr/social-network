@@ -19,8 +19,6 @@ const DetailGroup = () => {
                 const result = await getOneGroup(id);
                 if (result.success) {
                     setSingleForm(result.data);
-                    console.log("HEEEEEERRRRRREEEE")
-                    console.log(SingleForm.Title);
                 } else {
                     setError('Failed to get group data: ' + result.message);
                 }
