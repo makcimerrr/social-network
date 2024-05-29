@@ -101,12 +101,12 @@ func newFollow(UserID_Following, UserID_Followers int, db *sql.DB) {
 	result, err := stmt.Exec(UserID_Following, UserID_Followers, englishDateTime, !privateProfile) // false insert '0',true insert '1'
 	CheckErr(err, "1- newFollow db Exec")
 
-	if privateProfile { // si profil privée, nécessite la validation : donc une notification
+	if !privateProfile { // si profil privée, nécessite la validation : donc une notification
 		// récupération de l'ID
 		lastInsertID, err := result.LastInsertId()
 		CheckErr(err, "2-newFollow Getting last insert ID")
 		// insertion dans la table NOTIFICATIONS
-		InsertNotif(int(lastInsertID), UserID_Followers, englishDateTime, "follow", db)
+		InsertNotif(int(lastInsertID), UserID_Following, englishDateTime, "follow", db)
 	}
 }
 

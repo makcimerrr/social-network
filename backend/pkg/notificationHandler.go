@@ -6,7 +6,7 @@ import (
 )
 
 // optionType = 'follow', 'mp', 'post', 'comment', 'group', 'event'
-func InsertNotif(ID, UserID_Followers int, date, optionType string, db *sql.DB) {
+func InsertNotif(ID, UserID int, date, optionType string, db *sql.DB) {
 	var request string
 	switch optionType {
 	case "follow":
@@ -28,7 +28,7 @@ func InsertNotif(ID, UserID_Followers int, date, optionType string, db *sql.DB) 
 
 	stmt, err := db.Prepare(request)
 	CheckErr(err, "InsertNotif Prepare db")
-	_, err = stmt.Exec(ID, UserID_Followers, date)
+	_, err = stmt.Exec(ID, UserID, date)
 	CheckErr(err, "InsertNotif db Exec")
 }
 
