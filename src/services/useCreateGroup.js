@@ -1,10 +1,11 @@
-export const createGroup = async (form) => {
+export const createGroup = async (form,props) => {
     try {
         console.log(form)
+        console.log(props.id)
 
         const response = await fetch('http://localhost:8080/creategroup', {
             method: 'POST',
-            body: JSON.stringify(form),
+            body: JSON.stringify({...form,  id : props.id}),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -30,10 +31,11 @@ export const createGroup = async (form) => {
     }
 };
 
-export const getGroup = async () => {
+export const getGroup = async (props) => {
     try {
         const response = await fetch('http://localhost:8080/getallgroups', {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify(props.id),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -56,7 +58,7 @@ export const getGroup = async () => {
     }
 }
 
-export const InviteInMyGroup = async (formInvite) => {
+export const InviteInMyGroup = async (formInvite,props) => {
     if (!formInvite.nameOfGroup || !formInvite.nameOfThePerson) {
         console.error('Error: nameOfGroup or nameOfThePerson is undefined or empty');
         return { success: false, message: 'nameOfGroup or nameOfThePerson is undefined or empty' };
@@ -64,7 +66,7 @@ export const InviteInMyGroup = async (formInvite) => {
     try {
         const response = await fetch('http://localhost:8080/inviteinmygroup', {
             method: 'POST',
-            body: JSON.stringify(formInvite),
+            body: JSON.stringify({...formInvite,  id : props.id}),
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -77,15 +79,46 @@ export const InviteInMyGroup = async (formInvite) => {
                 console.log(data);
                 return { success: true, data };
             } else {
-                console.error('Invite group failed:', data ? data.message : 'No response body');
+                console.error(data);
                 return { success: false, message: data ? data.message : 'No response body' };
             }
         } else {
-            console.error('Invite group failed:', response.statusText);
+            console.error(response.statusText);
             return { success: false, message: response.statusText };
         }
     } catch (error) {
-        console.error('Error during invitation of group:', error);
+        console.log(error);
         return { success: false, message: error.message };
+    }
+}
+
+export const getOneGroup = async (id) => {
+
+    let IdAfterConvert = (parseInt(id, 10));
+
+
+    try {
+        const response = await fetch('http://localhost:8080/getonegroup', {
+            method: 'POST',
+            body: JSON.stringify({idGroup:IdAfterConvert}),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            console.error('Get group failed:', response.statusText);
+            return { success: false, message: response.statusText };
+        }
+
+        const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
+        return { success: true, data };
+    } catch (error) {
+        const errorMessage = error.message ? error.message : 'An error occurred';
+
+        console.error('Error:', errorMessage);
+
+        return {success: false, message: errorMessage};
     }
 }

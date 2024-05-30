@@ -1,10 +1,28 @@
-import React from 'react';
-import DatePicker from 'react-datepicker';
+import React, { useState } from 'react';import DatePicker from 'react-datepicker';
+import { useRouter } from 'next/router';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick }) => {
+    const [inviteError, setInviteError] = useState(null); // New state variable for storing the error message
+
+    const handleInviteClick = async () => { // Modified onInviteClick function
+        const result = await onInviteClick();
+        if (!result.success) {
+            setInviteError(result.message);
+        }
+    };
+    const router = useRouter();
+
+
+    const handleGroupClick = (group) => {
+        console.log("Group clicked: ", group);
+        router.push('/detail_group?id=' + group.IdGroup);
+    };
+
     return (
         <div className={'mainContainer'}>
+
+            <div className={'allform'}>
 
             <div className={'creategroupContainer'}>
 
@@ -62,6 +80,7 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                         className={'inputBox'}
                     />
                     <label className="errorLabel">{formErrors.nameOfGroup}</label>
+
                 </div>
 
                 <br/>
@@ -85,18 +104,18 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                     <input className={'inputButton'} type="button" onClick={onInviteClick} value={'Invite'}/>
                 </div>
             </div>
-
+            </div>
 
 
             <div className={'group-list'}>
                 <h1>Own Group</h1>
                 <hr/>
                 {data && data.map((group, index) => (
-                    <div key={index}>
-                        <h2>Title : </h2>
-                        <h3>{group.title}</h3>
-                        <h2>About Group : </h2>
-                        <h3>{group.aboutGroup}</h3>
+                    <div key={index} id={`group-${index}`}>
+                        <button onClick={() => handleGroupClick(group)}>
+                            <h2>Title :{group.Title} </h2>
+                            <h2>About Group :{group.AboutGroup} </h2>
+                        </button>
                         <hr/>
                     </div>
                 ))}

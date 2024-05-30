@@ -10,20 +10,14 @@ import (
 
 func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 	var registerData Group
-	fmt.Println("CreateGroupHandler called")
 
 	if err := json.NewDecoder(r.Body).Decode(&registerData); err != nil {
-		fmt.Println("1")
 		bodyBytes, _ := ioutil.ReadAll(r.Body)
 		bodyString := string(bodyBytes)
-		fmt.Println("2")
 		fmt.Printf("Request body: %s\n", bodyString) // Print the request body
-		fmt.Println("3")
 		http.Error(w, fmt.Sprintf("Error decoding request body: %v. Body: %s", err, bodyString), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("Received data in Go:", registerData)
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -43,10 +37,9 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var IDownerOfTheGroup int
-	err, IDownerOfTheGroup = GetName(db, w, r)
+	err, registerData.ID = GetName(db, w, r)
 
-	err = InsertIntoDataBase(registerData, db, IDownerOfTheGroup)
+	err = InsertIntoDataBase(registerData, db, registerData.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		jsonResponse := map[string]interface{}{
@@ -68,9 +61,8 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func VerifDataBase(registerData Group, db *sql.DB) error {
-	if registerData.NameGroup != "" {
-		var existingNameGroup string
-		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.NameGroup).Scan(&existingNameGroup)
+	if registerData.Title != "" {
+		err := db.QueryRow("SELECT NameGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.Title).Scan(&registerData.ID)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -114,7 +106,7 @@ func GetName(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
 }
 
 func InsertIntoDataBase(registerData Group, db *sql.DB, IDownerOfTheGroup int) error {
-	_, err := db.Exec(`INSERT INTO LISTGROUPS (NameGroup, AboutUs, UserID_Creator) VALUES (?, ?, ?)`, registerData.NameGroup, registerData.Description, IDownerOfTheGroup)
+	_, err := db.Exec(`INSERT INTO LISTGROUPS (NameGroup, AboutUs, UserID_Creator) VALUES (?, ?, ?)`, registerData.Title, registerData.AboutGroup, IDownerOfTheGroup)
 	if err != nil {
 		fmt.Println("Error while inserting into the database:", err)
 		return err

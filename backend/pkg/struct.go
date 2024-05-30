@@ -95,9 +95,10 @@ type OnlineUsers struct {
 }
 
 type Group struct {
+	ID             int `json:"id"`
 	IdGroup        int
-	NameGroup      string
-	Description    string
+	Title          string
+	AboutGroup     string
 	UserID_Creator int
 	MemberGroup    []User
 	Event          EventGroup
@@ -111,6 +112,8 @@ type EventGroup struct {
 }
 
 type InviteInTheGroup struct {
+	ID int `json:"id"`
+
 	NameOfGroup     string `json:"nameOfGroup"`
 	NameOfThePerson string `json:"nameOfThePerson"`
 }

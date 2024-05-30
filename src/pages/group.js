@@ -4,6 +4,8 @@ import GroupForm from "../components/GroupForm";
 
 
 import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
+import toast from "react-hot-toast";
+import {startWS} from "@/services/useWebsocket";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -24,14 +26,18 @@ const Group = (props) => {
     const [inviteErrors, setInviteErrors] = useState({});
 
 
-    //pour fetcher tout les groupes dont l'utilisateur est chef
+    //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await getGroup();
+                const result = await getGroup(props);
                 if (result.success) {
                     setData(result.data);
+
+
+
                 } else {
+
                     console.error('Failed to get group data:', result.message);
                 }
             } catch (error) {
@@ -78,14 +84,22 @@ const Group = (props) => {
 
             try {
                 console.log(form)
-                const responseData = await createGroup(form);
+                const responseData = await createGroup(form,props);
                 if (responseData.success) {
 
+                    toast.success("Group Created" + '👏', {
+                        duration: 4000,
+                        position: 'top-center',
+                        style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                        icon: '👏',
+                    });
+
                 } else {
-                    console.error('Create group failed:', responseData.message);
-                  /*  addToast(responseData.message, {
-                        appearance: 'error',
-                    });*/
+                    toast.error("This Group Already Exist", {
+                        duration: 4000,
+                        position: 'top-center',
+                        style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+                    });
                 }
             } catch (error) {
                 console.error('Error during creation of group:', error);
@@ -96,18 +110,24 @@ const Group = (props) => {
 
 
     const onInviteClick = async () => {
-        console.log("test validation invitation")
-        console.log(formInvite)
 
-            const reponseData = await InviteInMyGroup(formInvite);
-            if (reponseData.success) {
+        const responseData = await InviteInMyGroup(formInvite,props);
 
-            } else {
-                console.error('Invitation failed:', reponseData.message);
+        if (responseData.success === true) {
+            toast.success("Invitation envoyé" + '👏', {
+                duration: 4000,
+                position: 'top-center',
+                style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                icon: '👏',
+            });
 
-            }
-
-
+        } else {
+            toast.error(responseData.message, {
+                duration: 4000,
+                position: 'top-center',
+                style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+            });
+        }
     }
 
 
@@ -127,7 +147,10 @@ const Group = (props) => {
                 setInviteErrors={setInviteErrors}
                 formInvite={formInvite}
                 onInviteClick={onInviteClick}
+
             />
+            {setInviteErrors && <p>{setInviteErrors}</p>}
+
         </div>
     );
 };

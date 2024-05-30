@@ -1,9 +1,6 @@
 *{
     margin: 0;
     padding: 0;
-    overflow:hidden;
-    background: red;
-
 }
 
 .main-container {
@@ -12,30 +9,58 @@
 }
 
 .inviteinmygroup {
-    position: absolute;
-    background: rebeccapurple;
-    margin-right: 270px;
-    margin-bottom: 30%;
+    background: whitesmoke;
 }
 
 .group-list {
-    position: absolute;
+    display: flex;
     flex-direction: column;
-    width: 100vh;
-    margin-left: 100vh;
-    overflow:scroll;
-    max-height: 400px;
-    max-width: 40%;
-    background: whitesmoke;
-    margin-bottom: 27%;
+    gap: 20px;
+    margin: 0 auto;
+    max-width: 600px;
 }
 
+.allform {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 20px;
+
+}
 
 .creategroupContainer {
-    position: absolute;
-    background: yellow;
-    margin-right: 1200px;
-    margin-bottom: 50px;
+    background: whitesmoke;
+}
+
+.group-list div {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.2);
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.group-list div:hover {
+    transform: scale(1.05);
+}
+
+.group-list h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.group-list button {
+    background: none;
+    border: none;
+    text-align: left;
+    display: block;
+    width: 100%;
+    padding: 0;
+}
+
+.group-list button:focus {
+    outline: none;
 }
 
 
