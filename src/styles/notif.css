@@ -1,82 +1,104 @@
-.Group{
-    background-color: red;
-}
-.Event{
-    background-color: green;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Container for the entire notification section */
 .notification-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
-    flex-direction: column;
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
     padding: 20px;
 }
 
-/* Header style */
 .notification-header {
     font-size: 2em;
     margin-bottom: 20px;
-    color: #333;
 }
 
-/* Container for the notifications */
 #notifications {
-    width: 100%;
-    max-width: 600px;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    border-radius: 8px;
-}
-
-/* Individual notification style */
-.notification {
-    position: relative;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
-    transition: background-color 0.3s ease;
+    align-items: center;
+    width: 100%;
 }
 
-/* Hover effect for notifications */
-.notification:hover {
-    background-color: #e9ecef;
+.notification {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 80%;
+    position: relative;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Date style */
-.notification-date {
-    font-size: 0.9em;
-    color: #666;
-    margin-bottom: 5px;
+.notification p {
+    margin: 0;
+    padding: 5px 0;
 }
 
-/* Category style */
-.notification-category {
-    font-size: 1.1em;
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 5px;
+.notification-title {
+    font-size: 1.2em;
 }
 
-/* Group ID style */
-.notification-group {
-    font-size: 1em;
-    color: #007bff;
-    margin-bottom: 5px;
+.notification-follow, .notification-group {
+    font-size: 0.8em;
+    color: #555;
 }
 
-/* Style for when no notifications are present */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #888;
+}
+
+.close-button:hover {
+    color: #f00;
+}
+
+.group-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.accept-button, .reject-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.accept-button:hover {
+    background-color: #0056b3;
+}
+
+.reject-button {
+    background-color: #dc3545;
+}
+
+.reject-button:hover {
+    background-color: #c82333;
+}
+
 .no-notifications {
     font-size: 1.2em;
-    color: #999;
-    text-align: center;
-    padding: 20px;
+    color: #777;
 }

@@ -21,6 +21,7 @@ type User struct { //Sert a Register et le profil
 	AboutMe         string `json:"aboutme"`
 	PrivateProfile  string `json:"privateprofile"`
 	PointOfInterest string `json:"pointofinterest"` //Join variables
+	Category        string `json:"category"`
 
 	ListFollowings          []User `json:"listfollowings"`
 	ListFollowers           []User `json:"listfollowers"`

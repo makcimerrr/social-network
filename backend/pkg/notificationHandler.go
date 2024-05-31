@@ -73,6 +73,8 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		var currentUser User
 		err = rowsfollow.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname)
 		CheckErr(err, "GetNotif ListFollowers, db rowsfollow.Next scan")
+		var category = "Follow"
+		currentUser.Category = category
 		ListFollowers = append(ListFollowers, currentUser) // information sur l'utilisateur
 	}
 
@@ -97,6 +99,8 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		CheckErr(err, "listPost, db rowspost.Next scan")
 		currentInformation = append(currentInformation, currentUser) // information sur l'utilisateur
 		currentInformation = append(currentInformation, currentPost) // information sur le post
+		var category = "Post"
+		currentUser.Category = category
 		listPost = append(listPost, currentInformation)
 	}
 
@@ -120,15 +124,18 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		CheckErr(err, "listComment, db rowsComment.Next scan")
 		currentInformation = append(currentInformation, currentUser)    // information sur l'utilisateur
 		currentInformation = append(currentInformation, currentComment) // information sur le commentaire
+		var category = "Post"
+		currentUser.Category = category
 		listPost = append(listPost, currentInformation)
 	}
 
-	// récupération des notifications de group
-	listGroup = make([][]interface{}, 2)
+	// Récupération des notifications de groupe
+	listGroup = make([][]interface{}, 3)
 	stmtGroup, err := db.Prepare(`SELECT USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname,
-										LISTGROUPS.NameGroup, LISTGROUPS.Image, LISTGROUPS.AboutUs
+										LISTGROUPS.IDGroup, LISTGROUPS.NameGroup, LISTGROUPS.AboutUs, LISTGROUPS.Image
 										FROM USERS
 										INNER JOIN LISTGROUPS ON LISTGROUPS.UserID_Creator = USERS.ID
+										INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDGroup = LISTGROUPS.IDGroup
 										WHERE NOTIFICATIONS.UserID_Receiver = ? AND NOTIFICATIONS.IDGroup = LISTGROUPS.IDGroup;`)
 	CheckErr(err, "GetNotif listGroup, db prepare")
 	rowsGroup, err := stmtGroup.Query(UserID)
@@ -137,33 +144,14 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		var currentUser User
 		var currentGroup Group
 		var currentInformation []interface{}
-		err = rowsComment.Scan(&currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroup.Title, &currentGroup.Image, &currentGroup.AboutGroup)
+		err = rowsGroup.Scan(&currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroup.IdGroup, &currentGroup.Title, &currentGroup.AboutGroup, &currentGroup.Image)
 		CheckErr(err, "listComment, db rowsComment.Next scan")
 		currentInformation = append(currentInformation, currentUser)  // information sur l'utilisateur
-		currentInformation = append(currentInformation, currentGroup) // information sur le groupe
+		currentInformation = append(currentInformation, currentGroup) // information sur le commentaire
+		var category = "Group"
+		currentUser.Category = category
+		currentInformation = append(currentInformation, currentUser)
 		listGroup = append(listGroup, currentInformation)
-	}
-
-	// récupération des notifications d'event de groupe
-	listEvent = make([][]interface{}, 3)
-	stmtevent, err := db.Prepare(`SELECT EVENTGROUPS.Date, EVENTGROUPS.Title, EVENTGROUPS.UserID_Sender,
-										LISTGROUPS.NameGroup, LISTGROUPS.Image, LISTGROUPS.AboutUs
-										FROM EVENTGROUPS
-										INNER JOIN EVENTGROUPS ON EVENTGROUPS.IDgroup = LISTGROUPS.IDgroup
-										INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDEvent = EVENTGROUPS.IDEvent
-										WHERE NOTIFICATIONS.UserID_Receiver = ? AND NOTIFICATIONS.IDEvent = EVENTGROUPS.IDEvent;`)
-	CheckErr(err, "GetNotif listEvent, db prepare")
-	rowsevent, err := stmtevent.Query(UserID)
-	CheckErr(err, "GetNotif listEvent, db query")
-	for rowsevent.Next() {
-		var currentGroup Group
-		var currentEvent EventGroup
-		var currentInformation []interface{}
-		err = rowsComment.Scan(&currentEvent.Date, &currentEvent.Title, &currentEvent.UserIDCreatorEvent, &currentGroup.Title, &currentGroup.Image, &currentGroup.AboutGroup)
-		CheckErr(err, "listComment, db rowsComment.Next scan")
-		currentInformation = append(currentInformation, currentGroup) // information sur le groupe
-		currentInformation = append(currentInformation, currentEvent) // information sur l'event
-		listPost = append(listPost, currentInformation)
 	}
 
 	return ListFollowers, listMP, listPost, listComment, listGroup, listEvent

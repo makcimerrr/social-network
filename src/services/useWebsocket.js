@@ -103,6 +103,8 @@ export function startWS(currId) {
                 date.innerText = data.date.slice(0, -3);
                 appendLog(senderContainer, sender, date);
 
+                console.log("new message")
+
                 if (data.sender_id == currId) {
                     return;
                 }
