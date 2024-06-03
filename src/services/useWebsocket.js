@@ -1,4 +1,6 @@
 import toast from "react-hot-toast";
+import {fetchNotification} from "@/services/useFetchNotif";
+import {useState} from "react";
 
 
 export var firstId = 512;
@@ -14,6 +16,7 @@ export let lastFetchedId;
 export let value;
 export let closeChat;
 export let debouncedScrollHandler;
+
 
 
 export var conn;
@@ -92,6 +95,17 @@ export function startWS(currId) {
 
 
             } else if (data.msg_type === "msg") {
+                console.log("new message")
+                toast(
+                    <span>
+                        You have a new message ! Click <a href="/chat">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📬',
+                    }
+                );
                 // Message chat, on regarde si on est l'émetteur ou le destinataire, on créé la div correspondante, et on "append" le message.
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
@@ -103,8 +117,6 @@ export function startWS(currId) {
                 date.innerText = data.date.slice(0, -3);
                 appendLog(senderContainer, sender, date);
 
-                console.log("new message")
-
                 if (data.sender_id == currId) {
                     return;
                 }
@@ -114,7 +126,10 @@ export function startWS(currId) {
                     return u[0] == id;
                 });
 
-                if (document.querySelector('.chat-wrapper').style.display == "none") {
+                let chatWrapper = document.querySelector('.chat-wrapper');
+
+                if (chatWrapper && chatWrapper.style.display == "none") {
+
                     if (unreadMsgs.length == 0) {
                         unread.push([data.sender_id, 1]);
                     } else {
@@ -127,6 +142,21 @@ export function startWS(currId) {
                 // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
                 online = data.user_ids;
                 getUsers()
+            } else if (data.msg_type === "comment") {
+                // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
+                console.log("comment now")
+                toast(
+                    <span>
+                        New Comment on your post !Click <a href="/" onClick={() => window.location.reload()}>here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📩',
+                    }
+                );
+            } else if (data.msg_type === "") {
+
             }
         };
     } else {
@@ -170,7 +200,9 @@ export async function createUsers(userdata, conn, currId) {
     await sleep(1000);
     const offlineUsers = document.querySelector('.offline-users');
 
-    offlineUsers.innerHTML = ""
+    if (offlineUsers != null) {
+        offlineUsers.innerHTML = ""
+    }
     if (userdata == null) {
         return
     }
@@ -191,7 +223,9 @@ export async function createUsers(userdata, conn, currId) {
         var chatusername = document.createElement("p");
         chatusername.innerText = nickname
         user.appendChild(chatusername)
-        offlineUsers.appendChild(user)
+        if (offlineUsers != null) {
+            offlineUsers.appendChild(user)
+        }
         /*         var msgNotification = document.createElement("div");
                 msgNotification.className = "msg-notification"
                 msgNotification.innerText = 1

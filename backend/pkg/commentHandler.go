@@ -135,10 +135,26 @@ func NewComment(c Comment) error {
 
 	dt := time.Now().Format("01-02-2006 15:04:05")
 
-	_, err = db.Exec(`INSERT INTO COMMENT(IDPost, UserID, CommentContent, Date, Image) values(?, ?, ?, ?, ?)`, c.Post_id, c.User_id, c.Content, dt, c.Image)
+	// Récupérer l'USER ID de la table POST en utilisant l'IDPost de la table COMMENT
+	var userIDFromPost int
+	err = db.QueryRow(`SELECT UserID FROM POST WHERE IDPost = ?`, c.Post_id).Scan(&userIDFromPost)
+	if err != nil {
+		fmt.Println("Erreur lors de la récupération de l'USER ID depuis POST:", err)
+		return err
+	}
+
+	result, err := db.Exec(`INSERT INTO COMMENT(IDPost, UserID, CommentContent, Date, Image) values(?, ?, ?, ?, ?)`, c.Post_id, c.User_id, c.Content, dt, c.Image)
 	if err != nil {
 		return err
 	}
+
+	idComment, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	// Insertion du nouveau commentaire dans notifs
+	InsertNotif(int(idComment), userIDFromPost, dt, "comment", db)
 
 	_, err = db.Exec("UPDATE POST SET NbComments = NbComments + 1 WHERE IDPost = ?", c.Post_id)
 	if err != nil {

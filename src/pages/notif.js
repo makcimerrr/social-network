@@ -1,68 +1,22 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchNotification } from "@/services/useFetchNotif";
 
-const NotificationFetcher = ({id}) => {
+const NotificationFetcher = ({ id }) => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
-        fetchNotification();
+        fetchNotification(id, setNotifications);
     }, []);
 
-    const fetchNotification = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/notif', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({user_id_receiver: id}),
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const data = await response.json();
-            console.log("notif", data);
-            if (data.success) {
-                const allNotifications = [];
-                if (data.listFollowers) {
-                    data.listFollowers.forEach(element => {
-                        console.log("Followers: ", element);
-                        allNotifications.push(element);
-                    });
-                }
-                if (data.listFollowers) {
-                    data.listGroup.forEach(element => {
-                        if (Array.isArray(element)) {
-                            const notification = {
-                                category: 'Group',
-                                user: element[0],
-                                group: element[1]
-                            };
-                            console.log("Notification: ", notification);
-                            allNotifications.push(notification);
-                        }
-                    });
-                }
-
-                setNotifications(allNotifications);
-            } else {
-                console.error('Failed to fetch notifications');
-            }
-        } catch (error) {
-            console.error('Error:', error.message);
-        }
-    };
-
     const removeNotification = async (id, category) => {
-        console.log("category",category )
+        console.log("category", category);
         try {
             const response = await fetch('http://localhost:8080/delete-notification', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({notification_id: id, category: category}),
+                body: JSON.stringify({ notification_id: id, category: category }),
             });
 
             if (!response.ok) {
@@ -85,38 +39,73 @@ const NotificationFetcher = ({id}) => {
         removeNotification(id, category);
     };
 
+    // Sort notifications by timestamp (assuming each notification has a 'timestamp' property)
+    const sortedNotifications = notifications.sort((a, b) => b.timestamp - a.timestamp);
+
     return (
         <div className="notification-container">
             <h1 className="notification-header">Notification Fetcher</h1>
             <div id="notifications">
-                {notifications.length > 0 ? notifications.map((notif) => (
+                {sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
                     <div key={notif.id} className="notification">
                         <button className="close-button" onClick={() => removeNotification(notif.id)}>×</button>
-                        {notif.category === 'Follow' && (
-                            <>
-                                <p className="notification-follow">Follow ID: {notif.id}</p>
-                                <p className="notification-title"><b>{notif.firstname} {notif.lastname} </b>vous a suivis !</p>
-                                <div className="group-buttons">
-                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept
-                                    </button>
-                                    <button className="reject-button" onClick={() => rejectGroup(notif.id, "follow")}>Reject
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                        {notif.category === 'Group' && (
-                            <>
-                                <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
-                                <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous a
-                                    invité au groupe <b>{notif.group.Title}</b> !</p>
-                                <div className="group-buttons">
-                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept
-                                    </button>
-                                    <button className="reject-button" onClick={() => rejectGroup(notif.id, "group")}>Reject
-                                    </button>
-                                </div>
-                            </>
-                        )}
+                        <div className="emoji-container">
+                            {notif.category === 'Follow' && (
+                                <span role="img" aria-label="Follow Emoji">➕</span>
+                            )}
+                            {notif.category === 'Group' && (
+                                <span role="img" aria-label="Group Emoji">👥</span>
+                            )}
+                            {notif.category === 'MP' && (
+                                <span role="img" aria-label="Message Emoji">💬</span>
+                            )}
+                            {notif.category === 'Comment' && (
+                                <span role="img" aria-label="Comment Emoji">📥</span>
+                            )}
+                        </div>
+                        <div className="notification-details">
+                            {notif.category === 'Follow' && (
+                                <>
+                                    <p className="notification-group">Follow ID: {notif.id}</p>
+                                    <p className="notification-title"><b>{notif.firstname} {notif.lastname} </b>vous a suivis !</p>
+                                </>
+                            )}
+                            {notif.category === 'Group' && (
+                                <>
+                                    <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous a invité au groupe <b>{notif.group.Title}</b> !</p>
+                                </>
+                            )}
+                            {notif.category === 'MP' && (
+                                <>
+                                    <p className="notification-group">Message ID: {notif.message.id}</p>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous a envoyé un message privé :</p>
+                                    <div className="comment-content">
+                                        <b><p>{notif.message.content}</p></b>
+                                    </div>
+                                </>
+                            )}
+                            {notif.category === 'Comment' && (
+                                <>
+                                    <p className="notification-group">Post ID: {notif.comment.post_id}</p>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a commenté :</p>
+                                    <div className="comment-content">
+                                        <b><p>{notif.comment.content}</p></b>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <div className="group-buttons">
+                            {notif.category === 'Follow' && (
+                                <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept</button>
+                            )}
+                            {notif.category === 'Group' && (
+                                <>
+                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept</button>
+                                    <button className="reject-button" onClick={() => rejectGroup(notif.id, "group")}>Reject</button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 )) : (
                     <p className="no-notifications">No notifications available</p>

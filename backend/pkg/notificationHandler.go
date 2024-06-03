@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// optionType = 'follow', 'mp', 'post', 'comment', 'group', 'event'
+// optionType = 'follow', 'mp', 'post', 'comment', 'groupInvite', 'event'
 func InsertNotif(ID, UserID_Followers int, date, optionType string, db *sql.DB) {
 	var request string
 	switch optionType {
@@ -78,10 +78,65 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		ListFollowers = append(ListFollowers, currentUser) // information sur l'utilisateur
 	}
 
-	// récupération des notifications message privée
+	// Récupération des notifications MP
+	listMP = make([][]interface{}, 0) // Initialisation de la tranche vide
+	stmtMp, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname, messages.id, messages.content, messages.date
+									FROM USERS
+									INNER JOIN messages ON messages.sender_id = USERS.ID
+									INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDPrivateMessage = messages.id
+									WHERE NOTIFICATIONS.UserID_Receiver = ?`)
+	CheckErr(err, "GetNotif listMP, db prepare")
+	rowsmp, err := stmtMp.Query(UserID)
+	CheckErr(err, "GetNotif listMP, db query")
+	for rowsmp.Next() {
+		var currentUser User
+		var currentMessage Message
+		var currentInformation []interface{}
+		err = rowsmp.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentMessage.Id, &currentMessage.Content, &currentMessage.Date)
+		CheckErr(err, "GetNotif listMP, db rowsmp.Next scan")
+		var category = "MP"
+		currentUser.Category = category
+		currentInformation = append(currentInformation, currentUser)
+		currentInformation = append(currentInformation, currentMessage)
+		listMP = append(listMP, currentInformation) // information sur l'utilisateur
+	}
+
+	// récupération des notifications commentaire
+	listComment = make([][]interface{}, 0) // Initialisation de la tranche vide
+
+	stmtComment, err := db.Prepare(`SELECT DISTINCT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname,
+	                                        COMMENT.IDPost, COMMENT.CommentContent, COMMENT.Date, COMMENT.Image
+	                                        FROM USERS
+	                                        INNER JOIN COMMENT ON COMMENT.UserID = USERS.ID 
+											INNER JOIN Post ON COMMENT.IDPost = POST.IDPost
+	                                        INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDComment = COMMENT.IDComment
+	                                        WHERE NOTIFICATIONS.UserID_Receiver = ?`)
+	CheckErr(err, "GetNotif listComment, db prepare")
+
+	rowsComment, err := stmtComment.Query(UserID)
+	CheckErr(err, "GetNotif listComment, db query")
+
+	for rowsComment.Next() {
+		var currentUser User
+		var currentComment Comment
+		var currentInformation []interface{}
+
+		err = rowsComment.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentComment.Post_id, &currentComment.Content, &currentComment.Date, &currentComment.Image)
+		CheckErr(err, "listComment, db rowsComment.Next scan")
+
+		// Maintenant, pour chaque commentaire, nous avons les informations sur l'utilisateur et le commentaire lui-même.
+		// Vous pouvez ensuite utiliser currentUser et currentComment pour construire vos données de notification.
+
+		var category = "Comment"
+		currentUser.Category = category
+		currentInformation = append(currentInformation, currentUser)    // Informations sur l'utilisateur
+		currentInformation = append(currentInformation, currentComment) // Informations sur le commentaire
+
+		listComment = append(listComment, currentInformation) // Ajouter à la liste des commentaires
+	}
 
 	// récupération des notifications post
-	listPost = make([][]interface{}, 2)
+	listPost = make([][]interface{}, 0)
 	stmtpost, err := db.Prepare(`SELECT USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname,
 										POST.IDPost, POST.UserID, POST.Title, POST.PostContent, POST.Date, POST.Image, POST.Private, POST.Likes, POST.NbComments
 										FROM USERS
@@ -103,34 +158,8 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, l
 		currentUser.Category = category
 		listPost = append(listPost, currentInformation)
 	}
-
-	// récupération des notifications commentaire
-	listComment = make([][]interface{}, 3)
-	stmtComment, err := db.Prepare(`SELECT USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname,
-										COMMENT.IDPost, COMMENT.CommentContent, COMMENT.Date, COMMENT.Image
-										FROM USERS
-										INNER JOIN COMMENT ON COMMENT.UserID = USERS.ID
-										INNER JOIN Post ON COMMENT.IDPost = POST.IDPost
-										INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDComment = COMMENT.IDComment
-										WHERE NOTIFICATIONS.UserID_Receiver = ? AND NOTIFICATIONS.IDComment = COMMENT.IDComment;`)
-	CheckErr(err, "GetNotif listComment, db prepare")
-	rowsComment, err := stmtComment.Query(UserID)
-	CheckErr(err, "GetNotif listComment, db query")
-	for rowsComment.Next() {
-		var currentUser User
-		var currentComment Comment
-		var currentInformation []interface{}
-		err = rowsComment.Scan(&currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentComment.Post_id, &currentComment.Content, &currentComment.Date, &currentComment.Image)
-		CheckErr(err, "listComment, db rowsComment.Next scan")
-		currentInformation = append(currentInformation, currentUser)    // information sur l'utilisateur
-		currentInformation = append(currentInformation, currentComment) // information sur le commentaire
-		var category = "Post"
-		currentUser.Category = category
-		listPost = append(listPost, currentInformation)
-	}
-
 	// Récupération des notifications de groupe
-	listGroup = make([][]interface{}, 3)
+	listGroup = make([][]interface{}, 0)
 	stmtGroup, err := db.Prepare(`SELECT USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname,
 										LISTGROUPS.IDGroup, LISTGROUPS.NameGroup, LISTGROUPS.AboutUs, LISTGROUPS.Image
 										FROM USERS

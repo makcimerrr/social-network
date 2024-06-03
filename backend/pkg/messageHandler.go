@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func MessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +81,7 @@ func NewMessage(m Message) error {
 	}
 	defer db.Close()
 
-	_, err = db.Exec(`INSERT INTO messages(sender_id, receiver_id, content, date) values(?, ?, ?, ?)`, m.Sender_id, m.Receiver_id, m.Content, m.Date)
+	result, err := db.Exec(`INSERT INTO messages(sender_id, receiver_id, content, date) values(?, ?, ?, ?)`, m.Sender_id, m.Receiver_id, m.Content, m.Date)
 	if err != nil {
 		return err
 	}
@@ -89,6 +90,16 @@ func NewMessage(m Message) error {
 	if err != nil {
 		return err
 	}
+
+	dt := time.Now().Format("01-02-2006 15:04:05")
+
+	idMessage, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	// Insertion du nouveau commentaire dans notifs
+	InsertNotif(int(idMessage), m.Receiver_id, dt, "mp", db)
 
 	return nil
 }

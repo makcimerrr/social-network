@@ -37,14 +37,7 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 
 	ListFollowers, listMP, listPost, listComment, listGroup, listEvent = GetNotif(data.UserIDReceiver, db)
 
-	fmt.Println("ListFollowers:", ListFollowers)
-	fmt.Println("listMP:", listMP)
-	fmt.Println("listPost:", listPost)
-	fmt.Println("listComment:", listComment)
-	fmt.Println("listGroup:", listGroup)
-	fmt.Println("listEvent:", listEvent)
-
-	if len(ListFollowers) == 0 {
+	/*if len(ListFollowers) == 0 {
 		jsonResponse := map[string]interface{}{
 			"success": false,
 			"message": "Utilisateur introuvable",
@@ -52,7 +45,7 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-	}
+	}*/
 
 	jsonResponse := map[string]interface{}{
 		"success":       true,
