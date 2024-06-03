@@ -61,6 +61,8 @@ func StartServer() {
 	r.HandleFunc("/user", pkg.UserHandler)
 	r.HandleFunc("/chat", pkg.ChatHandler)
 	r.HandleFunc("/message", pkg.MessageHandler)
+	r.HandleFunc("/event", pkg.EventHandler)
+	r.HandleFunc("/comingevent", pkg.ComingEventHandler)
 	r.HandleFunc("/follow", pkg.FollowHandler)
 	r.HandleFunc("/logout", pkg.LogoutHandler)
 	r.HandleFunc("/session", pkg.SessionHandler)

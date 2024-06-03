@@ -37,7 +37,7 @@ const CreateEvent = ({ handleCreateEvent }) => {
         <TextField
           label="Date"
           value={date}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => setDate(e.target.value)}
           multiline
         />
 

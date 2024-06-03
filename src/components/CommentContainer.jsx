@@ -38,8 +38,6 @@ const CommentContainer = ({ Post_id, NbComments }) => {
                 </Typography>
               </Typography>
               <p>Date: {comment.date}</p>
-              <p>Likes:</p>
-
               {comment.image && (
                 <img
                   src={`data:image/jpeg;base64,${comment.image}`}

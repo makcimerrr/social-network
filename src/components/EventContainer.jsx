@@ -20,12 +20,12 @@ const EventContainer = ({ events, handleEventLike }) => {
                     {event.title}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    {event.content}
+                    {event.description}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
                     Posted by{' '}
-                    <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${event.user_id}`)}>
-                    User ID: {event.user_id}
+                    <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${event.id_user}`)}>
+                    User ID: {event.id_user}
                     </Typography>
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
@@ -40,7 +40,7 @@ const EventContainer = ({ events, handleEventLike }) => {
                     </Button>
                   </CardActions>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    Coming: {event.likes}
+                    Coming: {event.coming}
                   </Typography>
                 </CardContent>
               </Card>

@@ -40,6 +40,8 @@ const DetailGroup = (props) => {
             } finally {
             }
             fetchPostsGroup(id);
+            fetchEvents(id)
+            console.log(events)
         };
 
         fetchData();
@@ -57,13 +59,31 @@ const DetailGroup = (props) => {
         sendMsg(conn, 0, { value: "New Comment" }, 'comment')
       };
     
-      const handleEventLike = async () => {
+      const handleEventLike = async (eventId) => {
+        try {
+          const response = await fetch('http://localhost:8080/comingevent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ event_id: eventId }),
+            credentials: 'include'
+          });
+    
+          if (response.ok) {
+            fetchEvents(eventId);
+          } else {
+            console.error('Failed to like the post:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error while liking the post:', error);
+        }
       };
 
       const handleCreateEvent = async (formData) => {
         await createEvent(formData, id);
         fetchEvents(id);
-        sendMsg(conn, 0, { value: "New PostGroup" }, 'post')
+        sendMsg(conn, 0, { value: "New Event" }, 'event')
       };
 
 

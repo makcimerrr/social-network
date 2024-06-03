@@ -118,10 +118,13 @@ type Group struct {
 	Image          []byte `json:"image"`
 }
 type EventGroup struct {
-	UserIDCreatorEvent int
-	Title              string
-	Date               string
-	Description        string
+	IDEvent            int    `json:"id"`
+	IDGroup            int    `json:"id_group"`
+	UserIDCreatorEvent int    `json:"id_user"`
+	Title              string `json:"title"`
+	Date               string `json:"date"`
+	Description        string `json:"description"`
+	Coming             int    `json:"coming"`
 }
 
 type InviteInTheGroup struct {
@@ -129,4 +132,11 @@ type InviteInTheGroup struct {
 
 	NameOfGroup     string `json:"nameOfGroup"`
 	NameOfThePerson string `json:"nameOfThePerson"`
+}
+
+type Coming struct {
+	ID       int  `json:"id"`
+	User_id  int  `json:"user_id"`
+	Event_id int  `json:"event_id"`
+	Come     bool `json:"Come"`
 }
