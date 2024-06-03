@@ -164,7 +164,6 @@ func WhoDisplayNotif(UserID, optionID int, optionType string, db *sql.DB) (listU
 	switch optionType {
 	case "post": // Uniquement si le post est public pour les autres option l'utilisateur choisie lors de la création du post
 		listUser = ListFollow(UserID, "followers", 0)
-		return listUser
 	case "comment":
 		// Récupére la privacité du post associé au commentaire 'optionID'
 		stmtPrivacitePost, err := db.Prepare(`SELECT POST.Private FROM POST
