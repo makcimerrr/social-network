@@ -41,6 +41,19 @@ type Post struct {
 	Image      []byte `json:"image"`
 	NbComments int    `json:"nbcomments"`
 }
+
+type PostGroup struct {
+	Id         int    `json:"id"`
+	User_id    int    `json:"user_id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Date       string `json:"date"`
+	Likes      int    `json:"likes"`
+	Group_id   int    `json:"group_id"`
+	Image      []byte `json:"image"`
+	NbComments int    `json:"nbcomments"`
+}
+
 type Comment struct {
 	Id      int    `json:"id"`
 	Post_id int    `json:"post_id"`

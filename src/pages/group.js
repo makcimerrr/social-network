@@ -5,7 +5,6 @@ import GroupForm from "../components/GroupForm";
 
 import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
 import toast from "react-hot-toast";
-import {startWS} from "@/services/useWebsocket";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -33,11 +32,7 @@ const Group = (props) => {
                 const result = await getGroup(props);
                 if (result.success) {
                     setData(result.data);
-
-
-
                 } else {
-
                     console.error('Failed to get group data:', result.message);
                 }
             } catch (error) {
@@ -149,7 +144,6 @@ const Group = (props) => {
                 onInviteClick={onInviteClick}
 
             />
-            {setInviteErrors && <p>{setInviteErrors}</p>}
 
         </div>
     );

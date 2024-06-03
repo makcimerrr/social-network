@@ -56,6 +56,7 @@ func StartServer() {
 	r.HandleFunc("/delete-notification", pkg.DeleteNotificationHandler)
 	r.HandleFunc("/post", pkg.PostHandler)
 	r.HandleFunc("/comment", pkg.CommentHandler)
+	r.HandleFunc("/commentgroup", pkg.CommentGroupHandler)
 	r.HandleFunc("/like", pkg.LikeHandler)
 	r.HandleFunc("/user", pkg.UserHandler)
 	r.HandleFunc("/chat", pkg.ChatHandler)
@@ -65,6 +66,7 @@ func StartServer() {
 	r.HandleFunc("/session", pkg.SessionHandler)
 	r.HandleFunc("/creategroup", pkg.CreateGroupHandler)
 	r.HandleFunc("/getallgroups", pkg.GetAllGroups)
+	r.HandleFunc("/postgroup", pkg.PostGroupHandler)
 	r.HandleFunc("/inviteinmygroup", pkg.Inviteinmygroup)
 	r.HandleFunc("/getonegroup", pkg.GetOneGroup)
 

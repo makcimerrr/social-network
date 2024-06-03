@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS POST_GROUP
     PostContent TEXT,
     Date TEXT,
     Image BLOB,
-    Private INTEGER, -- 0 Private, 1 Public, 2 Select user
+    GroupID INTEGER,
     Likes INTEGER, 
     NbComments INTEGER,
     FOREIGN KEY
