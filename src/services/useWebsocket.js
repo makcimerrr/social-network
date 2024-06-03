@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
-import {fetchNotification} from "@/services/useFetchNotif";
 import {useState} from "react";
+import {fetchNotification} from "@/services/useFetchNotif";
 
 
 export var firstId = 512;
@@ -58,7 +58,7 @@ export async function updateUsers(currId) {
 }
 
 
-export function startWS(currId) {
+export function startWS(currId, setNotifications) {
     console.log("call startWS JS")
     console.log(currId)
     if (window["WebSocket"]) {
@@ -79,6 +79,7 @@ export function startWS(currId) {
         conn.onmessage = function (evt) {
             var data = JSON.parse(evt.data);
             console.log(data);
+            fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
                 // Nouveau post, on notifie les autres utilisateurs d'un nouveau post, pas géré pour les commentaires.
                 console.log("new post")

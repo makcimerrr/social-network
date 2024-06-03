@@ -69,6 +69,7 @@ export const fetchNotification = async (id, setNotifications) => {
             }
 
             setNotifications(allNotifications);
+            const PastilleNotif = allNotifications.length
         } else {
             console.error('Failed to fetch notifications');
         }

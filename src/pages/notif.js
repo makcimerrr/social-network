@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { fetchNotification } from "@/services/useFetchNotif";
 
-const NotificationFetcher = ({ id }) => {
-    const [notifications, setNotifications] = useState([]);
+const NotificationFetcher = ({ id, setNotifications, notifications }) => {
+
+    //const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
         fetchNotification(id, setNotifications);
@@ -39,14 +40,18 @@ const NotificationFetcher = ({ id }) => {
         removeNotification(id, category);
     };
 
-    // Sort notifications by timestamp (assuming each notification has a 'timestamp' property)
-    const sortedNotifications = notifications.sort((a, b) => b.timestamp - a.timestamp);
+    // Sort notifications by time
+    const sortedNotifications = notifications.reverse()
+
+    console.log('Sorted Notifications:', sortedNotifications);
+
+
 
     return (
         <div className="notification-container">
-            <h1 className="notification-header">Notification Fetcher</h1>
+            <h1 className="notification-headers">Notification Fetcher</h1>
             <div id="notifications">
-                {sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
+                {sortedNotifications && sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
                     <div key={notif.id} className="notification">
                         <button className="close-button" onClick={() => removeNotification(notif.id)}>×</button>
                         <div className="emoji-container">
@@ -67,19 +72,25 @@ const NotificationFetcher = ({ id }) => {
                             {notif.category === 'Follow' && (
                                 <>
                                     <p className="notification-group">Follow ID: {notif.id}</p>
-                                    <p className="notification-title"><b>{notif.firstname} {notif.lastname} </b>vous a suivis !</p>
+                                    <div className="notification-date">{notif.date}</div>
+                                    <p className="notification-title"><b>{notif.firstname} {notif.lastname} </b>vous a
+                                        suivis !</p>
                                 </>
                             )}
                             {notif.category === 'Group' && (
                                 <>
                                     <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
-                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous a invité au groupe <b>{notif.group.Title}</b> !</p>
+                                    <div className="notification-date">{notif.group.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous
+                                        a invité au groupe <b>{notif.group.Title}</b> !</p>
                                 </>
                             )}
                             {notif.category === 'MP' && (
                                 <>
                                     <p className="notification-group">Message ID: {notif.message.id}</p>
-                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous a envoyé un message privé :</p>
+                                    <div className="notification-date">{notif.message.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous
+                                        a envoyé un message privé :</p>
                                     <div className="comment-content">
                                         <b><p>{notif.message.content}</p></b>
                                     </div>
@@ -88,7 +99,9 @@ const NotificationFetcher = ({ id }) => {
                             {notif.category === 'Comment' && (
                                 <>
                                     <p className="notification-group">Post ID: {notif.comment.post_id}</p>
-                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a commenté :</p>
+                                    <div className="notification-date">{notif.comment.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
+                                        commenté :</p>
                                     <div className="comment-content">
                                         <b><p>{notif.comment.content}</p></b>
                                     </div>

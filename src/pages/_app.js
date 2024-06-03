@@ -1,6 +1,6 @@
 import '../styles/globals.css';
 import {useEffect, useRef, useState} from 'react';
-import {session} from '../services/useCookie';
+import {session} from '@/services/useCookie';
 import MiniDrawer from '../components/MiniDrawer';
 import {startWS} from '@/services/useWebsocket';
 import {useRouter} from 'next/router';
@@ -13,6 +13,7 @@ function MyApp({Component, pageProps}) {
     const router = useRouter();
     const isMounted = useRef(false);
     const {fetchPosts} = usePosts();
+    const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,7 +23,7 @@ function MyApp({Component, pageProps}) {
                     setLoggedIn(true);
                     setId(responseData.id);
                     console.log(typeof responseData.id, responseData.id);
-                    startWS(responseData.id);
+                    startWS(responseData.id, setNotifications);
                     router.push('/');
                 } else {
                     console.log('La demande de session n\'a pas réussi.');
@@ -37,7 +38,7 @@ function MyApp({Component, pageProps}) {
     return (
         <div>
             <MiniDrawer loggedIn={loggedIn} setLoggedIn={setLoggedIn} id={id}/>
-            <Component {...pageProps} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setId={setId} id={id}/>
+            <Component setNotifications={setNotifications} notifications={notifications} {...pageProps} loggedIn={loggedIn} setLoggedIn={setLoggedIn} setId={setId} id={id}/>
             <Toaster/>
         </div>
     );
