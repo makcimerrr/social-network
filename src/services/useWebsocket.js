@@ -1,5 +1,4 @@
 import toast from "react-hot-toast";
-import {useState} from "react";
 import {fetchNotification} from "@/services/useFetchNotif";
 
 
@@ -16,7 +15,6 @@ export let lastFetchedId;
 export let value;
 export let closeChat;
 export let debouncedScrollHandler;
-
 
 
 export var conn;
@@ -80,12 +78,12 @@ export function startWS(currId, setNotifications) {
             var data = JSON.parse(evt.data);
             console.log(data);
             fetchNotification(currId, setNotifications);
+            console.log(data.msg_type)
             if (data.msg_type === "post") {
-                // Nouveau post, on notifie les autres utilisateurs d'un nouveau post, pas géré pour les commentaires.
                 console.log("new post")
                 toast(
                     <span>
-                        New post !Click <a href="/" onClick={() => window.location.reload()}>here</a>
+                        New post !Click <a href="/">here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -93,8 +91,30 @@ export function startWS(currId, setNotifications) {
                         icon: '👏',
                     }
                 );
-
-
+            } else if (data.msg_type === "group") {
+                console.log("new group")
+                /*toast(
+                    <span>
+                        Your are invited to a new group ! Click <a href="/" >here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '🫂',
+                    }
+                );*/
+            } else if (data.msg_type === "follow") {
+                console.log("new follow")
+                toast(
+                    <span>
+                        You have a new follow ! Click <a href="/" >here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '🫵🏻',
+                    }
+                );
             } else if (data.msg_type === "msg") {
                 console.log("new message")
                 toast(
@@ -148,7 +168,7 @@ export function startWS(currId, setNotifications) {
                 console.log("comment now")
                 toast(
                     <span>
-                        New Comment on your post !Click <a href="/" onClick={() => window.location.reload()}>here</a>
+                        New Comment on your post !Click <a href="/">here</a>
                     </span>,
                     {
                         duration: 4000,

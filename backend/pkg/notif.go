@@ -41,6 +41,7 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
+	var ListFollowers, listMP, listPost, listComment, listGroup, listEvent [][]interface{}
 	var jsonResponse map[string]interface{}
 
 	switch data.TypeNotif {

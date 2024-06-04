@@ -24,28 +24,26 @@ const Group = (props) => {
 
     const [formErrors, setFormErrors] = useState({});
     const [inviteErrors, setInviteErrors] = useState({});
+    const fetchData = async () => {
+        try {
+            const result = await getGroup(props);
+            if (result.success) {
+                setData(result.data);
 
+
+
+            } else {
+
+                console.error('Failed to get group data:', result.message);
+            }
+        } catch (error) {
+            console.error('Error during fetching of group data:', error);
+        }
+        setLoading(false);
+    };
 
     //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await getGroup(props);
-                if (result.success) {
-                    setData(result.data);
-
-
-
-                } else {
-
-                    console.error('Failed to get group data:', result.message);
-                }
-            } catch (error) {
-                console.error('Error during fetching of group data:', error);
-            }
-            setLoading(false);
-        };
-
         fetchData();
     }, []);
 

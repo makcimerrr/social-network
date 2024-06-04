@@ -59,23 +59,28 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 	CheckErr(err, "DeleteNotif db Exec")
 }
 
-func GetNotif(UserID int, db *sql.DB) (ListFollowers []User, listMP, listPost, listComment, listGroup, listEvent [][]interface{}) {
+func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComment, listGroup, listEvent [][]interface{}) {
 	// récupération des notifications follow
-	stmtfollow, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname
+	ListFollowers = make([][]interface{}, 0)
+	stmtfollow, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname, FOLLOWERS.ID, FOLLOWERS.ValidateFollow, FOLLOWERS.DateFollow
 										FROM USERS
 										INNER JOIN FOLLOWERS ON FOLLOWERS.UserID_Follower = USERS.ID
 										INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDFollow = FOLLOWERS.ID
-										WHERE FOLLOWERS.ValidateFollow = '1' AND NOTIFICATIONS.UserID_Receiver = ?;`)
+										WHERE NOTIFICATIONS.UserID_Receiver = ?;`)
 	CheckErr(err, "GetNotif ListFollowers, db prepare")
 	rowsfollow, err := stmtfollow.Query(UserID)
 	CheckErr(err, "GetNotif ListFollowers, db query")
 	for rowsfollow.Next() {
 		var currentUser User
-		err = rowsfollow.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname)
+		var currentFollow Followers
+		var currentInformation []interface{}
+		err = rowsfollow.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentFollow.Id, &currentFollow.ValidateFollow, &currentFollow.DateFollow)
 		CheckErr(err, "GetNotif ListFollowers, db rowsfollow.Next scan")
 		var category = "Follow"
 		currentUser.Category = category
-		ListFollowers = append(ListFollowers, currentUser) // information sur l'utilisateur
+		currentInformation = append(currentInformation, currentUser)
+		currentInformation = append(currentInformation, currentFollow)
+		ListFollowers = append(ListFollowers, currentInformation) // information sur l'utilisateur
 	}
 
 	// Récupération des notifications MP

@@ -55,6 +55,7 @@ type Login struct {
 	Password string `json:"password"`
 }
 type Followers struct {
+	Id               int    `json:"id"`
 	UserId_Following int    `json:"userid_following"`
 	UserId_Follower  int    `json:"userid_follower"`
 	DateFollow       string `json:"datefollow"`

@@ -1,60 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { fetchNotification } from "@/services/useFetchNotif";
+import React, {useEffect, useState} from 'react';
+import {fetchNotification} from "@/services/useFetchNotif";
 
-const NotificationFetcher = ({ id, setNotifications, notifications }) => {
+const NotificationFetcher = ({id, setNotifications, notifications}) => {
 
-    //const [notifications, setNotifications] = useState([]);
+    const [deletedNotifications, setDeletedNotifications] = useState([]);
 
     useEffect(() => {
         fetchNotification(id, setNotifications);
     }, []);
 
-    const removeNotification = async (id, category, type_notif = "get", AddOrDelete = false) => {
-        console.log("category", category);
+    const removeNotification = async (notificationId) => {
         try {
-            const response = await fetch('http://localhost:8080/notif', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ notification_id: id, category: category, type_notif: type_notif, AddOrDelete: AddOrDelete }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete notification');
-            }
-
-            setNotifications(notifications.filter(notif => notif.id !== id));
+            //await deleteNotification(notificationId);
+            setDeletedNotifications([...deletedNotifications, notificationId]);
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
     };
 
-    const acceptGroup = (id) => {
-        console.log(`Accepted group invitation for notification ID: ${id}`);
-        // TODO: Handle acceptance logic here
-        removeNotification(id, category, "post", true);
-    };
-
-    const rejectGroup = (id, category) => {
-        console.log(`Rejected group invitation for notification ID: ${id}`);
-        removeNotification(id, category, "post", false);
-    };
 
     // Sort notifications by time
-    const sortedNotifications = notifications.reverse()
-
-    console.log('Sorted Notifications:', sortedNotifications);
-
-
+    const sortedNotifications = notifications.slice().reverse().filter(notif => !deletedNotifications.includes(notif.id));
 
     return (
         <div className="notification-container">
             <h1 className="notification-headers">Notification Fetcher</h1>
             <div id="notifications">
                 {sortedNotifications && sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
-                    <div key={notif.id} className="notification">
+                    <div className="notification">
                         <button className="close-button" onClick={() => removeNotification(notif.id)}>×</button>
+                        <div>Id : {notif.id}</div>
                         <div className="emoji-container">
                             {notif.category === 'Follow' && (
                                 <span role="img" aria-label="Follow Emoji">➕</span>
@@ -72,9 +47,10 @@ const NotificationFetcher = ({ id, setNotifications, notifications }) => {
                         <div className="notification-details">
                             {notif.category === 'Follow' && (
                                 <>
-                                    <p className="notification-group">Follow ID: {notif.id}</p>
-                                    <div className="notification-date">{notif.date}</div>
-                                    <p className="notification-title"><b>{notif.firstname} {notif.lastname} </b>vous a
+                                    <p className="notification-group">Follow ID: {notif.follow.id}</p>
+                                    <div className="notification-date">{notif.follow.datefollow}</div>
+                                    <p className="notification-title">
+                                        <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
                                         suivis !</p>
                                 </>
                             )}
@@ -110,13 +86,17 @@ const NotificationFetcher = ({ id, setNotifications, notifications }) => {
                             )}
                         </div>
                         <div className="group-buttons">
-                            {notif.category === 'Follow' && (
-                                <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept</button>
+                            {notif.category === 'Follow' && notif.follow.validatefollow && (
+                                <button className="accept-button"
+                                        onClick={() => acceptGroup(notif.id)}>Accept</button>
                             )}
                             {notif.category === 'Group' && (
                                 <>
-                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept</button>
-                                    <button className="reject-button" onClick={() => rejectGroup(notif.id, "group")}>Reject</button>
+                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept
+                                    </button>
+                                    <button className="reject-button"
+                                            onClick={() => rejectGroup(notif.id, "group")}>Reject
+                                    </button>
                                 </>
                             )}
                         </div>

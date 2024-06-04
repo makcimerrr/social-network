@@ -1,3 +1,5 @@
+import {conn, sendMsg} from "@/services/useWebsocket";
+
 export const createGroup = async (form,props) => {
     try {
         console.log(form)
@@ -16,6 +18,8 @@ export const createGroup = async (form,props) => {
             const data = await response.json();
             if (data && data.success) {
                 console.log(data);
+                console.log("envoie ws")
+                sendMsg(conn, 0, { value: "New Group" }, 'group')
                 return { success: true, data };
             } else {
                 console.error('Create group failed:', data ? data.message : 'No response body');

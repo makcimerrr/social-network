@@ -21,16 +21,24 @@ export const fetchNotification = async (id, setNotifications) => {
 
         if (data.success) {
             const allNotifications = [];
+            let idCounter = 0;
             if (data.listFollowers) {
                 data.listFollowers.forEach(element => {
-                    console.log("Followers: ", element);
-                    allNotifications.push(element);
+                    const notification = {
+                        id: idCounter++, // Assign a unique ID
+                        category: 'Follow',
+                        user: element[0],
+                        follow: element[1]
+                    };
+                    console.log("Notification Follow: ", notification);
+                    allNotifications.push(notification);
                 });
             }
 
             if (data.listMP) {
                 data.listMP.forEach(element => {
                     const notification = {
+                        id: idCounter++,
                         category: 'MP',
                         user: element[0],
                         message: element[1]
@@ -44,6 +52,7 @@ export const fetchNotification = async (id, setNotifications) => {
                 data.listComment.forEach(element => {
                     if (Array.isArray(element)) {
                         const notification = {
+                            id: idCounter++,
                             category: 'Comment',
                             user: element[0],
                             comment: element[1],
@@ -58,6 +67,7 @@ export const fetchNotification = async (id, setNotifications) => {
                 data.listGroup.forEach(element => {
                     if (Array.isArray(element)) {
                         const notification = {
+                            id: idCounter++,
                             category: 'Group',
                             user: element[0],
                             group: element[1]
@@ -69,7 +79,7 @@ export const fetchNotification = async (id, setNotifications) => {
             }
 
             setNotifications(allNotifications);
-            const PastilleNotif = allNotifications.length
+            //const PastilleNotif = allNotifications.length
         } else {
             console.error('Failed to fetch notifications');
         }
