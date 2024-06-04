@@ -23,6 +23,7 @@ const Home = ({loggedIn, id}) => {
 
     useEffect(() => {
         if (loggedIn) {
+            console.log(id)
             fetchPosts(id);
         }
     }, [loggedIn]);
@@ -51,7 +52,7 @@ const Home = ({loggedIn, id}) => {
                 sendMsg(conn, 0, {value: "New Post"}, 'post', List )
                 break
             case '3':
-                sendMsg(conn, 0, {value: "New Post"}, 'post', TargetUsers )
+                sendMsg(conn, 0, {value: "New Post"}, 'post', List )
                 break
             default:
                 break

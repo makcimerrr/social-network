@@ -168,7 +168,7 @@ export function startWS(currId, setNotifications) {
                 }
 
                 let unreadMsgs = unread.filter((u) => {
-                    //id = data.sender_id;
+                    id = data.sender_id;
                     return u[0] == id;
                 });
 
