@@ -93,7 +93,7 @@ export function startWS(currId, setNotifications) {
                 );
             } else if (data.msg_type === "group") {
                 console.log("new group")
-                /*toast(
+                toast(
                     <span>
                         Your are invited to a new group ! Click <a href="/" >here</a>
                     </span>,
@@ -102,17 +102,41 @@ export function startWS(currId, setNotifications) {
                         position: 'top-center',
                         icon: '🫂',
                     }
-                );*/
+                );
             } else if (data.msg_type === "follow") {
                 console.log("new follow")
                 toast(
                     <span>
-                        You have a new follow ! Click <a href="/" >here</a>
+                        You have a new follow ! Click <a href="/">here</a>
                     </span>,
                     {
                         duration: 4000,
                         position: 'top-center',
                         icon: '🫵🏻',
+                    }
+                );
+            } else if (data.msg_type === "stop_follow") {
+                console.log("stop follow")
+                toast(
+                    <span>
+                        One follow stopped ! Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '👀',
+                    }
+                );
+            } else if (data.msg_type === "cancel_follow") {
+                console.log("cancel follow")
+                toast(
+                    <span>
+                        One follow canceled ! Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '❌',
                     }
                 );
             } else if (data.msg_type === "msg") {

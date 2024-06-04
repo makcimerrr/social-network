@@ -49,9 +49,14 @@ const NotificationFetcher = ({id, setNotifications, notifications}) => {
                                 <>
                                     <p className="notification-group">Follow ID: {notif.follow.id}</p>
                                     <div className="notification-date">{notif.follow.datefollow}</div>
-                                    <p className="notification-title">
+                                    {notif.follow.validatefollow ? (
+                                        <p className="notification-title">
+                                            <b>{notif.user.firstname} {notif.user.lastname} </b>demande à vous suivre !
+                                        </p>
+                                    ) : (
+                                        <p className="notification-title">
                                         <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
-                                        suivis !</p>
+                                        suivis !</p>)}
                                 </>
                             )}
                             {notif.category === 'Group' && (

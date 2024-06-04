@@ -81,6 +81,7 @@ export const InviteInMyGroup = async (formInvite,props) => {
             const data = await response.json();
             if (data && data.success) {
                 console.log(data);
+                sendMsg(conn, 0, { value: "New Group" }, 'group')
                 return { success: true, data };
             } else {
                 console.error(data);
