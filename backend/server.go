@@ -67,6 +67,7 @@ func StartServer() {
 	r.HandleFunc("/getallgroups", pkg.GetAllGroups)
 	r.HandleFunc("/inviteinmygroup", pkg.Inviteinmygroup)
 	r.HandleFunc("/getonegroup", pkg.GetOneGroup)
+	r.HandleFunc("/accept-group-notification", pkg.AcceptGroupNotification)
 
 	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		pkg.ServeWs(hub, w, r)

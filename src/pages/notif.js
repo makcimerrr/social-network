@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import {acceptGroupNotification, removeNotification} from "@/services/useCreateGroup";
 
-const NotificationFetcher = (form) => {
+const NotificationFetcher = (props) => {
     const [notifications, setNotifications] = useState([]);
+    console.log("props.id : ",props.id)
 
     useEffect(() => {
         fetchNotification();
@@ -14,7 +16,7 @@ const NotificationFetcher = (form) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({user_id_receiver: form.id}),
+                body: JSON.stringify({user_id_receiver: props.id}),
             });
 
             if (!response.ok) {
@@ -32,37 +34,13 @@ const NotificationFetcher = (form) => {
         }
     };
 
-    const removeNotification = async (id) => {
-        try {
-            const response = await fetch('http://localhost:8080/delete-notification', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ notification_id: id }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete notification');
-            }
-
-            setNotifications(notifications.filter(notif => notif.id !== id));
-        } catch (error) {
-            console.error('Error deleting notification:', error);
-        }
-    };
-
-
 
     const acceptGroup = (id) => {
-        // Placeholder function to handle accepting a group invitation
-        console.log(`Accepted group invitation for notification ID: ${id}`);
+        acceptGroupNotification(id, props); // Accept the notification
     };
 
     const rejectGroup = (id) => {
-        // Placeholder function to handle rejecting a group invitation
-        console.log(`Rejected group invitation for notification ID: ${id}`);
-        removeNotification(id); // Remove the notification after rejection
+        removeNotification(id,props); // Remove the notification after rejection
     };
 
     return (

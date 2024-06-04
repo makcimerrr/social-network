@@ -12,6 +12,7 @@ export const createGroup = async (form,props) => {
             credentials: 'include'
         });
 
+
         if (response.ok) {
             const data = await response.json();
             if (data && data.success) {
@@ -120,5 +121,48 @@ export const getOneGroup = async (id) => {
         console.error('Error:', errorMessage);
 
         return {success: false, message: errorMessage};
+    }
+}
+
+export const removeNotification = async (id , props) => {
+    let idwhoisinvited = props.id
+
+    try {
+        const response = await fetch('http://localhost:8080/delete-notification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ IdGroup: id ,idwhoisinvited}),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete notification');
+        }
+
+        console.log("ok")
+        //setNotifications(notifications.filter(notif => notif.id !== id));
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+    }
+};
+
+export const acceptGroupNotification = async (id ,props) => {
+    let idwhoisinvited = props.id
+    try {
+        const response = await fetch('http://localhost:8080/accept-group-notification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ IdGroup: id ,idwhoisinvited}),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete notification');
+        }
+
+    } catch (error) {
+        console.error('Error deleting notification:', error);
     }
 }

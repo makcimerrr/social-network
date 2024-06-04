@@ -33,11 +33,7 @@ const Group = (props) => {
                 const result = await getGroup(props);
                 if (result.success) {
                     setData(result.data);
-
-
-
                 } else {
-
                     console.error('Failed to get group data:', result.message);
                 }
             } catch (error) {
