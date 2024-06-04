@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import {fetchNotification} from "@/services/useFetchNotif";
-
+import {Target} from "@/services/useTarget";
 
 export var firstId = 512;
 export var offset = 0;
@@ -16,7 +16,6 @@ export let value;
 export let closeChat;
 export let debouncedScrollHandler;
 
-
 export var conn;
 
 async function getData(url = '') {
@@ -27,7 +26,6 @@ async function getData(url = '') {
 
     return response.json()
 }
-
 
 export async function getUsers() {
     await getData('http://localhost:8080/user')
@@ -58,12 +56,13 @@ export async function updateUsers(currId) {
 
 export function startWS(currId, setNotifications) {
     console.log("call startWS JS")
-    console.log(currId)
+    //console.log(currId)
     if (window["WebSocket"]) {
         conn = new WebSocket("ws://localhost:8080/ws");
 
-        conn.onopen = function () {
+        conn.onopen = async function () {
             // Ouverture connexion websocket.
+            await Target(currId);
             console.log("WebSocket connection is open");
         };
 
@@ -74,28 +73,29 @@ export function startWS(currId, setNotifications) {
 
 
         // En fonction du type de message on exécute une opération différente.
-        conn.onmessage = function (evt) {
+        conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
-            console.log(data);
+            //console.log("Data websocket", data);
             fetchNotification(currId, setNotifications);
-            console.log(data.msg_type)
             if (data.msg_type === "post") {
                 console.log("new post")
-                toast(
-                    <span>
-                        New post !Click <a href="/">here</a>
-                    </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '👏',
-                    }
-                );
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
+                            New post! Click <a href="/">here</a>
+                        </span>,
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '👏',
+                        }
+                    );
+                }
             } else if (data.msg_type === "group") {
                 console.log("new group")
                 toast(
                     <span>
-                        Your are invited to a new group ! Click <a href="/" >here</a>
+                        Your are invited to a new group ! Click <a href="/">here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -105,6 +105,7 @@ export function startWS(currId, setNotifications) {
                 );
             } else if (data.msg_type === "follow") {
                 console.log("new follow")
+                await Target(currId);
                 toast(
                     <span>
                         You have a new follow ! Click <a href="/">here</a>
@@ -167,7 +168,7 @@ export function startWS(currId, setNotifications) {
                 }
 
                 let unreadMsgs = unread.filter((u) => {
-                    id = data.sender_id;
+                    //id = data.sender_id;
                     return u[0] == id;
                 });
 
@@ -203,7 +204,8 @@ export function startWS(currId, setNotifications) {
             } else if (data.msg_type === "") {
 
             }
-        };
+        }
+        ;
     } else {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
@@ -211,9 +213,9 @@ export function startWS(currId, setNotifications) {
     }
 }
 
+let target = [];
 // Fonction d'envoi d'un message via le WS
-export function sendMsg(conn, rid, msg, msg_type) {
-
+export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
     // Check si WS ouverte.
     if (!conn) {
         return false;
@@ -224,14 +226,17 @@ export function sendMsg(conn, rid, msg, msg_type) {
         return false;
     }
 
+    console.log("target send msg", target)
+
     let msgData = {
         id: 0,
         sender_id: 0,
         receiver_id: rid,
         content: msg.value,
+        targets: target,
         date: '',
         msg_type: msg_type,
-        is_typing: false
+        is_typing: false,
     }
 
     conn.send(JSON.stringify(msgData))

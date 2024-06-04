@@ -22,7 +22,7 @@ function MyApp({Component, pageProps}) {
                 if (responseData.success === true) {
                     setLoggedIn(true);
                     setId(responseData.id);
-                    console.log(typeof responseData.id, responseData.id);
+                    //console.log(typeof responseData.id, responseData.id);
                     startWS(responseData.id, setNotifications);
                     router.push('/');
                 } else {

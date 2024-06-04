@@ -83,6 +83,7 @@ type Message struct {
 	Msg_type    string `json:"msg_type"`
 	User_id     int    `json:"user_id"`
 	ImageData   string `json:"image_data"`
+	Targets     []int  `json:"targets"`
 }
 
 type Chat struct {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -112,16 +113,27 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
 		}
+		db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+
+		listUser := WhoDisplayNotif(curr.Id, 0, "post", db)
 
 		// Send response indicating success
-		msg := Resp{Msg: "New post added"}
-		resp, err := json.Marshal(msg)
+		jsonResponse := map[string]interface{}{
+			"success":  true,
+			"listUser": listUser,
+			"message":  "New post added",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(jsonResponse)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
 	default:
 		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
 		return

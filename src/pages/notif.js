@@ -34,6 +34,9 @@ const NotificationFetcher = ({id, setNotifications, notifications}) => {
                             {notif.category === 'Follow' && (
                                 <span role="img" aria-label="Follow Emoji">➕</span>
                             )}
+                            {notif.category === 'Post' && (
+                                <span role="img" aria-label="Follow Emoji">➕</span>
+                            )}
                             {notif.category === 'Group' && (
                                 <span role="img" aria-label="Group Emoji">👥</span>
                             )}

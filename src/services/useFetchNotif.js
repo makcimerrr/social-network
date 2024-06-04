@@ -1,6 +1,6 @@
 export const fetchNotification = async (id, setNotifications) => {
     try {
-        console.log("id", id)
+        //console.log("id", id)
         const response = await fetch('http://localhost:8080/notif', {
             method: 'POST',
             headers: {
@@ -16,7 +16,7 @@ export const fetchNotification = async (id, setNotifications) => {
         const text = await response.text(); // Lire la réponse comme du texte
 
         const data = JSON.parse(text); // Analyser le texte en JSON
-        console.log("notif", data);
+        //console.log("notif", data);
 
         if (data.success) {
             const allNotifications = [];
@@ -29,7 +29,7 @@ export const fetchNotification = async (id, setNotifications) => {
                         user: element[0],
                         follow: element[1]
                     };
-                    console.log("Notification Follow: ", notification);
+                    //console.log("Notification Follow: ", notification);
                     allNotifications.push(notification);
                 });
             }
@@ -42,7 +42,7 @@ export const fetchNotification = async (id, setNotifications) => {
                         user: element[0],
                         message: element[1]
                     };
-                    console.log("Notification MP: ", notification);
+                    //console.log("Notification MP: ", notification);
                     allNotifications.push(notification);
                 });
             }
@@ -57,7 +57,7 @@ export const fetchNotification = async (id, setNotifications) => {
                             comment: element[1],
                             post: element[2]
                         };
-                        console.log("Notification: ", notification);
+                        //console.log("Notification: ", notification);
                         allNotifications.push(notification);
                     }
                 });
@@ -71,7 +71,7 @@ export const fetchNotification = async (id, setNotifications) => {
                             user: element[0],
                             group: element[1]
                         };
-                        console.log("Notification: ", notification);
+                        //console.log("Notification: ", notification);
                         allNotifications.push(notification);
                     }
                 });

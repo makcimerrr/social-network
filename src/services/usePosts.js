@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import {conn, sendMsg} from "@/services/useWebsocket";
 
 const usePosts = () => {
   const [posts, setPosts] = useState([]);
 
   const fetchPosts = async (id) => {
     try {
-      console.log("fetch for id:", id)
+      //console.log("fetch for id:", id)
       const response = await fetch(`http://localhost:8080/post?id=${id}`);
       if (response.ok) {
         const data = await response.json();
@@ -19,7 +20,7 @@ const usePosts = () => {
   };
 
   const createPost = async (formData) => {
-    console.log(formData)
+    //console.log(formData)
     try {
       const response = await fetch('http://localhost:8080/post', {
         method: 'POST',
@@ -29,7 +30,7 @@ const usePosts = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
       } else {
         console.error('Create a post failed:', response.statusText);
       }
