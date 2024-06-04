@@ -35,7 +35,7 @@ const NotificationFetcher = ({id, setNotifications, notifications}) => {
                                 <span role="img" aria-label="Follow Emoji">➕</span>
                             )}
                             {notif.category === 'Post' && (
-                                <span role="img" aria-label="Follow Emoji">➕</span>
+                                <span role="img" aria-label="Follow Emoji">📑</span>
                             )}
                             {notif.category === 'Group' && (
                                 <span role="img" aria-label="Group Emoji">👥</span>
@@ -60,6 +60,14 @@ const NotificationFetcher = ({id, setNotifications, notifications}) => {
                                         <p className="notification-title">
                                         <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
                                         suivis !</p>)}
+                                </>
+                            )}
+                            {notif.category === 'Post' && (
+                                <>
+                                    <p className="notification-group">Post ID: {notif.post.id}</p>
+                                    <div className="notification-date">{notif.post.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
+                                        crée un post <b>{notif.post.title}</b> !</p>
                                 </>
                             )}
                             {notif.category === 'Group' && (

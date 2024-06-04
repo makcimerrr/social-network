@@ -21,6 +21,22 @@ export const fetchNotification = async (id, setNotifications) => {
         if (data.success) {
             const allNotifications = [];
             let idCounter = 0;
+            console.log(data);
+
+
+            if (data.listPost) {
+                data.listPost.forEach(element => {
+                    const notification = {
+                        id: idCounter++, // Assign a unique ID
+                        category: 'Post',
+                        user: element[0],
+                        post: element[1]
+                    };
+                    //console.log("Notification Follow: ", notification);
+                    allNotifications.push(notification);
+                });
+            }
+
             if (data.listFollowers) {
                 data.listFollowers.forEach(element => {
                     const notification = {

@@ -32,9 +32,9 @@ const Home = ({loggedIn, id}) => {
         await createPost(formData);
         fetchPosts(id);
 
-       /* console.log("formData", formData)
-        console.log("formData privacy", formData.get('privacy'))
-        console.log("formData selectedFollowers", formData.get('selectedFollowers'))*/
+        /* console.log("formData", formData)
+         console.log("formData privacy", formData.get('privacy'))
+         console.log("formData selectedFollowers", formData.get('selectedFollowers'))*/
 
         let List = [];
 
@@ -44,15 +44,16 @@ const Home = ({loggedIn, id}) => {
             List = selectedFollowers.split(',').map(Number);
         }
 
+        console.log("privacy", formData.get('privacy'))
         switch (formData.get('privacy')) {
-            case '1':
+            case '0': //PRIVATE
                 sendMsg(conn, 0, {value: "New Post"}, 'post', TargetUsers)
                 break
-            case '2':
-                sendMsg(conn, 0, {value: "New Post"}, 'post', List )
+            case '1': //PUBLIC
+                sendMsg(conn, 0, {value: "New Post"}, 'post', TargetUsers)
                 break
-            case '3':
-                sendMsg(conn, 0, {value: "New Post"}, 'post', List )
+            case '2': //SEMI-PRIVATE
+                sendMsg(conn, 0, {value: "New Post"}, 'post', List)
                 break
             default:
                 break

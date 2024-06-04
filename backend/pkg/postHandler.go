@@ -108,7 +108,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Call the function to create a new post
-		err = NewPost(newPost, curr, listuserautorized)
+		idPost := int64(0)
+		idPost, err = NewPost(newPost, curr, listuserautorized)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
@@ -120,7 +121,26 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		listUser := WhoDisplayNotif(curr.Id, 0, "post", db)
+		dt := time.Now().Format("01-02-2006 15:04:05")
 
+		fmt.Println("List user autorized :", listuserautorized)
+
+		if len(listuserautorized) == 0 {
+			for _, user := range listUser {
+				InsertNotif(int(idPost), user.Id, dt, "post", db)
+			}
+		} else {
+			for i := 0; i < len(listuserautorized); i++ {
+				if listuserautorized[i] == "" {
+					continue // Skip the current iteration if the value is empty
+				}
+				userID, err := strconv.Atoi(listuserautorized[i])
+				if err != nil {
+					// handle the error
+				}
+				InsertNotif(int(idPost), userID, dt, "post", db)
+			}
+		}
 		// Send response indicating success
 		jsonResponse := map[string]interface{}{
 			"success":  true,
@@ -141,7 +161,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Création d'un nouveau post.
-func NewPost(p Post, u User, listuserautorized []string) error {
+func NewPost(p Post, u User, listuserautorized []string) (int64, error) {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
@@ -153,7 +173,13 @@ func NewPost(p Post, u User, listuserautorized []string) error {
 	postInsert, err := db.Exec(`INSERT INTO POST(UserID, Title, PostContent, Date, Image, Private, Likes, NbComments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, u.Id, p.Title, p.Content, dt, p.Image, p.Private, p.Likes, p.NbComments)
 	if err != nil {
 		fmt.Println("error exec", err)
-		return err
+		return 0, err
+	}
+
+	postInsertId, err := postInsert.LastInsertId()
+	if err != nil {
+		fmt.Println("error getting last insert id")
+		return 0, err
 	}
 
 	if len(listuserautorized) > 0 {
@@ -161,19 +187,19 @@ func NewPost(p Post, u User, listuserautorized []string) error {
 		lastInsertId, err := postInsert.LastInsertId()
 		if err != nil {
 			fmt.Println("error getting last insert id")
-			return err
+			return 0, err
 		}
 
 		for i := 0; i < len(listuserautorized); i++ {
 			_, err = db.Exec(`INSERT INTO POSTSELECTUSERS (IDPost, UserID) VALUES (?, ?)`, lastInsertId, listuserautorized[i])
 			if err != nil {
 				fmt.Println("error exec listuserautorized")
-				return err
+				return 0, err
 			}
 		}
 	}
 
-	return nil
+	return postInsertId, nil
 }
 
 // Récupération des posts en fonction d'un paramétre, exemple filtre d'une catégorie.
