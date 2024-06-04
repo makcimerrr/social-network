@@ -9,15 +9,15 @@ const NotificationFetcher = ({ id, setNotifications, notifications }) => {
         fetchNotification(id, setNotifications);
     }, []);
 
-    const removeNotification = async (id, category) => {
+    const removeNotification = async (id, category, type_notif = "get", AddOrDelete = false) => {
         console.log("category", category);
         try {
-            const response = await fetch('http://localhost:8080/delete-notification', {
+            const response = await fetch('http://localhost:8080/notif', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ notification_id: id, category: category }),
+                body: JSON.stringify({ notification_id: id, category: category, type_notif: type_notif, AddOrDelete: AddOrDelete }),
             });
 
             if (!response.ok) {
@@ -33,11 +33,12 @@ const NotificationFetcher = ({ id, setNotifications, notifications }) => {
     const acceptGroup = (id) => {
         console.log(`Accepted group invitation for notification ID: ${id}`);
         // TODO: Handle acceptance logic here
+        removeNotification(id, category, "post", true);
     };
 
     const rejectGroup = (id, category) => {
         console.log(`Rejected group invitation for notification ID: ${id}`);
-        removeNotification(id, category);
+        removeNotification(id, category, "post", false);
     };
 
     // Sort notifications by time

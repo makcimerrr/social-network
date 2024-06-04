@@ -53,7 +53,6 @@ func StartServer() {
 	r.HandleFunc("/login", pkg.LoginHandler)
 	r.HandleFunc("/register", pkg.RegisterHandler)
 	r.HandleFunc("/notif", pkg.NotifHandler)
-	r.HandleFunc("/delete-notification", pkg.DeleteNotificationHandler)
 	r.HandleFunc("/post", pkg.PostHandler)
 	r.HandleFunc("/comment", pkg.CommentHandler)
 	r.HandleFunc("/like", pkg.LikeHandler)
