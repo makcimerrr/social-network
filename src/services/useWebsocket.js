@@ -1,6 +1,5 @@
 import toast from "react-hot-toast";
-import {fetchNotification} from "@/services/useFetchNotif";
-import {Target} from "@/services/useTarget";
+
 
 export var firstId = 512;
 export var offset = 0;
@@ -16,6 +15,7 @@ export let value;
 export let closeChat;
 export let debouncedScrollHandler;
 
+
 export var conn;
 
 async function getData(url = '') {
@@ -26,6 +26,7 @@ async function getData(url = '') {
 
     return response.json()
 }
+
 
 export async function getUsers() {
     await getData('http://localhost:8080/user')
@@ -54,15 +55,14 @@ export async function updateUsers(currId) {
 }
 
 
-export function startWS(currId, setNotifications) {
+export function startWS(currId) {
     console.log("call startWS JS")
-    //console.log(currId)
+    console.log(currId)
     if (window["WebSocket"]) {
         conn = new WebSocket("ws://localhost:8080/ws");
 
-        conn.onopen = async function () {
+        conn.onopen = function () {
             // Ouverture connexion websocket.
-            await Target(currId);
             console.log("WebSocket connection is open");
         };
 
@@ -253,16 +253,42 @@ export async function createUsers(userdata, conn, currId) {
     if (offlineUsers != null) {
         offlineUsers.innerHTML = ""
     }
+    const list = await fetchUsersFromAPI(currId);
+    console.log(list);
+
     if (userdata == null) {
         return
     }
 
-    userdata.map(({id, nickname}) => {
+    console.log(userdata)
+
+
+    userdata.map(({id, nickname, privateprofile}) => {
 
         // Pour ne pas s'afficher soit même
         if (id == currId) {
             return
         }
+            if (privateprofile == 0) {
+                if (!list.listfollowers && !list.listfollowings ) {
+                    return
+                }
+                if (list.listfollowers) {
+                if (list.listfollowers.some(follower => follower.id === id)) {
+                  console.log("match found");
+                } else {
+                    return
+                }
+                }
+                if (list.listfollowings) {
+                    if (list.listfollowings.some(follower => follower.id === id)) {
+                      console.log("match found 2");
+                    } else {
+                        return
+                    }
+                }
+              }
+
         var user = document.createElement("div");
         user.className = "user"
         user.setAttribute("id", ('id' + id))
@@ -533,3 +559,20 @@ export function CreateMessages(data, currId) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const fetchUsersFromAPI = async (id) => {
+    try {
+      console.log(id);
+      const response = await fetch(`http://localhost:8080/user?id=${id}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error('Failed to fetch users: ' + response.statusText);
+      }
+    } catch (error) {
+      throw new Error('Error fetching users: ' + error.message);
+    }
+  };
