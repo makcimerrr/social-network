@@ -168,17 +168,45 @@ export async function createUsers(userdata, conn, currId) {
     await sleep(1000);
     const offlineUsers = document.querySelector('.offline-users');
 
-    offlineUsers.innerHTML = ""
+    const list = await fetchUsersFromAPI(currId);
+    console.log(list);
+
+    if (offlineUsers != null) {
+        offlineUsers.innerHTML = ""
+    }
     if (userdata == null) {
         return
     }
 
-    userdata.map(({id, nickname}) => {
+    console.log(userdata)
+
+
+    userdata.map(({id, nickname, privateprofile}) => {
 
         // Pour ne pas s'afficher soit même
         if (id == currId) {
             return
         }
+            if (privateprofile == 0) {
+                if (!list.listfollowers && !list.listfollowings ) {
+                    return
+                }
+                if (list.listfollowers) {
+                if (list.listfollowers.some(follower => follower.id === id)) {
+                  console.log("match found");
+                } else {
+                    return
+                }
+                }
+                if (list.listfollowings) {
+                    if (list.listfollowings.some(follower => follower.id === id)) {
+                      console.log("match found 2");
+                    } else {
+                        return
+                    }
+                }
+              }
+
         var user = document.createElement("div");
         user.className = "user"
         user.setAttribute("id", ('id' + id))
@@ -447,3 +475,21 @@ export function CreateMessages(data, currId) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const fetchUsersFromAPI = async (id) => {
+    try {
+      console.log(id);
+      const response = await fetch(`http://localhost:8080/user?id=${id}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error('Failed to fetch users: ' + response.statusText);
+      }
+    } catch (error) {
+      throw new Error('Error fetching users: ' + error.message);
+    }
+  };
+  
