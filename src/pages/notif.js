@@ -1,29 +1,78 @@
 import React, {useEffect, useState} from 'react';
 import {fetchNotification} from "@/services/useFetchNotif";
+import toast from "react-hot-toast";
+//import {acceptGroupNotification} from "@/services/useCreateGroup";
 
-const NotificationFetcher = ({id, setNotifications, notifications, props}) => {
-
+const NotificationFetcher = (props) => {
+    const {id, setNotifications, notifications} = props;
     const [deletedNotifications, setDeletedNotifications] = useState([]);
 
     useEffect(() => {
         fetchNotification(id, setNotifications);
     }, []);
 
-    const removeNotification = async (notificationId) => {
+    const acceptGroupNotification = async (idNotif, idGroup, idUser) => {
+        console.log(idGroup)
         try {
-            //await deleteNotification(notificationId);
-            setDeletedNotifications([...deletedNotifications, notificationId]);
+            const data = {
+                id: idGroup,
+                idwhoisinvited: idUser
+            };
+            const response = await fetch('http://localhost:8080/accept-group-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete notification');
+            }
+
+            toast.success(
+                'Group invitation accepted',
+                {}
+            )
+            removeNotification(idNotif, "group", idGroup);
+
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    }
+
+    const deleteNotification = async (notifIdCategory, category) => {
+        try {
+            const response = await fetch('http://localhost:8080/delete-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    notification_id: notifIdCategory,
+                    category: category
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete notification');
+            }
+
+            // Ajoutez ici toute logique supplémentaire à effectuer après la suppression réussie de la notification
+
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
     };
 
-    const acceptGroup = (id) => {
-        acceptGroupNotification(id, props); // Accept the notification
-    };
 
-    const rejectGroup = (id) => {
-        removeNotification(id,props); // Remove the notification after rejection
+    const removeNotification = async (notificationId, category, notifIdCategory) => {
+        try {
+            setDeletedNotifications([...deletedNotifications, notificationId]);
+            await deleteNotification(notifIdCategory, category);
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
     };
 
 
@@ -36,23 +85,47 @@ const NotificationFetcher = ({id, setNotifications, notifications, props}) => {
             <div id="notifications">
                 {sortedNotifications && sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
                     <div className="notification">
-                        <button className="close-button" onClick={() => removeNotification(notif.id)}>×</button>
                         <div>Id : {notif.id}</div>
                         <div className="emoji-container">
                             {notif.category === 'Follow' && (
-                                <span role="img" aria-label="Follow Emoji">➕</span>
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "follow", notif.follow.id, )}>×
+                                    </button>
+                                    <span role="img" aria-label="Follow Emoji">➕</span>
+                                </>
                             )}
                             {notif.category === 'Post' && (
-                                <span role="img" aria-label="Follow Emoji">📑</span>
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "post", notif.post.id)}>×
+                                    </button>
+                                    <span role="img" aria-label="Follow Emoji">📑</span>
+                                </>
                             )}
                             {notif.category === 'Group' && (
-                                <span role="img" aria-label="Group Emoji">👥</span>
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id,  "group", notif.group.id)}>×
+                                    </button>
+                                    <span role="img" aria-label="Group Emoji">👥</span>
+                                </>
                             )}
                             {notif.category === 'MP' && (
-                                <span role="img" aria-label="Message Emoji">💬</span>
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "mp", notif.message.id)}>×
+                                    </button>
+                                    <span role="img" aria-label="Message Emoji">💬</span>
+                                </>
                             )}
                             {notif.category === 'Comment' && (
-                                <span role="img" aria-label="Comment Emoji">📥</span>
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "comment", notif.comment.id)}>×
+                                    </button>
+                                    <span role="img" aria-label="Comment Emoji">📥</span>
+                                </>
                             )}
                         </div>
                         <div className="notification-details">
@@ -66,8 +139,8 @@ const NotificationFetcher = ({id, setNotifications, notifications, props}) => {
                                         </p>
                                     ) : (
                                         <p className="notification-title">
-                                        <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
-                                        suivis !</p>)}
+                                            <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
+                                            suivis !</p>)}
                                 </>
                             )}
                             {notif.category === 'Post' && (
@@ -116,10 +189,11 @@ const NotificationFetcher = ({id, setNotifications, notifications, props}) => {
                             )}
                             {notif.category === 'Group' && (
                                 <>
-                                    <button className="accept-button" onClick={() => acceptGroup(notif.id)}>Accept
+                                    <button className="accept-button"
+                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, props.id)}>Accept
                                     </button>
                                     <button className="reject-button"
-                                            onClick={() => rejectGroup(notif.id, "group")}>Reject
+                                            onClick={() => removeNotification(notif.id)}>Reject
                                     </button>
                                 </>
                             )}

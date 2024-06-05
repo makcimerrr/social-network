@@ -72,6 +72,8 @@ func StartServer() {
 	r.HandleFunc("/getonegroup", pkg.GetOneGroup)
 	r.HandleFunc("/accept-group-notification", pkg.AcceptGroupNotification)
 
+	r.HandleFunc("/delete-notification", pkg.DeleteNotificationHandler)
+
 	r.HandleFunc("/target", pkg.TargetHandler)
 
 	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {

@@ -43,9 +43,7 @@ const Group = (props) => {
 
 
         //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
-        useEffect(() => {
-            fetchData();
-        }, []);
+        fetchData();
     });
 
 

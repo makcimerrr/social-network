@@ -47,26 +47,3 @@ func DeleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(jsonResponse)
 }
-
-func DeleteNotification(notificationID int) error {
-	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Prépare la requête SQL pour supprimer la notification avec l'ID spécifié
-	query := "DELETE FROM NOTIFICATIONS WHERE IDNotif = ?"
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(notificationID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
