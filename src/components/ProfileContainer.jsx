@@ -1,10 +1,10 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import PostContainer from '../components/PostContainer';
-import {conn, sendMsg} from "@/services/useWebsocket";
+import { conn, sendMsg } from "@/services/useWebsocket";
 
 const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefollow, id, handleCreateComment, handlePostLike }) => {
-    // console.log('users in ProfileContainer :', users)
+    console.log('users in ProfileContainer :', users)
     const router = useRouter();
     const getPrivacyLabel = (privateprofile) => {
         privateprofile = parseInt(privateprofile);
@@ -21,7 +21,6 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
     const followButton = () => {
         const isFollowing = users.listfollowers && users.listfollowers.some(user => user.id === id);
         const isPendingValidation = users.ListFollowersToValidate && users.ListFollowersToValidate.some(user => user.id === id);
-        console.log('isPendingValidation : ', isPendingValidation)
         let buttonText;
         if (isPendingValidation) {
             buttonText = 'Cancel follow request';
@@ -61,12 +60,21 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
     );
 
     let filteredPosts
-        if (userPosts !== null )  {
-           filteredPosts =  userPosts.filter(post => post.user_id === id);
+    if (userPosts !== null) {
+        filteredPosts = userPosts.filter(post => post.user_id === id);
 
-        }
+    }
 
+    // Test si l'utilisateur courant et un folowers du profils qu'il regarde pour savoir en fonction de la privacity si on l'affiche ou non
+    let isFollowers = false
+    if (users.listfollowers) {
+        isFollowers = users.listfollowers.some(follower => follower.id === id)
+    }
 
+    // Déterminer si le profil doit être affiché
+    // Si profils Privée on affiche uniquement si l'utilisateur et dans les followers de l'utilisateur
+    // Si profils Public on affiche tout
+    const displayProfile = (users.privateprofile == 0 && isFollowers) || users.privateprofile == 1 || users.id === id;
 
     return (
         <div>
@@ -75,7 +83,8 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
             <p>Nickname: {users.nickname}</p>
             <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
-            {users.privateprofile === 1 || users.id === id &&
+
+            {displayProfile &&
                 <>
                     <p>ID: {users.id}</p>
                     <p>Email: {users.email}</p>
@@ -86,10 +95,13 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                     <p>About Me: {users.aboutme}</p>
                     <p>Point of Interest: {users.pointofinterest}</p>
 
-            <p>Nickname: {users.nickname}</p>
-            <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
+                    <p>Nickname: {users.nickname}</p>
+                    <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
                 </>
             }
+
+
+
             {users.id === id ? (
                 <>
                     <button onClick={togglePrivacy}>Toggle Privacy</button>
@@ -123,7 +135,7 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
             )}
 
 
-            {users.privateprofile === 1 || users.id === id && filteredPosts !== null &&
+            {displayProfile && filteredPosts !== null &&
                 <>
                     {filteredPosts && (
                         <PostContainer posts={filteredPosts} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
