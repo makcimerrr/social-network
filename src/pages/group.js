@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, {useEffect, useState} from 'react';
+import {useRouter} from 'next/router';
 import GroupForm from "../components/GroupForm";
 
 
 import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
 import toast from "react-hot-toast";
-import {startWS} from "@/services/useWebsocket";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -24,29 +23,30 @@ const Group = (props) => {
 
     const [formErrors, setFormErrors] = useState({});
     const [inviteErrors, setInviteErrors] = useState({});
-    const fetchData = async () => {
-        try {
-            const result = await getGroup(props);
-            if (result.success) {
-                setData(result.data);
 
-
-
-            } else {
-
-                console.error('Failed to get group data:', result.message);
-            }
-        } catch (error) {
-            console.error('Error during fetching of group data:', error);
-        }
-        setLoading(false);
-    };
 
     //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
     useEffect(() => {
-        fetchData();
-    }, []);
+        const fetchData = async () => {
+            try {
+                const result = await getGroup(props);
+                if (result.success) {
+                    setData(result.data);
+                } else {
+                    console.error('Failed to get group data:', result.message);
+                }
+            } catch (error) {
+                console.error('Error during fetching of group data:', error);
+            }
+            setLoading(false);
+        };
 
+
+        //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
+        useEffect(() => {
+            fetchData();
+        }, []);
+    });
 
 
     const onRegisterClick = async () => {
@@ -70,7 +70,7 @@ const Group = (props) => {
 
         if ((form.aboutGroup).length > 200) {
             setFormErrors(prevErrors => ({
-                aboutGroup : 'Bio should not exceed 200 characters.',
+                aboutGroup: 'Bio should not exceed 200 characters.',
             }));
             valid = false;
         }
@@ -82,7 +82,7 @@ const Group = (props) => {
 
             try {
                 console.log(form)
-                const responseData = await createGroup(form,props);
+                const responseData = await createGroup(form, props);
                 if (responseData.success) {
 
                     toast.success("Group Created" + '👏', {
@@ -109,7 +109,7 @@ const Group = (props) => {
 
     const onInviteClick = async () => {
 
-        const responseData = await InviteInMyGroup(formInvite,props);
+        const responseData = await InviteInMyGroup(formInvite, props);
 
         if (responseData.success === true) {
             toast.success("Invitation envoyé" + '👏', {
@@ -129,12 +129,11 @@ const Group = (props) => {
     }
 
 
-
-        if (loading) return 'Loading...';
+    if (loading) return 'Loading...';
     if (error) return 'An error occurred';
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
             <GroupForm
                 form={form}
                 formErrors={formErrors}
