@@ -1,15 +1,54 @@
 import React, {useEffect, useState} from 'react';
 import {fetchNotification} from "@/services/useFetchNotif";
 import toast from "react-hot-toast";
+import useUsers from "@/services/useUsers";
 //import {acceptGroupNotification} from "@/services/useCreateGroup";
 
 const NotificationFetcher = (props) => {
     const {id, setNotifications, notifications} = props;
     const [deletedNotifications, setDeletedNotifications] = useState([]);
+    const {users, userPosts, fetchUsers, fetchUserPosts} = useUsers();
 
     useEffect(() => {
         fetchNotification(id, setNotifications);
     }, []);
+
+    const fetchFollow = async (dataToSend, notifId, followId) => {
+        try {
+            const response = await fetch('http://localhost:8080/follow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: "include",
+                body: JSON.stringify(dataToSend),
+            });
+            if (response.ok) {
+                fetchUsers(response.ID);
+                toast.success(
+                    'Follow accepted',
+                    {}
+                )
+                removeNotification(notifId, "follow", followId );
+            }
+            if (!response.ok) {
+                throw new Error('Failed to update privacy setting');
+            }
+        } catch (error) {
+            console.error('Error updating privacy setting:', error.message);
+        }
+    }
+    const validatefollow = async (validated, idnewfollower, notifId, followId) => {
+        const UserId_Following = props.id;
+        const UserId_Follower = idnewfollower;
+        const ValidateFollow = validated;
+        const Action = "validatefollow";
+        const dataToSend = {UserId_Following, UserId_Follower, ValidateFollow, Action};
+        console.log(validated)
+        console.log(idnewfollower)
+        console.log(dataToSend)
+        fetchFollow(dataToSend, notifId, followId);
+    };
 
     const acceptGroupNotification = async (idNotif, idGroup, idUser) => {
         console.log(idGroup)
@@ -185,7 +224,7 @@ const NotificationFetcher = (props) => {
                         <div className="group-buttons">
                             {notif.category === 'Follow' && notif.follow.validatefollow && (
                                 <button className="accept-button"
-                                        onClick={() => acceptGroup(notif.id)}>Accept</button>
+                                        onClick={() => validatefollow(true, notif.user.id, notif.id, notif.follow.id)}>Accepter</button>
                             )}
                             {notif.category === 'Group' && (
                                 <>
