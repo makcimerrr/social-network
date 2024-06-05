@@ -14,7 +14,8 @@ func DeleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data struct {
-		NotificationID int `json:"notification_id"`
+		NotificationID int    `json:"notification_id"`
+		Category       string `json:"category"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
@@ -24,8 +25,17 @@ func DeleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ici, supprime la notification avec l'ID fourni de votre base de données
 	fmt.Println("Notification deleted with ID:", data.NotificationID)
+	fmt.Println("Category:", data.Category)
 
-	err := DeleteNotification(data.NotificationID)
+	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	DeleteNotif(data.NotificationID, data.Category, db)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -36,27 +46,4 @@ func DeleteNotificationHandler(w http.ResponseWriter, r *http.Request) {
 		"message": "Notification deleted successfully",
 	}
 	json.NewEncoder(w).Encode(jsonResponse)
-}
-
-func DeleteNotification(notificationID int) error {
-	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Prépare la requête SQL pour supprimer la notification avec l'ID spécifié
-	query := "DELETE FROM NOTIFICATIONS WHERE IDNotif = ?"
-	stmt, err := db.Prepare(query)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(notificationID)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

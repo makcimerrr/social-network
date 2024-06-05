@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import PostContainer from '../components/PostContainer';
+import {conn, sendMsg} from "@/services/useWebsocket";
 
 const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefollow, id, handleCreateComment, handlePostLike }) => {
     // console.log('users in ProfileContainer :', users)
@@ -84,6 +85,9 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                     <p>Avatar: {users.avatar}</p>
                     <p>About Me: {users.aboutme}</p>
                     <p>Point of Interest: {users.pointofinterest}</p>
+
+            <p>Nickname: {users.nickname}</p>
+            <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
                 </>
             }
             {users.id === id ? (

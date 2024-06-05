@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import {fetchNotification} from "@/services/useFetchNotif";
 
 
 export var firstId = 512;
@@ -55,7 +56,7 @@ export async function updateUsers(currId) {
 }
 
 
-export function startWS(currId) {
+export function startWS(currId, setNotifications) {
     console.log("call startWS JS")
     console.log(currId)
     if (window["WebSocket"]) {
@@ -73,25 +74,85 @@ export function startWS(currId) {
 
 
         // En fonction du type de message on exécute une opération différente.
-        conn.onmessage = function (evt) {
+        conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
-            console.log(data);
+            //console.log("Data websocket", data);
+            fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
-                // Nouveau post, on notifie les autres utilisateurs d'un nouveau post, pas géré pour les commentaires.
                 console.log("new post")
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
+                            New post! Click <a href="/">here</a>
+                        </span>,
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '👏',
+                        }
+                    );
+                }
+            } else if (data.msg_type === "group") {
+                console.log("new group")
                 toast(
                     <span>
-                        New post !Click <a href="/" onClick={() => window.location.reload()}>here</a>
+                        Your are invited to a new group ! Click <a href="/">here</a>
                     </span>,
                     {
                         duration: 4000,
                         position: 'top-center',
-                        icon: '👏',
+                        icon: '🫂',
                     }
                 );
-
-
+            } else if (data.msg_type === "follow") {
+                console.log("new follow")
+                await Target(currId);
+                toast(
+                    <span>
+                        You have a new follow ! Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '🫵🏻',
+                    }
+                );
+            } else if (data.msg_type === "stop_follow") {
+                console.log("stop follow")
+                toast(
+                    <span>
+                        One follow stopped ! Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '👀',
+                    }
+                );
+            } else if (data.msg_type === "cancel_follow") {
+                console.log("cancel follow")
+                toast(
+                    <span>
+                        One follow canceled ! Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '❌',
+                    }
+                );
             } else if (data.msg_type === "msg") {
+                console.log("new message")
+                toast(
+                    <span>
+                        You have a new message ! Click <a href="/chat">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📬',
+                    }
+                );
                 // Message chat, on regarde si on est l'émetteur ou le destinataire, on créé la div correspondante, et on "append" le message.
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
@@ -112,25 +173,10 @@ export function startWS(currId) {
                     return u[0] == id;
                 });
 
+                let chatWrapper = document.querySelector('.chat-wrapper');
 
-                const chatWrapper = document.querySelector('.chat-wrapper');
-                if (!chatWrapper || chatWrapper.style.display !== 'flex') {
-                    toast(
-                        <span>
-                        New message from {data.sender_id}!
-                    </span>,
-                        {
-                            duration: 4000,
-                            position: 'top-center',
-                            icon: '💻',
-                            style: {
-                                backgroundColor: 'rgba(157,161,157,0.5)', color: 'white',
-                            },
-                        }
-                    );
-                }
+                if (chatWrapper && chatWrapper.style.display == "none") {
 
-                if (chatWrapper && chatWrapper.style.display === 'none') {
                     if (unreadMsgs.length == 0) {
                         unread.push([data.sender_id, 1]);
                     } else {
@@ -143,8 +189,24 @@ export function startWS(currId) {
                 // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
                 online = data.user_ids;
                 getUsers()
+            } else if (data.msg_type === "comment") {
+                // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
+                console.log("comment now")
+                toast(
+                    <span>
+                        New Comment on your post !Click <a href="/">here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📩',
+                    }
+                );
+            } else if (data.msg_type === "") {
+
             }
-        };
+        }
+        ;
     } else {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
@@ -152,9 +214,9 @@ export function startWS(currId) {
     }
 }
 
+let target = [];
 // Fonction d'envoi d'un message via le WS
-export function sendMsg(conn, rid, msg, msg_type) {
-
+export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
     // Check si WS ouverte.
     if (!conn) {
         return false;
@@ -165,14 +227,17 @@ export function sendMsg(conn, rid, msg, msg_type) {
         return false;
     }
 
+    console.log("target send msg", target)
+
     let msgData = {
         id: 0,
         sender_id: 0,
         receiver_id: rid,
         content: msg.value,
+        targets: target,
         date: '',
         msg_type: msg_type,
-        is_typing: false
+        is_typing: false,
     }
 
     conn.send(JSON.stringify(msgData))
@@ -185,19 +250,46 @@ export function sendMsg(conn, rid, msg, msg_type) {
 export async function createUsers(userdata, conn, currId) {
     await sleep(1000);
     const offlineUsers = document.querySelector('.offline-users');
-    if (offlineUsers) {
+
+    if (offlineUsers != null) {
         offlineUsers.innerHTML = ""
     }
+    const list = await fetchUsersFromAPI(currId);
+    console.log(list);
+
     if (userdata == null) {
         return
     }
 
-    userdata.map(({id, nickname}) => {
+    console.log(userdata)
+
+
+    userdata.map(({id, nickname, privateprofile}) => {
 
         // Pour ne pas s'afficher soit même
         if (id == currId) {
             return
         }
+            if (privateprofile == 0) {
+                if (!list.listfollowers && !list.listfollowings ) {
+                    return
+                }
+                if (list.listfollowers) {
+                if (list.listfollowers.some(follower => follower.id === id)) {
+                  console.log("match found");
+                } else {
+                    return
+                }
+                }
+                if (list.listfollowings) {
+                    if (list.listfollowings.some(follower => follower.id === id)) {
+                      console.log("match found 2");
+                    } else {
+                        return
+                    }
+                }
+              }
+
         var user = document.createElement("div");
         user.className = "user"
         user.setAttribute("id", ('id' + id))
@@ -208,7 +300,7 @@ export async function createUsers(userdata, conn, currId) {
         var chatusername = document.createElement("p");
         chatusername.innerText = nickname
         user.appendChild(chatusername)
-        if (offlineUsers) {
+        if (offlineUsers != null) {
             offlineUsers.appendChild(user)
         }
         /*         var msgNotification = document.createElement("div");
@@ -398,15 +490,7 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         if (chatBox.scrollTop === 0) {
             let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
             resp.then(value => {
-                if (value == null) {
-                    return;
-                }
-                if (value.length == 0) {
-                    return;
-
-                }
                 value = value.filter(message => message.id !== lastFetchedId);
-
 
                 if (value.length > 0) {
                     const lastIndex = value.length - 1;
@@ -476,3 +560,20 @@ export function CreateMessages(data, currId) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const fetchUsersFromAPI = async (id) => {
+    try {
+      console.log(id);
+      const response = await fetch(`http://localhost:8080/user?id=${id}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error('Failed to fetch users: ' + response.statusText);
+      }
+    } catch (error) {
+      throw new Error('Error fetching users: ' + error.message);
+    }
+  };

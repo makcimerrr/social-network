@@ -17,7 +17,6 @@ const useUsers = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("test: data in fetchUsers : ", data)
         setUsers(data);
       } else {
         console.error('Failed to fetch users:', response.statusText);

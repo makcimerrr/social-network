@@ -7,12 +7,11 @@ const OneGroup = ({ SingleForm }) => {
 
 
     return (
-
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
+        <>
             <h1> Title : {SingleForm.Title}</h1>
             <hr/>
             <p> about US : {SingleForm.AboutGroup}</p>
-        </div>
+            </>
     );
 }
 

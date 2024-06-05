@@ -8,65 +8,12 @@ import (
 )
 
 type Receiver struct {
-	UserIDReceiver int `json:"user_id_receiver"`
-}
-
-type Notification struct {
-	ID               int    `json:"id"`
-	IDPrivateMessage int    `json:"id_private_message"`
-	IDPost           int    `json:"id_post"`
-	IDComment        int    `json:"id_comment"`
-	IDGroup          int    `json:"id_group"`
-	IDEvent          int    `json:"id_event"`
 	UserIDReceiver   int    `json:"user_id_receiver"`
-	Date             string `json:"date"`
-	Category         string `json:"category"`
-	Message          string `json:"message"`
-}
-
-func getCategory(notif Notification) string {
-	if notif.IDPrivateMessage != 0 {
-		return "PrivateMessage"
-	} else if notif.IDPost != 0 {
-		return "Post"
-	} else if notif.IDComment != 0 {
-		return "Comment"
-	} else if notif.IDGroup != 0 {
-		return "Group"
-	} else if notif.IDEvent != 0 {
-		return "Event"
-	}
-	return "Unknown"
-}
-
-func getNotifications(db *sql.DB, userID int) ([]Notification, error) {
-	rows, err := db.Query(`
-		SELECT IDNotif, IDPrivateMessage, IDPost, IDComment, IDGroup, IDEvent, UserID_Receiver, Date
-		FROM NOTIFICATIONS
-		WHERE UserID_Receiver = ?
-	`, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var notifications []Notification
-
-	for rows.Next() {
-		var notif Notification
-		err := rows.Scan(&notif.ID, &notif.IDPrivateMessage, &notif.IDPost, &notif.IDComment, &notif.IDGroup, &notif.IDEvent, &notif.UserIDReceiver, &notif.Date)
-		if err != nil {
-			return nil, err
-		}
-		notif.Category = getCategory(notif)
-		notifications = append(notifications, notif)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return notifications, nil
+	UserID_Followers int    `json:"user_id_followers"`
+	IDnotif          int    `json:"id_notif"`
+	TypeID           string `json:"Type_id"`
+	TypeNotif        string `json:"type_notif"`
+	AddOrDelete      bool   `json:"add_or_delete"`
 }
 
 func NotifHandler(w http.ResponseWriter, r *http.Request) {
@@ -74,13 +21,18 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
 	var data Receiver
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("Data received:", data.UserIDReceiver)
+	if data.TypeNotif == "" {
+		data.TypeNotif = "get"
+	}
+
+	fmt.Println("Data :", data)
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -90,30 +42,80 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	notifications, err := getNotifications(db, data.UserIDReceiver)
-	if err != nil {
-		http.Error(w, "Erreur lors de la récupération des notifications", http.StatusInternalServerError)
-		fmt.Println("Erreur lors de la récupération des notifications:", err)
-		return
+	var jsonResponse map[string]interface{}
+
+	switch data.TypeNotif {
+	case "get": // Récupération des notifications
+		ListFollowers, listMP, listPost, listComment, listGroup, listEvent := GetNotif(data.UserIDReceiver, db)
+
+		jsonResponse = map[string]interface{}{
+			"success":       true,
+			"listFollowers": ListFollowers,
+			"listMP":        listMP,
+			"listPost":      listPost,
+			"listComment":   listComment,
+			"listGroup":     listGroup,
+			"listEvent":     listEvent,
+		}
+
+	case "post": // modification d'une notification car accepté ou refusé
+		if data.AddOrDelete { // si true, acceptation de la notification
+			switch data.TypeID {
+			case "IDFollow":
+				validateFollow(data.UserIDReceiver, data.UserID_Followers, db)
+			case "IDPrivateMessage":
+				// ne rien faire car le message doit rester pour l'historique
+			case "IDPost":
+				// ne rien faire car le post doit rester
+			case "IDComment":
+				// ne rien faire car le comentaire doit rester
+			case "IDGroup":
+				stmt, err := db.Prepare("UPDATE MEMBERSGROUPS SET ValidationInvite = true WHERE IDgroup = ? AND UserID = ?")
+				CheckErr(err, "NotifHandler AddOrDelete IDGroup Prepare db")
+				_, err = stmt.Exec(data.IDnotif, data.UserIDReceiver)
+				CheckErr(err, "NotifHandler AddOrDelete IDGroup db Exec")
+			case "IDEvent":
+				stmt, err := db.Prepare("UPDATE RESPONSEEVENTGROUPS SET option = 1 WHERE IDEvent = ? AND UserID = ?")
+				CheckErr(err, "NotifHandler AddOrDelete IDEvent Prepare db")
+				_, err = stmt.Exec(data.IDnotif, data.UserIDReceiver)
+				CheckErr(err, "NotifHandler AddOrDelete IDEvent db Exec")
+			}
+
+		} else { // si false, refus de la notification
+			switch data.TypeID {
+			case "IDFollow":
+				stmt, err := db.Prepare("DELETE FROM FOLLOWERS WHERE UserID_Following = ? AND UserID_Follower = ?")
+				CheckErr(err, "NotifHandler !AddOrDelete IDFollow Prepare db")
+				_, err = stmt.Exec(data.UserIDReceiver, data.UserID_Followers)
+				CheckErr(err, "NotifHandler !AddOrDelete IDFollow db Exec")
+			case "IDPrivateMessage":
+				// ne rien faire car le message doit rester pour l'historique
+			case "IDPost":
+				// ne rien faire car le post doit rester
+			case "IDComment":
+				// ne rien faire car le comentaire doit rester
+			case "IDGroup":
+				stmt, err := db.Prepare("DELETE FROM MEMBERSGROUPS WHERE IDgroup = ? AND UserID = ?")
+				CheckErr(err, "NotifHandler !AddOrDelete IDGroup  Prepare db")
+				_, err = stmt.Exec(data.IDnotif, data.UserIDReceiver)
+				CheckErr(err, "NotifHandler !AddOrDelete IDGroup  db Exec")
+			case "IDEvent":
+				stmt, err := db.Prepare("DELETE FROM  RESPONSEEVENTGROUPS WHERE IDEvent = ? AND UserID = ?")
+				CheckErr(err, "NotifHandler !AddOrDelete IDEvent  Prepare db")
+				_, err = stmt.Exec(data.IDnotif, data.UserIDReceiver)
+				CheckErr(err, "NotifHandler !AddOrDelete IDEvent  db Exec")
+			}
+		}
+
+		// si accepter ou refuser, supression de la notifcation de la table NOTIFICATIONS
+		stmt, err := db.Prepare("DELETE FROM NOTIFICATIONS WHERE ? = ?")
+		CheckErr(err, "NotifHandler DELETE NOTIFICATIONS Prepare db")
+		_, err = stmt.Exec(data.TypeID, data.IDnotif)
+		CheckErr(err, "NotifHandler DELETE NOTIFICATIONS db Exec")
+
 	}
 
-	fmt.Println("Notifications:", notifications)
-
-	if notifications != nil {
-		jsonResponse := map[string]interface{}{
-			"success": true,
-			"data":    notifications,
-		}
-		if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	} else {
-		jsonResponse := map[string]interface{}{
-			"success": false,
-			"message": "Utilisateur introuvable",
-		}
-		if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+	if err := json.NewEncoder(w).Encode(jsonResponse); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

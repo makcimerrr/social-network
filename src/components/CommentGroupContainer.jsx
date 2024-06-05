@@ -4,14 +4,14 @@ import useComments from '../services/useComments';
 import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 
-const CommentContainer = ({ Post_id, NbComments }) => {
+const CommentGroupContainer = ({ Post_id, NbComments }) => {
   const router = useRouter();
   const [fetching, setFetching] = useState(false);
-  const { comments, fetchComments } = useComments(Post_id)
+  const { commentsGroup, fetchCommentsGroup } = useComments(Post_id)
   const handleFetchComments = () => {
     console.log(Post_id)
     setFetching(true);
-    fetchComments(Post_id)
+    fetchCommentsGroup(Post_id)
       .then(() => setFetching(false))
       .catch(() => setFetching(false));
   };
@@ -26,9 +26,9 @@ const CommentContainer = ({ Post_id, NbComments }) => {
       >
         {NbComments}
       </Button>
-      {comments && (
+      {commentsGroup && (
         <ul>
-          {comments.map(comment => (
+          {commentsGroup.map(comment => (
             <li key={comment.id}>
               <p>{comment.content}</p>
               <Typography variant="body2" color="textSecondary" component="p">
@@ -38,12 +38,6 @@ const CommentContainer = ({ Post_id, NbComments }) => {
                 </Typography>
               </Typography>
               <p>Date: {comment.date}</p>
-              {comment.image && (
-                <img
-                  src={`data:image/jpeg;base64,${comment.image}`}
-                  alt="Selected Image"
-                />
-              )}
             </li>
           ))}
         </ul>
@@ -52,4 +46,4 @@ const CommentContainer = ({ Post_id, NbComments }) => {
   );
 };
 
-export default CommentContainer;
+export default CommentGroupContainer;

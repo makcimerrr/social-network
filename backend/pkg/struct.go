@@ -21,6 +21,7 @@ type User struct { //Sert a Register et le profil
 	AboutMe         string `json:"aboutme"`
 	PrivateProfile  string `json:"privateprofile"`
 	PointOfInterest string `json:"pointofinterest"` //Join variables
+	Category        string `json:"category"`
 
 	ListFollowings          []User `json:"listfollowings"`
 	ListFollowers           []User `json:"listfollowers"`
@@ -41,6 +42,19 @@ type Post struct {
 	Image      []byte `json:"image"`
 	NbComments int    `json:"nbcomments"`
 }
+
+type PostGroup struct {
+	Id         int    `json:"id"`
+	User_id    int    `json:"user_id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Date       string `json:"date"`
+	Likes      int    `json:"likes"`
+	Group_id   int    `json:"group_id"`
+	Image      []byte `json:"image"`
+	NbComments int    `json:"nbcomments"`
+}
+
 type Comment struct {
 	Id      int    `json:"id"`
 	Post_id int    `json:"post_id"`
@@ -54,6 +68,7 @@ type Login struct {
 	Password string `json:"password"`
 }
 type Followers struct {
+	Id               int    `json:"id"`
 	UserId_Following int    `json:"userid_following"`
 	UserId_Follower  int    `json:"userid_follower"`
 	DateFollow       string `json:"datefollow"`
@@ -81,6 +96,7 @@ type Message struct {
 	Msg_type    string `json:"msg_type"`
 	User_id     int    `json:"user_id"`
 	ImageData   string `json:"image_data"`
+	Targets     []int  `json:"targets"`
 }
 
 type Chat struct {
@@ -96,6 +112,7 @@ type OnlineUsers struct {
 
 type Group struct {
 	ID             int `json:"id"`
+	IdWhoIsInvited int `json:"idwhoisinvited"`
 	IdGroup        int
 	Title          string
 	AboutGroup     string
@@ -105,10 +122,13 @@ type Group struct {
 	Image          []byte `json:"image"`
 }
 type EventGroup struct {
-	UserIDCreatorEvent int
-	Title              string
-	Date               string
-	Description        string
+	IDEvent            int    `json:"id"`
+	IDGroup            int    `json:"id_group"`
+	UserIDCreatorEvent int    `json:"id_user"`
+	Title              string `json:"title"`
+	Date               string `json:"date"`
+	Description        string `json:"description"`
+	Coming             int    `json:"coming"`
 }
 
 type InviteInTheGroup struct {
@@ -116,4 +136,11 @@ type InviteInTheGroup struct {
 
 	NameOfGroup     string `json:"nameOfGroup"`
 	NameOfThePerson string `json:"nameOfThePerson"`
+}
+
+type Coming struct {
+	ID       int  `json:"id"`
+	User_id  int  `json:"user_id"`
+	Event_id int  `json:"event_id"`
+	Come     bool `json:"Come"`
 }

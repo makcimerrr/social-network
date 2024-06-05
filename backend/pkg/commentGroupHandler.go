@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-func CommentHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/comment" {
+func CommentGroupHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/commentgroup" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
 		return
 	}
@@ -31,7 +31,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// On recherche en fonction du param les commentaires associés
-		comments, err := FindCommentByParam(param, data)
+		comments, err := FindCommentByParamGroup(param, data)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
@@ -104,7 +104,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 		newComment.User_id = curr.Id
 
 		// Appel de la fonction NewComment (ci-dessous)
-		err = NewComment(newComment)
+		err = NewGroupComment(newComment)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
 			return
@@ -126,7 +126,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Création d'un nouveau commentaire.
-func NewComment(c Comment) error {
+func NewGroupComment(c Comment) error {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
@@ -135,28 +135,12 @@ func NewComment(c Comment) error {
 
 	dt := time.Now().Format("01-02-2006 15:04:05")
 
-	// Récupérer l'USER ID de la table POST en utilisant l'IDPost de la table COMMENT
-	var userIDFromPost int
-	err = db.QueryRow(`SELECT UserID FROM POST WHERE IDPost = ?`, c.Post_id).Scan(&userIDFromPost)
-	if err != nil {
-		fmt.Println("Erreur lors de la récupération de l'USER ID depuis POST:", err)
-		return err
-	}
-
-	result, err := db.Exec(`INSERT INTO COMMENT(IDPost, UserID, CommentContent, Date, Image) values(?, ?, ?, ?, ?)`, c.Post_id, c.User_id, c.Content, dt, c.Image)
+	_, err = db.Exec(`INSERT INTO COMMENT_GROUP(IDPost, UserID, CommentContent, Date, Image) values(?, ?, ?, ?, ?)`, c.Post_id, c.User_id, c.Content, dt, c.Image)
 	if err != nil {
 		return err
 	}
 
-	idComment, err := result.LastInsertId()
-	if err != nil {
-		return err
-	}
-
-	// Insertion du nouveau commentaire dans notifs
-	InsertNotif(int(idComment), userIDFromPost, dt, "comment", db)
-
-	_, err = db.Exec("UPDATE POST SET NbComments = NbComments + 1 WHERE IDPost = ?", c.Post_id)
+	_, err = db.Exec("UPDATE POST_GROUP SET NbComments = NbComments + 1 WHERE IDPost = ?", c.Post_id)
 	if err != nil {
 		return err
 	}
@@ -165,7 +149,7 @@ func NewComment(c Comment) error {
 }
 
 // Récupération des commentaires en fonction d'un paramétre, id_post ici.
-func FindCommentByParam(param, data string) ([]Comment, error) {
+func FindCommentByParamGroup(param, data string) ([]Comment, error) {
 	var q *sql.Rows
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -179,17 +163,17 @@ func FindCommentByParam(param, data string) ([]Comment, error) {
 	}
 	switch param {
 	case "id":
-		q, err = db.Query(`SELECT * FROM COMMENT WHERE IDComment = ?`, i)
+		q, err = db.Query(`SELECT * FROM COMMENT_GROUP WHERE IDComment = ?`, i)
 		if err != nil {
 			return []Comment{}, errors.New("could not find id")
 		}
 	case "post_id":
-		q, err = db.Query(`SELECT * FROM COMMENT WHERE IDPost = ?`, i)
+		q, err = db.Query(`SELECT * FROM COMMENT_GROUP WHERE IDPost = ?`, i)
 		if err != nil {
 			return []Comment{}, errors.New("could not find post_id")
 		}
 	case "user_id":
-		q, err = db.Query(`SELECT * FROM COMMENT WHERE UserID = ?`, i)
+		q, err = db.Query(`SELECT * FROM COMMENT_GROUP WHERE UserID = ?`, i)
 		if err != nil {
 			return []Comment{}, errors.New("could not find user_id")
 		}
@@ -197,7 +181,7 @@ func FindCommentByParam(param, data string) ([]Comment, error) {
 		return []Comment{}, errors.New("cannot search by that parameter")
 	}
 
-	comments, err := ConvertRowToComment(q)
+	comments, err := ConvertRowToCommentGroup(q)
 	if err != nil {
 		return []Comment{}, errors.New("failed to convert")
 	}
@@ -206,7 +190,7 @@ func FindCommentByParam(param, data string) ([]Comment, error) {
 }
 
 // Converts comment table query results to an array of comment structs
-func ConvertRowToComment(rows *sql.Rows) ([]Comment, error) {
+func ConvertRowToCommentGroup(rows *sql.Rows) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var c Comment

@@ -7,7 +7,7 @@ const Chat = ({ loggedIn, id }) => {
 
     useEffect(() => {
         if (loggedIn) {
-        console.log(id)
+        //console.log(id)
         getUsers().then(function () {
           updateUsers(id);
       });
