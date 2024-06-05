@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import {fetchNotification} from "@/services/useFetchNotif";
 
 
 export var firstId = 512;
@@ -55,7 +56,7 @@ export async function updateUsers(currId) {
 }
 
 
-export function startWS(currId) {
+export function startWS(currId, setNotifications) {
     console.log("call startWS JS")
     console.log(currId)
     if (window["WebSocket"]) {
