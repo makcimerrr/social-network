@@ -46,6 +46,8 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 		request = "DELETE FROM NOTIFICATIONS WHERE IDComment = ?"
 	case "group":
 		request = "DELETE FROM NOTIFICATIONS WHERE IDGroup = ?"
+	case "inviteGroup":
+		request = "DELETE FROM NOTIFICATIONS WHERE IDNotif = ?"
 	case "event":
 		request = "DELETE FROM NOTIFICATIONS WHERE IDEvent = ?"
 	default:

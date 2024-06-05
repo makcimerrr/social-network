@@ -70,6 +70,7 @@ func StartServer() {
 	r.HandleFunc("/postgroup", pkg.PostGroupHandler)
 	r.HandleFunc("/inviteinmygroup", pkg.Inviteinmygroup)
 	r.HandleFunc("/getonegroup", pkg.GetOneGroup)
+	r.HandleFunc("/accept-group-notification", pkg.AcceptGroupNotification)
 
 	r.HandleFunc("/target", pkg.TargetHandler)
 

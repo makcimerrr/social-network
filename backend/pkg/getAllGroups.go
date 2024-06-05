@@ -9,7 +9,7 @@ import (
 )
 
 func GetAllGroups(w http.ResponseWriter, r *http.Request) {
-	var groups []Group
+	var groupIDs []int
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -33,7 +33,7 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT IDGroup,NameGroup, AboutUs, UserID_Creator FROM LISTGROUPS WHERE UserID_Creator = ?", MyId)
+	rows, err := db.Query("SELECT IDGroup FROM MEMBERSGROUPS WHERE UserID = ?", MyId)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -41,8 +41,23 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	for rows.Next() {
+		var idGroup int
+		err := rows.Scan(&idGroup)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		groupIDs = append(groupIDs, idGroup)
+	}
+
+	var groups []Group
+
+	for _, idGroup := range groupIDs {
+		row := db.QueryRow("SELECT IDGroup, NameGroup, AboutUs, UserID_Creator FROM LISTGROUPS WHERE IDGroup = ?", idGroup)
+
 		var group Group
-		err := rows.Scan(&group.IdGroup, &group.Title, &group.AboutGroup, &group.UserID_Creator)
+		err := row.Scan(&group.IdGroup, &group.Title, &group.AboutGroup, &group.UserID_Creator)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -57,5 +72,4 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	// Write the status code to the response and the JSON data
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
-
 }

@@ -112,6 +112,7 @@ type OnlineUsers struct {
 
 type Group struct {
 	ID             int `json:"id"`
+	IdWhoIsInvited int `json:"idwhoisinvited"`
 	IdGroup        int
 	Title          string
 	AboutGroup     string

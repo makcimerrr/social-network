@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {fetchNotification} from "@/services/useFetchNotif";
 
-const NotificationFetcher = ({id, setNotifications, notifications}) => {
+const NotificationFetcher = ({id, setNotifications, notifications, props}) => {
 
     const [deletedNotifications, setDeletedNotifications] = useState([]);
 
@@ -16,6 +16,14 @@ const NotificationFetcher = ({id, setNotifications, notifications}) => {
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
+    };
+
+    const acceptGroup = (id) => {
+        acceptGroupNotification(id, props); // Accept the notification
+    };
+
+    const rejectGroup = (id) => {
+        removeNotification(id,props); // Remove the notification after rejection
     };
 
 
