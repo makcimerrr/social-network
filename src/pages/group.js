@@ -25,24 +25,23 @@ const Group = (props) => {
     const [inviteErrors, setInviteErrors] = useState({});
 
 
-    //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await getGroup(props);
-                if (result.success) {
-                    setData(result.data);
-                } else {
-                    console.error('Failed to get group data:', result.message);
-                }
-            } catch (error) {
-                console.error('Error during fetching of group data:', error);
+    //pour fetcher tous les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
+    const fetchData = async () => {
+        try {
+            const result = await getGroup(props);
+            if (result.success) {
+                setData(result.data);
+            } else {
+                console.error('Failed to get group data:', result.message);
             }
-            setLoading(false);
-        };
+        } catch (error) {
+            console.error('Error during fetching of group data:', error);
+        }
+        setLoading(false);
+    };
 
-
-        //pour fetcher tout les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
+    useEffect(() => {
+        //pour fetcher tous les groupes dont l'utilisateur est chef POUR L'INSTANT a REVOIR
         fetchData();
     });
 
@@ -82,7 +81,6 @@ const Group = (props) => {
                 console.log(form)
                 const responseData = await createGroup(form, props);
                 if (responseData.success) {
-
                     toast.success("Group Created" + '👏', {
                         duration: 4000,
                         position: 'top-center',
