@@ -39,6 +39,12 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 	err, registerData.ID = GetName(db, w, r)
 
+	/*_, err = db.Exec(`INSERT INTO MEMBERSGROUPS (IDGroup, UserID) VALUES (?, ?)`, data.ID, data.IdWhoIsInvited)
+	if err != nil {
+		fmt.Println("Error while inserting into the database:", err)
+		return
+	}*/
+
 	err = InsertIntoDataBase(registerData, db, registerData.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -49,6 +55,18 @@ func CreateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(jsonResponse)
 		return
 	}
+
+	err = AddingOwnerAsAMember(registerData, db, registerData.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": err.Error(),
+		}
+		_ = json.NewEncoder(w).Encode(jsonResponse)
+		return
+	}
+
 	fmt.Println("Group created successfully")
 
 	w.WriteHeader(http.StatusOK)
@@ -107,6 +125,22 @@ func GetName(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
 
 func InsertIntoDataBase(registerData Group, db *sql.DB, IDownerOfTheGroup int) error {
 	_, err := db.Exec(`INSERT INTO LISTGROUPS (NameGroup, AboutUs, UserID_Creator) VALUES (?, ?, ?)`, registerData.Title, registerData.AboutGroup, IDownerOfTheGroup)
+	if err != nil {
+		fmt.Println("Error while inserting into the database:", err)
+		return err
+	}
+	return nil
+}
+
+func AddingOwnerAsAMember(registerData Group, db *sql.DB, IDownerOfTheGroup int) error {
+
+	err := db.QueryRow("SELECT IDGroup FROM LISTGROUPS WHERE NameGroup = ?", registerData.Title).Scan(&registerData.IdGroup)
+	if err != nil {
+		fmt.Println("Error while fetching group ID from the database:", err)
+		return err
+	}
+
+	_, err = db.Exec(`INSERT INTO MEMBERSGROUPS (IDGroup, UserID) VALUES (?, ?)`, registerData.IdGroup, IDownerOfTheGroup)
 	if err != nil {
 		fmt.Println("Error while inserting into the database:", err)
 		return err
