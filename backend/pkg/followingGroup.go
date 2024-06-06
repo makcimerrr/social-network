@@ -61,7 +61,7 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exists, err := NotificationExists(db, userid, groupid)
+	exists, err := AlreadyInvited(db, userid, groupid)
 	if err != nil {
 		fmt.Println("Error checking notification existence:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -72,6 +72,27 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		jsonResponse := map[string]interface{}{
 			"success": false,
 			"message": "User already invited",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			fmt.Println("Error encoding JSON response:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	alreadyGroups, err := AlreadyInGroup(db, userid, groupid)
+	if err != nil {
+		fmt.Println("Error checking notification existence:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if alreadyGroups {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "User already in group",
 		}
 		err := json.NewEncoder(w).Encode(jsonResponse)
 		if err != nil {
@@ -104,8 +125,18 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	//notification.InsertNotification(w, r, db, invite.NameOfThePerson, "invite", invite.NameOfGroup)
 }
 
-func NotificationExists(db *sql.DB, userId int, groupId int) (bool, error) {
+func AlreadyInvited(db *sql.DB, userId int, groupId int) (bool, error) {
 	query := `SELECT COUNT(*) FROM NOTIFICATIONS WHERE UserID_Receiver = ? AND IDGroup = ?`
+	var count int
+	err := db.QueryRow(query, userId, groupId).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func AlreadyInGroup(db *sql.DB, userId int, groupId int) (bool, error) {
+	query := `SELECT COUNT(*) FROM MEMBERSGROUPS WHERE UserID = ? AND IDGroup = ?`
 	var count int
 	err := db.QueryRow(query, userId, groupId).Scan(&count)
 	if err != nil {
