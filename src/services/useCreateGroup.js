@@ -37,10 +37,12 @@ export const createGroup = async (form,props) => {
 };
 
 export const getGroup = async (props) => {
+    var ConvertID = parseInt(props.id, 10); // You want to use radix 10
+
     try {
         const response = await fetch('http://localhost:8080/getallgroups', {
             method: 'POST',
-            body: JSON.stringify(props.id),
+            body: JSON.stringify(ConvertID),
             headers: {
                 'Content-Type': 'application/json',
             },
