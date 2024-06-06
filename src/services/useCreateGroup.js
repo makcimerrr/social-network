@@ -20,7 +20,7 @@ export const createGroup = async (form,props) => {
             if (data && data.success) {
                 console.log(data);
                 console.log("envoie ws")
-                sendMsg(conn, 0, { value: "New Group" }, 'group')
+                //sendMsg(conn, 0, { value: "New Group" }, 'group')
                 return { success: true, data };
             } else {
                 console.error('Create group failed:', data ? data.message : 'No response body');

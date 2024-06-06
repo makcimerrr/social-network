@@ -61,6 +61,27 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exists, err := NotificationExists(db, userid, groupid)
+	if err != nil {
+		fmt.Println("Error checking notification existence:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if exists {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "User already invited",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			fmt.Println("Error encoding JSON response:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
 	now := time.Now()
 	date := now.Format("2006-01-02 15:04:05")
 
@@ -81,6 +102,16 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	//si la personne existe dans la base de données ou si elle n'est pas déjà dans le groupe.
 	//err = CheckConditions(db, w, r, invite)
 	//notification.InsertNotification(w, r, db, invite.NameOfThePerson, "invite", invite.NameOfGroup)
+}
+
+func NotificationExists(db *sql.DB, userId int, groupId int) (bool, error) {
+	query := `SELECT COUNT(*) FROM NOTIFICATIONS WHERE UserID_Receiver = ? AND IDGroup = ?`
+	var count int
+	err := db.QueryRow(query, userId, groupId).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func GetGroupID(db *sql.DB, w http.ResponseWriter, r *http.Request) (error, int) {
