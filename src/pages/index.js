@@ -23,7 +23,6 @@ const Home = ({loggedIn, id}) => {
 
     useEffect(() => {
         if (loggedIn) {
-            console.log(id)
             fetchPosts(id);
         }
     }, [loggedIn]);

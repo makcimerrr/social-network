@@ -121,7 +121,16 @@ func (c *Client) readPump() {
 				log.Printf("Error storing new message: %v", err)
 				break
 			}
+		}
 
+		if msg.Msg_type == "groupmsg" {
+			msg.Date = time.Now().Format("01-02-2006 15:04:05")
+			fmt.Println("groupmsg")
+			err = NewGroupMessage(msg)
+			if err != nil {
+				log.Printf("Error storing new message: %v", err)
+				break
+			}
 		}
 
 		sendMsg, err := json.Marshal(msg)

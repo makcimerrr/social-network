@@ -21,8 +21,6 @@ export const fetchNotification = async (id, setNotifications) => {
         if (data.success) {
             const allNotifications = [];
             let idCounter = 0;
-            console.log(data);
-
 
             if (data.listPost) {
                 data.listPost.forEach(element => {

@@ -10,6 +10,7 @@ const UserContainer = () => {
         <p className="online-list" id="offline-list">Offline</p>
         <div className="offline-users"></div>
         <p className="title-users">Groupes</p>
+        <div className="group-list"></div>
       </div>
     </div>
   );

@@ -15,3 +15,12 @@
 		FOREIGN KEY(id_one) REFERENCES users(id),
 		FOREIGN KEY(id_two) REFERENCES users(id)
 	);
+
+CREATE TABLE IF NOT EXISTS groupmessages (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	sender_id INTEGER NOT NULL,
+	group_id INTEGER NOT NULL,
+	content TEXT NOT NULL,
+	date TEXT NOT NULL,
+	FOREIGN KEY(sender_id) REFERENCES users(id)
+);

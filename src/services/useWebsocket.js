@@ -1,6 +1,7 @@
 import toast from "react-hot-toast";
 import {fetchNotification} from "@/services/useFetchNotif";
 import {Target} from "@/services/useTarget";
+import { getGroup } from "./useCreateGroup";
 
 
 export var firstId = 512;
@@ -142,6 +143,23 @@ export function startWS(currId, setNotifications) {
                         icon: '❌',
                     }
                 );
+            } else if (data.msg_type === "groupmsg") {
+                console.log("msg groupe")
+                var senderContainer = document.createElement("div");
+                senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
+                var sender = document.createElement("div");
+                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
+                sender.innerText = data.content;
+                var date = document.createElement("div");
+                date.className = "chat-time";
+                date.innerText = data.date.slice(0, -3);
+                appendLog(senderContainer, sender, date);
+
+                if (data.sender_id == currId) {
+                    return;
+                }
+                updateUsers(currId);
+
             } else if (data.msg_type === "msg") {
                 console.log("new message")
                 toast(
@@ -167,22 +185,6 @@ export function startWS(currId, setNotifications) {
 
                 if (data.sender_id == currId) {
                     return;
-                }
-
-                let unreadMsgs = unread.filter((u) => {
-                    id = data.sender_id;
-                    return u[0] == id;
-                });
-
-                let chatWrapper = document.querySelector('.chat-wrapper');
-
-                if (chatWrapper && chatWrapper.style.display == "none") {
-
-                    if (unreadMsgs.length == 0) {
-                        unread.push([data.sender_id, 1]);
-                    } else {
-                        unreadMsgs[0][1] += 1;
-                    }
                 }
                 updateUsers(currId);
 
@@ -241,6 +243,8 @@ export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
         is_typing: false,
     }
 
+    console.log(msgData)
+
     conn.send(JSON.stringify(msgData))
     msg.value = "";
     return false;
@@ -251,19 +255,19 @@ export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
 export async function createUsers(userdata, conn, currId) {
     await sleep(1000);
     const offlineUsers = document.querySelector('.offline-users');
+    const groupList = document.querySelector('.group-list');
 
     if (offlineUsers != null) {
         offlineUsers.innerHTML = ""
     }
+    if (groupList != null) {
+        groupList.innerHTML = ""
+    }
     const list = await fetchUsersFromAPI(currId);
-    console.log(list);
 
     if (userdata == null) {
         return
     }
-
-    console.log(userdata)
-
 
     userdata.map(({id, nickname, privateprofile}) => {
 
@@ -304,27 +308,37 @@ export async function createUsers(userdata, conn, currId) {
         if (offlineUsers != null) {
             offlineUsers.appendChild(user)
         }
-        /*         var msgNotification = document.createElement("div");
-                msgNotification.className = "msg-notification"
-                msgNotification.innerText = 1
-                user.appendChild(msgNotification)
-        
-                let unreadMsgs = unread.filter((u) => {
-                    return u[0] == id
-                })
-        
-                if (unreadMsgs.length != 0 && unreadMsgs[0][1] != 0) {
-                    const msgNotif =  document.getElementById('id'+id).querySelector('.msg-notification');
-                    msgNotif.style.opacity = "1"
-                    msgNotif.innerText = unreadMsgs[0][1]
-                    document.getElementById('id'+id).style.fontWeight = "900"
-                }  */
-
-        // En cas de click sur un utilisateur, on check la DB message et on ouvre une fenêtre de chat.
         user.addEventListener("click", function (e) {
             GetElementToOpenChat(id, user, currId)
         });
     })
+
+    const group = await getGroupForChat(currId);
+
+    if (group.data == null) {
+        return
+    }
+
+        group.data.map(({IdGroup, Title}) => {
+
+        console.log(IdGroup, Title)
+
+        var user = document.createElement("div");
+        user.className = "user"
+        user.setAttribute("id", ('id' + IdGroup))
+
+
+        var chatusername = document.createElement("p");
+        chatusername.innerText = Title
+        user.appendChild(chatusername)
+        if (groupList != null) {
+            groupList.appendChild(user)
+        }
+        user.addEventListener("click", function (e) {
+            GetElementToOpenChatGroup(IdGroup, currId, Title)
+        });
+        })
+
 }
 
 export function GetElementToOpenChat(id, user, currId) {
@@ -350,7 +364,23 @@ export function GetElementToOpenChat(id, user, currId) {
     }).catch();
 }
 
-let log;
+export function GetElementToOpenChatGroup(id, currId, Title) {
+    resetScroll();
+    if (typeof conn === "undefined") {
+        // Protection si problème de WS.
+        return;
+    }
+    // On récupère les logs si ils existent.
+    let resp = getData('http://localhost:8080/messagegroup?group=' + id + '&firstId=' + firstId);
+    resp.then(value => {
+
+
+        // Ouverture d'une fenêtre de chat.
+        OpenChatGroup(id, conn, value, currId, firstId, Title);
+    }).catch();
+}
+
+let log;    
 
 if (typeof document !== 'undefined') {
     // Access DOM elements only if document is defined
@@ -462,25 +492,6 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         chatBox.scrollTop = chatBox.scrollHeight;
     });
 
-    // Même chose pour "entrée".
-    /*     document.querySelector("#chat-input").addEventListener("keydown", function (event) {
-            if (event.keyCode === 13) {
-
-                offset = 0;
-                sendMsg(conn, rid, msg, 'msg');
-                firstId = firstId + 10;
-                let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
-                resp.then(value => {
-                    if (value && value.length > 0) {
-                        const lastIndex = value.length - 1;
-                        firstId = value[lastIndex].id;
-                        lastFetchedId = firstId;
-                    }
-                    OpenChat(rid, conn, value, currId, firstId)
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }).catch();
-            }
-        }); */
 
     var offset = 10;
     var lastFetchedId = null;
@@ -557,6 +568,99 @@ export function CreateMessages(data, currId) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Fonction active si ouverture d'un chat.
+export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
+    document.getElementById('id' + rid).style.fontWeight = "400";
+    var chatBox = document.querySelector('.chat');
+
+    chatBox.innerHTML = '';
+
+    for (var i = 0; i < unread.length; i++) {
+        if (unread[i][0] == rid) {
+            unread[i][1] = 0;
+        }
+    }
+
+    let oldElem = document.querySelector(".send-wrapper");
+    let newElem = oldElem.cloneNode(true);
+    oldElem.parentNode.replaceChild(newElem, oldElem);
+
+        console.log(Title)
+    document.querySelector(".chat-user-username").innerText = Title;
+
+    document.querySelector(".chat-wrapper").style.display = "flex";
+    var msg = document.getElementById("chat-input");
+
+    // Fermeture du chat.
+    document.querySelector(".close-chat").addEventListener("click", function () {
+        document.querySelector(".chat-wrapper").style.display = "none";
+        resetScroll();
+    });
+
+
+    // Envoi du message si click.
+    document.querySelector("#send-btn").addEventListener("click", function () {
+        // On fait un envoi msg via WS avec le type "msg" (donc message chat)
+
+        sendMsg(conn, rid, msg, 'groupmsg');
+
+        let resp = getData('http://localhost:8080/messagegroup?group=' + rid + '&firstId=' + firstId);
+        resp.then(value => {
+    
+    
+            // Ouverture d'une fenêtre de chat.
+            OpenChatGroup(rid, conn, value, currId, firstId, Title);
+        }).catch();
+    });
+
+    document.querySelector(".emoji-icon").addEventListener("click", function () {
+        var chatBox = document.querySelector('.chat');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+
+    var offset = 10;
+    var lastFetchedId = null;
+
+    // Fonction pour charger les messages 10/10.
+    /* debouncedScrollHandler = debounce(function () {
+
+        if (chatBox.scrollTop === 0) {
+            let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
+            resp.then(value => {
+                value = value.filter(message => message.id !== lastFetchedId);
+
+                if (value.length > 0) {
+                    const lastIndex = value.length - 1;
+                    firstId = value[lastIndex].id;
+                    lastFetchedId = firstId;
+                }
+                currentScrollPos = chatBox.scrollHeight - chatBox.scrollTop;
+                CreateMessages(value, currId);
+                var newScrollPos = chatBox.scrollHeight - currentScrollPos;
+                chatBox.scrollTop = newScrollPos;
+
+                offset += value.length;
+            }).catch();
+        }
+    }, 300); */
+
+/*     chatBox.addEventListener("scroll", debouncedScrollHandler);
+
+    function debounce(func, delay) {
+        let timer;
+        return function () {
+            clearTimeout(timer);
+            timer = setTimeout(func, delay);
+        };
+    } */
+
+    if (data == null) {
+        return;
+    }
+    CreateMessages(data, currId);
+}
+
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -564,7 +668,6 @@ function sleep(ms) {
 
 export const fetchUsersFromAPI = async (id) => {
     try {
-      console.log(id);
       const response = await fetch(`http://localhost:8080/user?id=${id}`, {
         credentials: 'include'
       });
@@ -578,3 +681,32 @@ export const fetchUsersFromAPI = async (id) => {
       throw new Error('Error fetching users: ' + error.message);
     }
   };
+
+
+  export const getGroupForChat = async (id) => {
+    try {
+        const response = await fetch('http://localhost:8080/getallgroups', {
+            method: 'POST',
+            body: JSON.stringify(id),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            console.error('Get group failed:', response.statusText);
+            return { success: false, message: response.statusText };
+        }
+
+        const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
+        return { success: true, data }; // Retourne l'objet JavaScript
+    } catch (error) {
+        const errorMessage = error.message ? error.message : 'An error occurred';
+
+        console.error('Error:', errorMessage);
+
+        return {success: false, message: errorMessage};
+    }
+}
+
