@@ -1,28 +1,20 @@
-CREATE TABLE IF NOT EXISTS LISTGROUPS
-(
-    IDGroup
-    INTEGER
-    PRIMARY
-    KEY,
-    NameGroup
-    VARCHAR
-(
-    150
-),
+-- Step 1: Create the table
+CREATE TABLE IF NOT EXISTS LISTGROUPS (
+    IDGroup INTEGER PRIMARY KEY AUTOINCREMENT,
+    NameGroup VARCHAR(150),
     UserID_Creator INTEGER,
-    AboutUs VARCHAR
-(
-    500
-),
+    AboutUs VARCHAR(500),
     Image BLOB,
-    FOREIGN KEY
-(
-    UserID_Creator
-) REFERENCES USERS
-(
-    ID
-)
-    );
+    FOREIGN KEY(UserID_Creator) REFERENCES USERS(ID)
+);
+
+-- Step 2: Insert a dummy row with IDGroup 10000
+INSERT INTO LISTGROUPS (IDGroup, NameGroup, UserID_Creator, AboutUs, Image)
+VALUES (10000, 'dummy', 0, 'dummy', NULL);
+
+-- Step 3: Delete the dummy row
+DELETE FROM LISTGROUPS WHERE IDGroup = 10000;
+    
 
 CREATE TABLE IF NOT EXISTS MEMBERSGROUPS
 (

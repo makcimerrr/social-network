@@ -21,7 +21,6 @@ export const fetchNotification = async (id, setNotifications) => {
         if (data.success) {
             const allNotifications = [];
             let idCounter = 0;
-            console.log(data.listGroupMp)
             if (data.listGroupMp) {
                 data.listGroupMp.forEach(element => {
                     const notification = {

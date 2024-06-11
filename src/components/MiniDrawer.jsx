@@ -192,6 +192,15 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
                 </ListItemIcon>
                 <ListItemText primary="Chat" />
               </ListItemButton>
+              <ListItemButton 
+    selected={router.pathname === '/chatgroup?id=' + id.toString()} 
+    component={Link} 
+    href={'/chatgroup?id=' + id.toString()}
+>                <ListItemIcon>
+                  <ChatIcon />
+                </ListItemIcon>
+                <ListItemText primary="Chat Group" />
+              </ListItemButton>
 
               <ListItemButton selected={router.pathname === '/group'} component={Link} to="/group">
                 <ListItemIcon>

@@ -78,7 +78,10 @@ export function startWS(currId, setNotifications, router) {
         // En fonction du type de message on exécute une opération différente.
         conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
+            var currentURL = window.location.href;
             //console.log("Data websocket", data);
+            console.log(data.receiver_id)
+
             fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
                 console.log("new post")
@@ -150,6 +153,8 @@ export function startWS(currId, setNotifications, router) {
                 );
             } else if (data.msg_type === "groupmsg") {
                 console.log("msg groupe")
+
+                if (currentURL.includes("chatgroup?id")) {
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
                 var sender = document.createElement("div");
@@ -164,6 +169,7 @@ export function startWS(currId, setNotifications, router) {
                     return;
                 }
                 updateUsers(currId);
+            }
 
             } else if (data.msg_type === "msg") {
                 console.log("new message")
@@ -177,6 +183,7 @@ export function startWS(currId, setNotifications, router) {
                         icon: '📬',
                     }
                 );
+                if (currentURL.includes("chat?id")) {
                 // Message chat, on regarde si on est l'émetteur ou le destinataire, on créé la div correspondante, et on "append" le message.
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
@@ -192,6 +199,7 @@ export function startWS(currId, setNotifications, router) {
                     return;
                 }
                 updateUsers(currId);
+            }
 
             } else if (data.msg_type === "online") {
                 // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
@@ -236,7 +244,6 @@ export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
         return false;
     }
 
-    console.log("target send msg", target)
 
     let msgData = {
         id: 0,
@@ -287,14 +294,12 @@ export async function createUsers(userdata, conn, currId) {
                 }
                 if (list.listfollowers) {
                 if (list.listfollowers.some(follower => follower.id === id)) {
-                  console.log("match found");
                 } else {
                     return
                 }
                 }
                 if (list.listfollowings) {
                     if (list.listfollowings.some(follower => follower.id === id)) {
-                      console.log("match found 2");
                     } else {
                         return
                     }
@@ -327,7 +332,6 @@ export async function createUsers(userdata, conn, currId) {
 
         group.data.map(({IdGroup, Title}) => {
 
-        console.log(IdGroup, Title)
 
         var user = document.createElement("div");
         user.className = "user"
@@ -591,7 +595,6 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
     let newElem = oldElem.cloneNode(true);
     oldElem.parentNode.replaceChild(newElem, oldElem);
 
-        console.log(Title)
     document.querySelector(".chat-user-username").innerText = Title;
 
     document.querySelector(".chat-wrapper").style.display = "flex";
@@ -607,7 +610,6 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
     // Envoi du message si click.
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
-
         sendMsg(conn, rid, msg, 'groupmsg');
 
         let resp = getData('http://localhost:8080/messagegroup?group=' + rid + '&firstId=' + firstId);
