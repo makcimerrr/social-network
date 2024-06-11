@@ -99,6 +99,19 @@ type Message struct {
 	Targets     []int  `json:"targets"`
 }
 
+type GroupMessage struct {
+	Id          int    `json:"id"`
+	Group_id    int    `json:"group_id"`
+	Sender_id   int    `json:"sender_id"`
+	Receiver_id int    `json:"receiver_id"`
+	Content     string `json:"content"`
+	Date        string `json:"date"`
+	Msg_type    string `json:"msg_type"`
+	User_id     int    `json:"user_id"`
+	ImageData   string `json:"image_data"`
+	Targets     []int  `json:"targets"`
+}
+
 type Chat struct {
 	User_one int
 	User_two int

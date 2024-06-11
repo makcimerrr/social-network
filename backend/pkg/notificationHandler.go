@@ -21,6 +21,8 @@ func InsertNotif(ID, UserID_Followers int, date, optionType string, db *sql.DB) 
 		request = "INSERT INTO NOTIFICATIONS(IDGroup,UserID_Receiver,Date) Values(?,?,?)"
 	case "event":
 		request = "INSERT INTO NOTIFICATIONS(IDEvent,UserID_Receiver,Date) Values(?,?,?)"
+	case "groupmsg":
+		request = "INSERT INTO NOTIFICATIONS(IDPrivateGroupMessage,UserID_Receiver,Date) Values(?,?,?)"
 	default:
 		fmt.Println("\nY A DE LA MERDE ICI : vérifie t'on optionType à la fonction InsertNotif\n Option correct : 'follow', 'mp', 'post', 'comment', 'group', 'event'")
 		return
@@ -50,6 +52,8 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 		request = "DELETE FROM NOTIFICATIONS WHERE IDNotif = ?"
 	case "event":
 		request = "DELETE FROM NOTIFICATIONS WHERE IDEvent = ?"
+	case "groupmsg":
+		request = "DELETE FROM NOTIFICATIONS WHERE IDPrivateGroupMessage = ?"
 	default:
 		fmt.Println("\nY A DE LA MERDE ICI : vérifie t'on optionType à la fonction DeleteNotif\n Option correct : 'follow', 'mp', 'post', 'comment', 'group', 'event'")
 		return
@@ -61,7 +65,7 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 	CheckErr(err, "DeleteNotif db Exec")
 }
 
-func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComment, listGroup, listEvent [][]interface{}) {
+func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg [][]interface{}) {
 	// récupération des notifications follow
 	ListFollowers = make([][]interface{}, 0)
 	stmtfollow, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname, FOLLOWERS.ID, FOLLOWERS.ValidateFollow, FOLLOWERS.DateFollow
@@ -190,7 +194,37 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComm
 		listGroup = append(listGroup, currentInformation)
 	}
 
-	return ListFollowers, listMP, listPost, listComment, listGroup, listEvent
+	// Récupération des notifications de messages de groupe
+	listGroupMsg = make([][]interface{}, 0)
+	stmtGroupMsg, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname, groupmessages.id, groupmessages.content, groupmessages.date, LISTGROUPS.IDGroup, LISTGROUPS.NameGroup, LISTGROUPS.AboutUs, LISTGROUPS.Image
+									FROM USERS
+									INNER JOIN groupmessages ON groupmessages.sender_id = USERS.ID
+									INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.IDPrivateGroupMessage = groupmessages.id
+									INNER JOIN LISTGROUPS ON LISTGROUPS.IDGroup = groupmessages.group_id
+									WHERE NOTIFICATIONS.UserID_Receiver = ?`)
+	CheckErr(err, "GetNotif listGroupMsg, db prepare")
+	rowsGroupMsg, err := stmtGroupMsg.Query(UserID)
+	CheckErr(err, "GetNotif listGroupMsg, db query")
+	for rowsGroupMsg.Next() {
+		var currentUser User
+		var currentGroupMessage struct {
+			ID      int
+			Content string
+			Date    string
+		}
+		var currentGroup Group
+		var currentInformation []interface{}
+		err = rowsGroupMsg.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroupMessage.ID, &currentGroupMessage.Content, &currentGroupMessage.Date, &currentGroup.IdGroup, &currentGroup.Title, &currentGroup.AboutGroup, &currentGroup.Image)
+		CheckErr(err, "listGroupMsg, db rowsGroupMsg.Next scan")
+		currentInformation = append(currentInformation, currentUser)         // information sur l'utilisateur
+		currentInformation = append(currentInformation, currentGroupMessage) // information sur le message de groupe
+		currentInformation = append(currentInformation, currentGroup)
+		var category = "GroupMessage"
+		currentUser.Category = category
+		listGroupMsg = append(listGroupMsg, currentInformation)
+	}
+
+	return ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg
 }
 
 // optionType = 'post', 'comment', 'group', 'event'
@@ -255,6 +289,22 @@ func WhoDisplayNotif(UserID, optionID int, optionType string, db *sql.DB) (listU
 			var currentUser User
 			err = rowspost.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname)
 			CheckErr(err, "WhoDisplayNotif event, db rowspost.Next scan")
+			listUser = append(listUser, currentUser)
+		}
+
+	case "groupmessage": // Retourne la liste des membres du groupe 'optionID' sauf le créateur
+		stmtGroupMessage, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname
+											 FROM USERS
+											 INNER JOIN MEMBERSGROUPS ON MEMBERSGROUPS.UserID = USERS.ID
+											 INNER JOIN LISTGROUPS ON LISTGROUPS.IDGroup = MEMBERSGROUPS.IDGroup
+											 WHERE MEMBERSGROUPS.IDGroup = ? AND MEMBERSGROUPS.UserID != LISTGROUPS.UserID_Creator;`)
+		CheckErr(err, "WhoDisplayNotif groupmessage, db prepare")
+		rowspost, err := stmtGroupMessage.Query(optionID)
+		CheckErr(err, "WhoDisplayNotif groupmessage, db query")
+		for rowspost.Next() {
+			var currentUser User
+			err = rowspost.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname)
+			CheckErr(err, "WhoDisplayNotif groupmessage, db rowspost.Next scan")
 			listUser = append(listUser, currentUser)
 		}
 	}

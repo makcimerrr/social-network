@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import {fetchNotification} from "@/services/useFetchNotif";
 import {Target} from "@/services/useTarget";
 import { getGroup } from "./useCreateGroup";
+import {useRouter} from "next/router";
 
 
 export var firstId = 512;
@@ -57,8 +58,7 @@ export async function updateUsers(currId) {
         })
 }
 
-
-export function startWS(currId, setNotifications) {
+export function startWS(currId, setNotifications, router) {
     console.log("call startWS JS")
     console.log(currId)
     if (window["WebSocket"]) {
@@ -82,10 +82,11 @@ export function startWS(currId, setNotifications) {
             fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
                 console.log("new post")
+                console.log(data)
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New post! Click <a href="/">here</a>
+                            New post! Click <a className="custom-link" onClick={() => router.push('/home')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -98,7 +99,8 @@ export function startWS(currId, setNotifications) {
                 console.log("new group")
                 toast(
                     <span>
-                        Your are invited to a new group ! Click <a href="/">here</a>
+                        Your are invited to a new group ! Click <a className="custom-link"
+                                                                   onClick={() => router.push('/notif')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -111,7 +113,8 @@ export function startWS(currId, setNotifications) {
                 await Target(currId);
                 toast(
                     <span>
-                        You have a new follow ! Click <a href="/">here</a>
+                        You have a new follow ! Click <a className="custom-link"
+                                                         onClick={() => router.push('/notif')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -123,7 +126,8 @@ export function startWS(currId, setNotifications) {
                 console.log("stop follow")
                 toast(
                     <span>
-                        One follow stopped ! Click <a href="/">here</a>
+                        One follow stopped ! Click <a className="custom-link"
+                                                      onClick={() => router.push('/user')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -135,7 +139,8 @@ export function startWS(currId, setNotifications) {
                 console.log("cancel follow")
                 toast(
                     <span>
-                        One follow canceled ! Click <a href="/">here</a>
+                        One follow canceled ! Click <a className="custom-link"
+                                                       onClick={() => router.push('/user')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -164,7 +169,7 @@ export function startWS(currId, setNotifications) {
                 console.log("new message")
                 toast(
                     <span>
-                        You have a new message ! Click <a href="/chat">here</a>
+                        You have a new message ! Click <a className="custom-link" onClick={() => router.push('/chat')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -197,7 +202,8 @@ export function startWS(currId, setNotifications) {
                 console.log("comment now")
                 toast(
                     <span>
-                        New Comment on your post !Click <a href="/">here</a>
+                        New Comment on your post !Click <a className="custom-link"
+                                                           onClick={() => router.push('/home')}>here</a>
                     </span>,
                     {
                         duration: 4000,

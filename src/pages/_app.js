@@ -15,6 +15,7 @@ function MyApp({Component, pageProps}) {
     const {fetchPosts} = usePosts();
     const [notifications, setNotifications] = useState([]);
 
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -23,7 +24,7 @@ function MyApp({Component, pageProps}) {
                     setLoggedIn(true);
                     setId(responseData.id);
                     //console.log(typeof responseData.id, responseData.id);
-                    startWS(responseData.id, setNotifications);
+                    startWS(responseData.id, setNotifications, router);
                     router.push('/');
                 } else {
                     console.log('La demande de session n\'a pas réussi.');

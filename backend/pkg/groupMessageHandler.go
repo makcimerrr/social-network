@@ -93,8 +93,16 @@ func NewGroupMessage(m Message) error {
 		return err
 	}
 
-	// Insertion du nouveau commentaire dans notifs
-	InsertNotif(int(idMessage), m.Receiver_id, dt, "groupmsg", db)
+	groupID := m.Receiver_id // Supposant que Receiver_id est l'ID du groupe
+	listUser := WhoDisplayNotif(m.Sender_id, groupID, "groupmessage", db)
+
+	fmt.Println(listUser)
+	fmt.Println(dt)
+	fmt.Println(idMessage)
+
+	for _, user := range listUser {
+		InsertNotif(int(idMessage), user.Id, dt, "groupmsg", db)
+	}
 
 	return nil
 }

@@ -38,7 +38,7 @@ export const createGroup = async (form,props) => {
 
 export const getGroup = async (props) => {
     var ConvertID = parseInt(props.id, 10); // You want to use radix 10
-    console.log(ConvertID)
+    //console.log(ConvertID)
     try {
         const response = await fetch('http://localhost:8080/getallgroups', {
             method: 'POST',

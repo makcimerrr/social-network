@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS NOTIFICATIONS
     INTEGER
     DEFAULT
     0,
+    IDPrivateGroupMessage
+    INTEGER
+    DEFAULT
+    0,
     IDPost
     INTEGER
     DEFAULT

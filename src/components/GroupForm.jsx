@@ -4,19 +4,39 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick }) => {
     const [inviteError, setInviteError] = useState(null); // New state variable for storing the error message
-
-    const handleInviteClick = async () => { // Modified onInviteClick function
-        const result = await onInviteClick();
-        if (!result.success) {
-            setInviteError(result.message);
-        }
-    };
     const router = useRouter();
 
 
     const handleGroupClick = (group) => {
         console.log("Group clicked: ", group);
         router.push('/detail_group?id=' + group.IdGroup);
+    };
+
+    const handleInviteClick = async () => {
+        const result = await onInviteClick();
+        if (result.success) {
+            resetInviteForm();
+        }
+    };
+    const resetInviteForm = () => {
+        setInvite({
+            nameOfGroup: '',
+            nameOfThePerson: '',
+        });
+    };
+
+    const handleCreateClick = async () => {
+        const result = await onRegisterClick();
+        if (result.success) {
+            resetForm();
+        }
+    };
+
+    const resetForm = () => {
+        setForm({
+            title: '',
+            aboutGroup: '',
+        });
     };
 
     return (
@@ -58,7 +78,7 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                 <br/>
 
                 <div className={'inputContainer'}>
-                    <input className={'inputButton'} type="button" onClick={onRegisterClick} value={'Create it'}/>
+                    <input className={'inputButton'} type="button" onClick={handleCreateClick} value={'Create it'}/>
                 </div>
             </div>
 
@@ -101,7 +121,7 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                 <br/>
 
                 <div className={'inputContainer'}>
-                    <input className={'inputButton'} type="button" onClick={onInviteClick} value={'Invite'}/>
+                    <input className={'inputButton'} type="button" onClick={handleInviteClick} value={'Invite'}/>
                 </div>
             </div>
             </div>

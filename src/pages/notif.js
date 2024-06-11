@@ -29,7 +29,7 @@ const NotificationFetcher = (props) => {
                     'Follow accepted',
                     {}
                 )
-                removeNotification(notifId, "follow", followId );
+                removeNotification(notifId, "follow", followId);
             }
             if (!response.ok) {
                 throw new Error('Failed to update privacy setting');
@@ -123,15 +123,23 @@ const NotificationFetcher = (props) => {
             <h1 className="notification-headers">Notification Fetcher</h1>
             <div id="notifications">
                 {sortedNotifications && sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
-                    <div className="notification">
+                    <div key={notif.id} className="notification">
                         <div>Id : {notif.id}</div>
                         <div className="emoji-container">
                             {notif.category === 'Follow' && (
                                 <>
                                     <button className="close-button"
-                                            onClick={() => removeNotification(notif.id, "follow", notif.follow.id, )}>×
+                                            onClick={() => removeNotification(notif.id, "follow", notif.follow.id,)}>×
                                     </button>
                                     <span role="img" aria-label="Follow Emoji">➕</span>
+                                </>
+                            )}
+                            {notif.category === 'GroupMP' && (
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "groupmp", notif.message.ID)}>×
+                                    </button>
+                                    <span role="img" aria-label="GroupMp Emoji">👩‍❤️‍👨</span>
                                 </>
                             )}
                             {notif.category === 'Post' && (
@@ -145,7 +153,7 @@ const NotificationFetcher = (props) => {
                             {notif.category === 'Group' && (
                                 <>
                                     <button className="close-button"
-                                            onClick={() => removeNotification(notif.id,  "group", notif.group.id)}>×
+                                            onClick={() => removeNotification(notif.id, "group", notif.group.id)}>×
                                     </button>
                                     <span role="img" aria-label="Group Emoji">👥</span>
                                 </>
@@ -168,6 +176,15 @@ const NotificationFetcher = (props) => {
                             )}
                         </div>
                         <div className="notification-details">
+                            {notif.category === 'GroupMP' && (
+                                <>
+                                    <p className="notification-group">Message ID: {notif.message.ID}</p>
+                                    <div className="notification-date">{notif.message.Date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
+                                        envoyé un message dans le groupe "<b>{notif.group.Title}</b>"
+                                        : <b>{notif.message.Content}</b> !</p>
+                                </>
+                            )}
                             {notif.category === 'Follow' && (
                                 <>
                                     <p className="notification-group">Follow ID: {notif.follow.id}</p>

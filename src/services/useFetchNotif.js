@@ -21,6 +21,20 @@ export const fetchNotification = async (id, setNotifications) => {
         if (data.success) {
             const allNotifications = [];
             let idCounter = 0;
+            console.log(data.listGroupMp)
+            if (data.listGroupMp) {
+                data.listGroupMp.forEach(element => {
+                    const notification = {
+                        id: idCounter++, // Assign a unique ID
+                        category: 'GroupMP',
+                        user: element[0],
+                        message: element[1],
+                        group: element[2]
+                    };
+                    //console.log("Notification Group: ", notification);
+                    allNotifications.push(notification);
+                });
+            }
 
             if (data.listPost) {
                 data.listPost.forEach(element => {

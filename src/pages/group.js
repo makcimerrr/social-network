@@ -87,19 +87,21 @@ const Group = (props) => {
                         style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
                         icon: '👏',
                     });
-
+                    return { success: true };
                 } else {
                     toast.error("This Group Already Exist", {
                         duration: 4000,
                         position: 'top-center',
                         style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
                     });
+                    return { success: false, message: 'This Group Already Exist' };
                 }
             } catch (error) {
                 console.error('Error during creation of group:', error);
-
+                return { success: false, message: 'Error during creation of group' };
             }
         }
+        return { success: false, message: 'Form validation failed' };
     }
 
 
@@ -114,14 +116,16 @@ const Group = (props) => {
                 style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
                 icon: '👏',
             });
-
+            return { success: true };
         } else {
             toast.error(responseData.message, {
                 duration: 4000,
                 position: 'top-center',
                 style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
             });
+            return { success: false, message: responseData.message };
         }
+        return { success: false, message: 'Form validation failed' };
     }
 
 
