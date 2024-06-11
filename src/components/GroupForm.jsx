@@ -129,6 +129,9 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                     <div key={index}>
                         {group.Title && <h2>{group.Title}</h2>}
                         {group.AboutGroup && <p>{group.AboutGroup}</p>}
+                        <div className="divaskforjoin">
+                            <button  className="asktojoinButton" onClick={() => handleJoinRequest(group)}>Demander à rejoindre le groupe</button>
+                        </div>
                     </div>
                 ))}
             </div>

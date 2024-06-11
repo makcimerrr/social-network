@@ -63,4 +63,15 @@
     outline: none;
 }
 
+.divaskforjoin {
+    background: green !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 170px;
+}
+
+.asktojoinButton {
+    color: whitesmoke;
+}
 
