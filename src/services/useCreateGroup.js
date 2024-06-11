@@ -55,7 +55,24 @@ export const getGroup = async (props) => {
         }
 
         const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
-        return { success: true, data }; // Retourne l'objet JavaScript
+       // console.log(data)
+
+
+        const groups = data.groups;
+        const groupsWhereIamNotIn = data.groupsWhereIamNotIn;
+
+/*
+
+        console.log(groups)
+        console.log(groupsWhereIamNotIn)
+*/
+
+
+        return { success: true, groups, groupsWhereIamNotIn }; // Retourne l'objet JavaScript
+
+
+        // return { success: true, data }; // Retourne l'objet JavaScript
+       // return { success: true, array1: data.array1, array2: data.array2 };
     } catch (error) {
         const errorMessage = error.message ? error.message : 'An error occurred';
 

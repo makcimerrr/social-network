@@ -5,6 +5,7 @@ import GroupForm from "../components/GroupForm";
 
 import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
 import toast from "react-hot-toast";
+import groups from "emoji-picker-react/src/data/groups";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -30,7 +31,9 @@ const Group = (props) => {
         try {
             const result = await getGroup(props);
             if (result.success) {
-                setData(result.data);
+                const { groups, groupsWhereIamNotIn } = result;
+                setData({ groups, groupsWhereIamNotIn });
+
             } else {
                 console.error('Failed to get group data:', result.message);
             }
@@ -140,6 +143,8 @@ const Group = (props) => {
                 setInviteErrors={setInviteErrors}
                 formInvite={formInvite}
                 onInviteClick={onInviteClick}
+                groups={data.groups}
+                groupsWhereIamNotIn={data.groupsWhereIamNotIn}
 
             />
             {setInviteErrors && <p>{setInviteErrors}</p>}

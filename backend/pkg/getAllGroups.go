@@ -10,6 +10,8 @@ import (
 
 func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	var groupIDs []int
+	var groups []Group
+	var groupsWhereIamNotIn []Group
 
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
@@ -51,25 +53,51 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 		groupIDs = append(groupIDs, idGroup)
 	}
 
-	var groups []Group
+	// Fetch all groups from the LISTGROUPS table
+	rows, err = db.Query("SELECT IDGroup, NameGroup, AboutUs, UserID_Creator FROM LISTGROUPS")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer rows.Close()
 
-	for _, idGroup := range groupIDs {
-		row := db.QueryRow("SELECT IDGroup, NameGroup, AboutUs, UserID_Creator FROM LISTGROUPS WHERE IDGroup = ?", idGroup)
+	// Loop over all groups
+	for rows.Next() {
 
 		var group Group
-		err := row.Scan(&group.IdGroup, &group.Title, &group.AboutGroup, &group.UserID_Creator)
+		err = rows.Scan(&group.IdGroup, &group.Title, &group.AboutGroup, &group.UserID_Creator)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		groups = append(groups, group)
+		// Check if the user is part of this group
+		isPartOfGroup := false
+		for _, idGroup := range groupIDs {
+			if idGroup == group.IdGroup {
+				isPartOfGroup = true
+				break
+			}
+		}
+
+		// If the user is part of this group, add it to the groups slice
+		// If the user is not part of this group, add it to the groupsWhereIamNotIn slice
+		if isPartOfGroup {
+			groups = append(groups, group)
+		} else {
+			groupsWhereIamNotIn = append(groupsWhereIamNotIn, group)
+		}
 	}
+	fmt.Println(groups)
+	fmt.Println(groupsWhereIamNotIn)
 
 	// Set the content type to application/json
 	w.Header().Set("Content-Type", "application/json")
 
 	// Write the status code to the response and the JSON data
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(groups)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"groups":              groups,
+		"groupsWhereIamNotIn": groupsWhereIamNotIn,
+	})
 }
