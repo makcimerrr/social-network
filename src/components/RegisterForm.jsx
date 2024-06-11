@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import PasswordStrengthMeter from '../services/usePasswordStrength';
+import {Button} from '@mui/material';
 
 const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }) => {
 
     const [isFixed, setIsFixed] = useState(false);
     const [fixedHeight, setFixedHeight] = useState(0);
-
+ 
 
 
     useEffect(() => {
@@ -21,6 +22,22 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
         }
     }, [formErrors]);
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setForm(prevForm => ({
+                ...prevForm,
+                avatar: file
+            }));
+
+            if (formErrors.avatar) {
+                setFormErrors(prevErrors => ({
+                    ...prevErrors,
+                    avatar: ''
+                }));
+            }
+        }
+    };
 
     const handleDataChange = (field, value) => {
         setForm(prevForm => ({
@@ -57,6 +74,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
 
     return (
         <div className={`mainContainer ${isFixed ? 'fixed' : ''}`} style={{ marginTop: '50px', maxHeight: '1000px' }}>
+        <form onSubmit={onRegisterClick} encType="multipart/form-data">
 
         <div className={'titleContainer'}>
                 <div>Register</div>
@@ -115,12 +133,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             </div>
             <br />
             <div className={'inputContainer'}>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(ev) => handleDataChange('avatar', ev.target.value[0])}
-                    className={'inputBox'}
-                />
+                <input type="file" onChange={handleImageChange} />
                 <label className="errorLabel">{formErrors.avatar}</label>
             </div>
             <br />
@@ -147,9 +160,10 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
                 <label className="errorLabel">{formErrors.aboutme}</label>
             </div>
             <br />
-            <div className={'inputContainer'}>
-                <input className={'inputButton'} type="button" onClick={onRegisterClick} value={'Register'} />
-            </div>
+        <Button type="submit" variant="contained">
+          Register
+        </Button>
+      </form>
         </div>
     );
 };

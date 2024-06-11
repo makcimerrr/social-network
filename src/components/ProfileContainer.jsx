@@ -91,7 +91,12 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                     <p>Firstname: {users.firstname}</p>
                     <p>Lastname: {users.lastname}</p>
                     <p>Date of Birth: {users.dateofbirth}</p>
-                    <p>Avatar: {users.avatar}</p>
+                    {users.avatar && (
+                    <img
+                      src={`data:image/jpeg;base64,${users.avatar}`}
+                      alt="Selected Image"
+                    />
+                    )}
                     <p>About Me: {users.aboutme}</p>
                     <p>Point of Interest: {users.pointofinterest}</p>
 

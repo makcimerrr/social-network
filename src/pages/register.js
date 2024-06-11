@@ -18,8 +18,12 @@ const Register = (props) => {
     });
     const router = useRouter();
     const [formErrors, setFormErrors] = useState({});
-    const onRegisterClick = async () => {
+    const onRegisterClick = async (e) => {
         let valid = true;
+
+        e.preventDefault();
+        
+        console.log(form.avatar)
 
         if ('' === form.email) {
             setFormErrors(prevErrors => ({
@@ -84,7 +88,20 @@ const Register = (props) => {
         }
         if (valid === true) {
             try {
-                const responseData = await RegisterUser(form);
+                const formData = new FormData();
+                formData.append('email', form.email);
+                formData.append('password', form.password);
+                formData.append('firstname', form.firstname);
+                formData.append('lastname', form.lastname);
+                formData.append('dateofbirth', form.dateofbirth);
+                formData.append('nickname', form.nickname);
+                formData.append('aboutme', form.aboutme);
+                formData.append('privateprofile', form.privateprofile);
+                if (form.avatar) {
+                    formData.append('avatar', form.avatar);
+                }
+
+                const responseData = await RegisterUser(formData);
                 if (responseData.success === true) {
                     toast.success('Registration successful!', {
                         duration: 4000,

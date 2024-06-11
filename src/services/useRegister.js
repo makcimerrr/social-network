@@ -1,13 +1,11 @@
 //login_auth.js
 
-export async function RegisterUser(data) {
+export async function RegisterUser(formData) {
     try {
         const response = await fetch('http://localhost:8080/register', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+            body: formData,
+            credentials: 'include'
         });
 
         if (!response.ok) {

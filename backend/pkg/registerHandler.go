@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,8 +17,10 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var registerData User
-	if err := json.NewDecoder(r.Body).Decode(&registerData); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err := r.ParseMultipartForm(10 << 20) // 10MB max size
+	if err != nil {
+		http.Error(w, "400 bad request: "+err.Error(), http.StatusBadRequest)
+		fmt.Println("here 2")
 		return
 	}
 
@@ -29,6 +33,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	var isError bool
 
+	registerData.Nickname = r.FormValue("nickname")
 	if registerData.Nickname != "" {
 
 		var existingUsername string
@@ -46,6 +51,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	registerData.Email = r.FormValue("email")
 	var existingEmail string
 	err = db.QueryRow("SELECT Email FROM USERS WHERE Email = ?", registerData.Email).Scan(&existingEmail)
 	if err == nil {
@@ -68,7 +74,38 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			Privacy = 0
 		}
 
+		registerData.Password = r.FormValue("password")
+		registerData.Firstname = r.FormValue("firstname")
+		registerData.Lastname = r.FormValue("lastname")
+		registerData.DateOfBirth = r.FormValue("dateofbirth")
+		registerData.AboutMe = r.FormValue("aboutme")
+
 		encryptPassword, _ := bcrypt.GenerateFromPassword([]byte(registerData.Password), bcrypt.DefaultCost)
+
+		_, imageHeader, err := r.FormFile("avatar")
+		if err != nil && err != http.ErrMissingFile {
+			http.Error(w, "Error processing image", http.StatusInternalServerError)
+			return
+		}
+
+		if imageHeader != nil {
+			file, _, err := r.FormFile("avatar")
+			if err != nil {
+				fmt.Println("here")
+				http.Error(w, "400 bad request: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			defer file.Close()
+
+			// Read the file data
+			fileBytes, err := io.ReadAll(file)
+			if err != nil {
+				http.Error(w, "500 internal server error: "+err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			registerData.Avatar = fileBytes
+		}
 
 		_, err = db.Exec("INSERT INTO USERS (Email, Password, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", registerData.Email, encryptPassword, registerData.Firstname, registerData.Lastname, registerData.DateOfBirth, registerData.Avatar, registerData.Nickname, registerData.AboutMe, Privacy)
 		if err != nil {
