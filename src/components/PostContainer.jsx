@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
@@ -6,8 +6,39 @@ import { useRouter } from 'next/router';
 
 
 
-const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
+const PostContainer = ({ posts = [], handleCreateComment, handlePostLike }) => {
+  const [userDetails, setUserDetails] = useState({});
   const router = useRouter();
+
+  const fetchUsers = async (userIds) => {
+    try {
+      const userResponses = await Promise.all(
+        userIds.map(id =>
+          fetch(`http://localhost:8080/user?id=${id}`, {
+            credentials: 'include'
+          }).then(response => response.json())
+        )
+      );
+
+      const usersData = userResponses.reduce((acc, userData) => {
+        acc[userData.id] = userData;
+        return acc;
+      }, {});
+
+      setUserDetails(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (Array.isArray(posts) && posts.length > 0) {
+    const userIds = posts.map(post => post.user_id);
+    const uniqueUserIds = [...new Set(userIds)];
+    fetchUsers(uniqueUserIds);
+    }
+  }, [posts]);
+
   const getPrivacyLabel = (privacy) => {
     switch (privacy) {
       case 0:
@@ -39,7 +70,7 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                   <Typography variant="body2" color="textSecondary" component="p">
                     Posted by{' '}
                     <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${post.user_id}`)}>
-                      User ID: {post.user_id}
+                      {userDetails[post.user_id] ? userDetails[post.user_id].nickname : `User ID: ${post.user_id}`}
                     </Typography>
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
