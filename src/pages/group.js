@@ -3,7 +3,7 @@ import {useRouter} from 'next/router';
 import GroupForm from "../components/GroupForm";
 
 
-import {createGroup, getGroup, InviteInMyGroup} from '../services/useCreateGroup';
+import {createGroup, getGroup, InviteInMyGroup,askForJoinGroup} from '../services/useCreateGroup';
 import toast from "react-hot-toast";
 import groups from "emoji-picker-react/src/data/groups";
 
@@ -131,6 +131,17 @@ const Group = (props) => {
     if (loading) return 'Loading...';
     if (error) return 'An error occurred';
 
+
+    const handleJoinRequest = async (group,index) => {
+
+        //console.log("avant revoie dans la fonction",group.IdGroup)
+        const result = await askForJoinGroup(group,props);
+      /*  if (!result.success) {
+        console.log("error handle join request")
+        }*/
+    }
+
+
     return (
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}>
             <GroupForm
@@ -145,6 +156,7 @@ const Group = (props) => {
                 onInviteClick={onInviteClick}
                 groups={data.groups}
                 groupsWhereIamNotIn={data.groupsWhereIamNotIn}
+                handleJoinRequest={handleJoinRequest}
 
             />
             {setInviteErrors && <p>{setInviteErrors}</p>}

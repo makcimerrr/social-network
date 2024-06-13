@@ -28,6 +28,14 @@ CREATE TABLE IF NOT EXISTS NOTIFICATIONS
     INTEGER
     DEFAULT
     0,
+    IDAsking
+    INTEGER
+    DEFAULT
+    0,
+    UserID_Sender
+    INTEGER
+    DEFAULT
+    0,
     UserID_Receiver
     INTEGER,
     Date

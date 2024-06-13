@@ -2,7 +2,8 @@ import React, { useState } from 'react';import DatePicker from 'react-datepicker
 import { useRouter } from 'next/router';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick,groups,groupsWhereIamNotIn }) => {
+
+const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick,groups,groupsWhereIamNotIn,handleJoinRequest }) => {
     const [inviteError, setInviteError] = useState(null); // New state variable for storing the error message
 
     const handleInviteClick = async () => { // Modified onInviteClick function
@@ -12,9 +13,6 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
         }
     };
     const router = useRouter();
-
-
-
 
     const handleGroupClick = (group) => {
         console.log("Group clicked: ", group);
@@ -126,11 +124,11 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
                 <hr/>
 
                 {groupsWhereIamNotIn && groupsWhereIamNotIn.map((group, index) => (
-                    <div key={index}>
+                    <div key={index} id={`groupsWhereIamNotIn-${index}`}>
                         {group.Title && <h2>{group.Title}</h2>}
                         {group.AboutGroup && <p>{group.AboutGroup}</p>}
                         <div className="divaskforjoin">
-                            <button  className="asktojoinButton" onClick={() => handleJoinRequest(group)}>Demander à rejoindre le groupe</button>
+                            <button  className="asktojoinButton" onClick={() => handleJoinRequest (group,index)}>Demander à rejoindre le groupe</button>
                         </div>
                     </div>
                 ))}

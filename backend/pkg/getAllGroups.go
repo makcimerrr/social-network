@@ -88,8 +88,8 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 			groupsWhereIamNotIn = append(groupsWhereIamNotIn, group)
 		}
 	}
-	fmt.Println(groups)
-	fmt.Println(groupsWhereIamNotIn)
+	//fmt.Println(groups)
+	//fmt.Println(groupsWhereIamNotIn)
 
 	// Set the content type to application/json
 	w.Header().Set("Content-Type", "application/json")
