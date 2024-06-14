@@ -53,11 +53,12 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
         }
     };
     const handleDateChange = (date) => {
+        const formattedDate = date.toISOString(); // Converts Date object to ISO 8601 string
         setForm(prevForm => ({
             ...prevForm,
-            dateofbirth: date
+            dateofbirth: formattedDate
         }));
-
+    
         if (formErrors.dateofbirth && date !== '') {
             setFormErrors(prevErrors => ({
                 ...prevErrors,
@@ -65,7 +66,6 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             }));
         }
     };
-
 
     const marginTopThreshold = 50; // Seuil de la marge supérieure
 

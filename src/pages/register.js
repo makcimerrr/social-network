@@ -94,6 +94,7 @@ const Register = (props) => {
                 formData.append('firstname', form.firstname);
                 formData.append('lastname', form.lastname);
                 formData.append('dateofbirth', form.dateofbirth);
+                console.log(form.dateofbirth)
                 formData.append('nickname', form.nickname);
                 formData.append('aboutme', form.aboutme);
                 formData.append('privateprofile', form.privateprofile);
