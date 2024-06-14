@@ -72,6 +72,7 @@ func StartServer() {
 	r.HandleFunc("/inviteinmygroup", pkg.Inviteinmygroup)
 	r.HandleFunc("/getonegroup", pkg.GetOneGroup)
 	r.HandleFunc("/accept-group-notification", pkg.AcceptGroupNotification)
+	r.HandleFunc("/askforjoingroup", pkg.AskForJoinGroup)
 
 	r.HandleFunc("/delete-notification", pkg.DeleteNotificationHandler)
 

@@ -15,6 +15,7 @@ export const createGroup = async (form,props) => {
         });
 
 
+
         if (response.ok) {
             const data = await response.json();
             if (data && data.success) {
@@ -55,7 +56,24 @@ export const getGroup = async (props) => {
         }
 
         const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
-        return { success: true, data }; // Retourne l'objet JavaScript
+       // console.log(data)
+
+
+        const groups = data.groups;
+        const groupsWhereIamNotIn = data.groupsWhereIamNotIn;
+
+/*
+
+        console.log(groups)
+        console.log(groupsWhereIamNotIn)
+*/
+
+
+        return { success: true, groups, groupsWhereIamNotIn }; // Retourne l'objet JavaScript
+
+
+        // return { success: true, data }; // Retourne l'objet JavaScript
+       // return { success: true, array1: data.array1, array2: data.array2 };
     } catch (error) {
         const errorMessage = error.message ? error.message : 'An error occurred';
 
@@ -130,3 +148,42 @@ export const getOneGroup = async (id) => {
         return {success: false, message: errorMessage};
     }
 }
+
+export const askForJoinGroup = async (group,props) => {
+    console.log(group.IdGroup)
+    console.log(props.id)
+
+    let IdAfterConvert = (parseInt(group.IdGroup, 10));
+  //  console.log(IdAfterConvert)
+
+
+    try {
+        const response = await fetch('http://localhost:8080/askforjoingroup', {
+            method: 'POST',
+            body: JSON.stringify({IdGroup: IdAfterConvert, ID : props.id}),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.success) {
+                console.log(data);
+                return { success: true, data };
+            } else {
+                console.error(data);
+                return { success: false, message: data ? data.message : 'No response body' };
+            }
+        } else {
+            console.error(response.statusText);
+            return { success: false, message: response.statusText };
+        }
+    } catch (error) {
+        console.log(error);
+        return { success: false, message: error.message };
+    }
+}
+
+

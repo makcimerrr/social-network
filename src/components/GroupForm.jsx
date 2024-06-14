@@ -2,10 +2,10 @@ import React, { useState } from 'react';import DatePicker from 'react-datepicker
 import { useRouter } from 'next/router';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick }) => {
+
+const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,setInviteErrors,formInvite,onInviteClick,groups,groupsWhereIamNotIn,handleJoinRequest }) => {
     const [inviteError, setInviteError] = useState(null); // New state variable for storing the error message
     const router = useRouter();
-
 
     const handleGroupClick = (group) => {
         console.log("Group clicked: ", group);
@@ -130,13 +130,26 @@ const GroupForm = ({ setForm,form,formErrors, onRegisterClick,data,setInvite,set
             <div className={'group-list'}>
                 <h1>Own Group</h1>
                 <hr/>
-                {data && data.map((group, index) => (
+
+                {groups && groups.map((group, index) => (
                     <div key={index} id={`group-${index}`}>
                         <button onClick={() => handleGroupClick(group)}>
-                            <h2>Title :{group.Title} </h2>
-                            <h2>About Group :{group.AboutGroup} </h2>
+                            {group.Title && <h2>{group.Title}</h2>}
+                            {group.AboutGroup && <p>{group.AboutGroup}</p>}
                         </button>
-                        <hr/>
+                    </div>
+                    ))}
+
+                <h1>Groups Where I am Not In</h1>
+                <hr/>
+
+                {groupsWhereIamNotIn && groupsWhereIamNotIn.map((group, index) => (
+                    <div key={index} id={`groupsWhereIamNotIn-${index}`}>
+                        {group.Title && <h2>{group.Title}</h2>}
+                        {group.AboutGroup && <p>{group.AboutGroup}</p>}
+                        <div className="divaskforjoin">
+                            <button  className="asktojoinButton" onClick={() => handleJoinRequest (group,index)}>Demander à rejoindre le groupe</button>
+                        </div>
                     </div>
                 ))}
             </div>
