@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
@@ -108,10 +109,13 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			var user User
+			var test string
 			i, err := strconv.Atoi(id)
-			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", i).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &user.DateOfBirth, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
+			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", i).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &test, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
 
-			// fmt.Println("ELSE")
+			user.DateOfBirth = strings.Split(test, "T")[0]
+
+			fmt.Println(test)
 			user.ListFollowings = ListFollow(user.Id, "followings", 0)
 			user.ListFollowers = ListFollow(user.Id, "followers", 0)
 			user.ListFollowersToValidate = ListFollow(user.Id, "followers", 1)
