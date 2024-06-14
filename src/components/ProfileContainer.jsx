@@ -69,26 +69,24 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
     return (
         <div>
-
-            <h2>Infos</h2>
-
-            <p>Nickname: {users.nickname}</p>
-            <p>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
+            <p className='white'>Profile</p>
+            <p className='white'>Nickname: {users.nickname}</p>
+            <p className='white'>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
             {users.privateprofile === 1 || users.id === id &&
                 <>
-                    <p>ID: {users.id}</p>
-                    <p>Email: {users.email}</p>
-                    <p>Firstname: {users.firstname}</p>
-                    <p>Lastname: {users.lastname}</p>
-                    <p>Date of Birth: {users.dateofbirth}</p>
+                    <p className='white'>ID: {users.id}</p>
+                    <p className='white'>Email: {users.email}</p>
+                    <p className='white'>Firstname: {users.firstname}</p>
+                    <p className='white'>Lastname: {users.lastname}</p>
+                    <p className='white'>Date of Birth: {users.dateofbirth}</p>
                     <p>Avatar: {users.avatar}</p>
-                    <p>About Me: {users.aboutme}</p>
-                    <p>Point of Interest: {users.pointofinterest}</p>
+                    <p className='white'>About Me: {users.aboutme}</p>
+                    <p className='white'>Point of Interest: {users.pointofinterest}</p>
                 </>
             }
             {users.id === id ? (
                 <>
-                    <button onClick={togglePrivacy}>Toggle Privacy</button>
+                    <button className='' onClick={togglePrivacy}>Toggle Privacy</button>
                     <p>Follow Section</p>
                     {users.listfollowers && (
                         <div>{followList("List of followers", users.listfollowers)}</div>

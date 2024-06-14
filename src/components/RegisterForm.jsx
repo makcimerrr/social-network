@@ -59,13 +59,13 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
         <div className={`mainContainer ${isFixed ? 'fixed' : ''}`} style={{ marginTop: '50px', maxHeight: '1000px' }}>
 
         <div className={'titleContainer'}>
-                <div>Register</div>
+                <div className='title'>Register</div>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
                     value={form.email}
-                    placeholder="Enter your email here"
+                    placeholder="Email"
                     onChange={(ev) => handleDataChange('email', ev.target.value)}
                     className={'inputBox'}
                 />
@@ -73,21 +73,21 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             </div>
             <br />
             <div className={'inputContainer'}>
+                <PasswordStrengthMeter password={form.password} />
                 <input
                     value={form.password}
-                    placeholder="Enter your password here"
+                    placeholder="Password"
                     onChange={(ev) => handleDataChange('password', ev.target.value)}
                     className={'inputBox'}
                     type="password"
                 />
-                <PasswordStrengthMeter password={form.password} />
                 <label className="errorLabel">{formErrors.password}</label>
             </div>
             <br />
             <div className={'inputContainer'}>
                 <input
                     value={form.firstname}
-                    placeholder="Enter your first name here"
+                    placeholder="First name"
                     onChange={(ev) => handleDataChange('firstname', ev.target.value)}
                     className={'inputBox'}
                 />
@@ -97,7 +97,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             <div className={'inputContainer'}>
                 <input
                     value={form.lastname}
-                    placeholder="Enter your last name here"
+                    placeholder="Last name"
                     onChange={(ev) => handleDataChange('lastname', ev.target.value)}
                     className={'inputBox'}
                 />
@@ -107,7 +107,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             <div className={'inputContainer'}>
                 <DatePicker
                     selected={form.dateofbirth}
-                    placeholderText="Select your date of birth"
+                    placeholderText="Birthdate"
                     onChange={handleDateChange}
                     className={'inputBox'}
                 />
@@ -127,7 +127,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             <div className={'inputContainer'}>
                 <input
                     value={form.nickname}
-                    placeholder="Enter your nickname (optional)"
+                    placeholder="Username (optional)"
                     onChange={(ev) => handleDataChange('nickname', ev.target.value)}
                     className={'inputBox'}
                 />
@@ -137,7 +137,7 @@ const RegisterForm = ({ setForm,form,formErrors, setFormErrors,onRegisterClick }
             <div className={'inputContainer'}>
                 <textarea
                     value={form.aboutme}
-                    placeholder="Enter your bio (optional)"
+                    placeholder="Tell us about yourself (optional)"
                     onChange={(ev) => handleDataChange('aboutme', ev.target.value)}
                     className={'inputBox'}
                     maxLength={200} // Example max length of 200 characters

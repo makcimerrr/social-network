@@ -60,7 +60,7 @@ const CreateGroupForm = ({ handleCreateGroup }) => {
             <TextField
                 label="Description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
                 multiline
             />
             <Select

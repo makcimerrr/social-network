@@ -18,13 +18,17 @@ const CommentContainer = ({ Post_id, NbComments }) => {
 
   return (
     <div>
-      <h2>Comments</h2>
+      <h2></h2>
       <Button
         variant="contained"
         onClick={handleFetchComments}
         disabled={fetching}
       >
+        See
+        {' '}
         {NbComments}
+        {' '}
+        Comments
       </Button>
       {comments && (
         <ul>

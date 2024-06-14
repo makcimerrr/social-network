@@ -3,8 +3,12 @@ import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import { parse, format } from 'date-fns';
 
-
+const formatDate = (dateStr) => {
+  const parsedDate = parse(dateStr, 'MM-dd-yyyy HH:mm:ss', new Date());
+  return format(parsedDate, 'd MMMM yyyy, h\'h\' mm');
+};
 
 const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
   const router = useRouter();
@@ -22,63 +26,77 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
   };
 
   return (
-    <div>
-      <h2>Posts</h2>
-      {posts && (
-        <ul>
-          {posts.map(post => (
-            <li key={post.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h5" component="h2">
-                    {post.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    {post.content}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    Posted by{' '}
-                    <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${post.user_id}`)}>
-                      User ID: {post.user_id}
-                    </Typography>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    Date: {post.date}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    Privacy: {getPrivacyLabel(post.privacy)}
-                  </Typography>
-                  <CardActions>
-                    <Button
-                      variant="contained"
-                      onClick={() => handlePostLike(post.id)}
-                    >
-                      Like
-                    </Button>
-                  </CardActions>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    Likes: {post.likes}
-                  </Typography>
-                  {post.image && (
-                    <img
-                      src={`data:image/jpeg;base64,${post.image}`}
-                      alt="Selected Image"
-                    />
-                  )}
+    <>
+      <h2 className='pagetitle'>Posts</h2>
 
-
+      <div className='postscontainer'>
+        {posts && (
+          <ul>
+            {posts.map(post => (
+              <li key={post.id}>
+                <div className='post'>
                   <div>
-                    Comments :
-                    <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
-                    <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
+                    <div className='post-header'>
+                      <div className='post-username-container'>
+                        <span className='pp'></span>
+                        <p className='post-username' onClick={() => router.push(`/user?id=${post.user_id}`)}>
+                          {post.user_id} ENZO LE BOSS
+                        </p>
+                      </div>
+                      <p>
+                        {formatDate(post.date)}
+                      </p>
+                    </div>
+                    {post.image && (
+                      <img
+                        src={`data:image/jpeg;base64,${post.image}`}
+                        alt="Selected Image"
+                        className='post-image'
+                      />
+                    )}
+                    <p className="post-title">
+                      {post.title}
+                    </p>
+                    <p className="post-content">
+                      {post.content}
+                    </p>
+                    <CardActions>
+                      {post.likes && (
+                        <>
+                          <div
+                            className="like-button liked"
+                            variant="contained"
+                            onClick={() => handlePostLike(post.id)}
+                          ></div>
+                        </>
+                      )}
+                      {!post.likes && (
+                        <>
+                          <div
+                            className="like-button"
+                            variant="contained"
+                            onClick={() => handlePostLike(post.id)}
+                          ></div>
+                        </>
+                      )}
+                      
+                      <p>{post.likes}</p>
+
+                    </CardActions>
+
+
+                    <div>
+                      <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
+                      <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
   );
 };
 

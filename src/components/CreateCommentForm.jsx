@@ -30,26 +30,26 @@ const CreateCommentForm = ({ handleCreateComment, Post_id }) => {
 
   return (
     <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <h2>Create a New Comment</h2>
-      <TextField
-        label="Content"
+      <div className='commentInputContainer'>
+      <input
+placeholder='Write a comment...'
+      className='inputBox commentinput'
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        multiline
       />
-      <h2>Add Image:</h2>
-      <input type="file" onChange={handleImageChange} />
+      <input id='file' className={'inputBox file-input'} type="file" onChange={handleImageChange}/>
+      <label className="input-file-label" for="file"></label>
       {image && (
         <div>
           <img src={URL.createObjectURL(image)} alt="Uploaded" />
-          <Button variant="contained" onClick={handleRemoveImage}>
+          <div variant="contained" onClick={handleRemoveImage}>
             Remove Image
-          </Button>
+          </div>
         </div>
       )}
-      <Button type="submit" variant="contained">
-        Create Comment
+      <Button className='commentbtn' type="submit" variant="contained">
       </Button>
+      </div>
     </form>
   );
 };

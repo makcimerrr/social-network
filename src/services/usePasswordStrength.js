@@ -30,7 +30,7 @@ class PasswordStrengthMeter extends Component {
                     value={testedResult.score}
                     max="4"
                 />
-                <label
+{/*                 <label
                     className="password-strength-meter-label"
                 >
                     {password && (
@@ -38,7 +38,7 @@ class PasswordStrengthMeter extends Component {
                             <strong>Password strength:</strong> {this.createPasswordLabel(testedResult)}
                         </>
                     )}
-                </label>
+                </label> */}
             </div>
         );
     }
