@@ -71,7 +71,7 @@ const NotificationFetcher = (props) => {
                 'Group invitation accepted',
                 {}
             )
-            if (category === "group"){
+            if (category === "askgroup"){
                 removeNotification(idNotif, "askgroup", idGroup);
             }else{
                 removeNotification(idNotif, "group", idGroup);
@@ -274,7 +274,7 @@ const NotificationFetcher = (props) => {
                             {notif.category === 'AskGroup' && (
                                 <>
                                     <button className="accept-button"
-                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, notif.user.id)}>Accept
+                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, notif.user.id, "askgroup")}>Accept
                                     </button>
                                     <button className="reject-button"
                                             onClick={() => removeNotification(notif.id, "askgroup", notif.group.IdGroup)}>Reject

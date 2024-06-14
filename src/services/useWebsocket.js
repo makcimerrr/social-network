@@ -175,6 +175,8 @@ export function startWS(currId, setNotifications, router) {
             } else if (data.msg_type === "groupmsg") {
                 console.log("msg groupe")
 
+
+
                 if (currentURL.includes("chatgroup?id")) {
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
