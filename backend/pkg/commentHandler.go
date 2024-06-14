@@ -110,8 +110,20 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		var userIDFromPost int
+		db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+		if err != nil {
+			fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+		}
+		defer db.Close()
+		// Récupérer l'USER ID de la table POST en utilisant l'IDPost de la table COMMENT
+		err = db.QueryRow(`SELECT UserID FROM POST WHERE IDPost = ?`, newComment.Post_id).Scan(&userIDFromPost)
+		if err != nil {
+			fmt.Println("Erreur lors de la récupération de l'USER ID depuis POST:", err)
+			return
+		}
 		// On reformate JSON pour envoyer l'information que notre commentaire est créé.
-		msg := Resp{Msg: "Sent comment"}
+		msg := Resp{Msg: "Sent comment", Receiver: userIDFromPost}
 		resp, err := json.Marshal(msg)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)

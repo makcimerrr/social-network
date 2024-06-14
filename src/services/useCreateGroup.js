@@ -1,4 +1,5 @@
 import {conn, sendMsg} from "@/services/useWebsocket";
+import toast from "react-hot-toast";
 
 export const createGroup = async (form,props) => {
     try {
@@ -101,8 +102,10 @@ export const InviteInMyGroup = async (formInvite,props) => {
         if (response.ok) {
             const data = await response.json();
             if (data && data.success) {
-                console.log(data);
-                sendMsg(conn, 0, { value: "New Group" }, 'group')
+                //console.log(data);
+                let Target = [];
+                Target.push(data.receiver);
+                sendMsg(conn, 0, { value: "New Group" }, 'group', Target)
                 return { success: true, data };
             } else {
                 console.error(data);
@@ -150,8 +153,8 @@ export const getOneGroup = async (id) => {
 }
 
 export const askForJoinGroup = async (group,props) => {
-    console.log(group.IdGroup)
-    console.log(props.id)
+    //console.log(group.IdGroup)
+    //console.log(props.id)
 
     let IdAfterConvert = (parseInt(group.IdGroup, 10));
   //  console.log(IdAfterConvert)
@@ -170,10 +173,24 @@ export const askForJoinGroup = async (group,props) => {
         if (response.ok) {
             const data = await response.json();
             if (data && data.success) {
-                console.log(data);
+                //console.log(data);
+                let Target = [];
+                Target.push(data.receiver);
+                sendMsg(conn, 0, {value: "Join Request"}, 'join_request', Target);
+                toast.success("Demande envoyé" + '👏', {
+                    duration: 4000,
+                    position: 'top-center',
+                    style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+                    icon: '👏',
+                });
                 return { success: true, data };
             } else {
-                console.error(data);
+                //console.error(data);
+                toast.error(data ? data.message : 'No response body', {
+                    duration: 4000,
+                    position: 'top-center',
+                    style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+                });
                 return { success: false, message: data ? data.message : 'No response body' };
             }
         } else {

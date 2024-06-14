@@ -54,6 +54,8 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 		request = "DELETE FROM NOTIFICATIONS WHERE IDEvent = ?"
 	case "groupmsg":
 		request = "DELETE FROM NOTIFICATIONS WHERE IDPrivateGroupMessage = ?"
+	case "askgroup":
+		request = "DELETE FROM NOTIFICATIONS WHERE IDAsking = ?"
 	default:
 		fmt.Println("\nY A DE LA MERDE ICI : vérifie t'on optionType à la fonction DeleteNotif\n Option correct : 'follow', 'mp', 'post', 'comment', 'group', 'event'")
 		return
@@ -65,7 +67,7 @@ func DeleteNotif(ID int, optionType string, db *sql.DB) {
 	CheckErr(err, "DeleteNotif db Exec")
 }
 
-func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg [][]interface{}) {
+func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg, listAskGroup [][]interface{}) {
 	// récupération des notifications follow
 	ListFollowers = make([][]interface{}, 0)
 	stmtfollow, err := db.Prepare(`SELECT USERS.ID, USERS.FirstName, USERS.LastName, USERS.Avatar, USERS.Nickname, FOLLOWERS.ID, FOLLOWERS.ValidateFollow, FOLLOWERS.DateFollow
@@ -224,7 +226,31 @@ func GetNotif(UserID int, db *sql.DB) (ListFollowers, listMP, listPost, listComm
 		listGroupMsg = append(listGroupMsg, currentInformation)
 	}
 
-	return ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg
+	// Récupération des notifications des demandes de groupe
+	listAskGroup = make([][]interface{}, 0)
+	stmtAskGroup, err := db.Prepare(`SELECT USERS_SENDER.ID, USERS_SENDER.FirstName, USERS_SENDER.LastName, USERS_SENDER.Avatar, USERS_SENDER.Nickname,
+										LISTGROUPS.IDGroup, LISTGROUPS.NameGroup, LISTGROUPS.AboutUs, LISTGROUPS.Image
+										FROM USERS AS USERS_SENDER
+										INNER JOIN NOTIFICATIONS ON NOTIFICATIONS.UserID_sender = USERS_SENDER.ID
+										INNER JOIN LISTGROUPS ON LISTGROUPS.IDGroup = NOTIFICATIONS.IDAsking
+										WHERE NOTIFICATIONS.UserID_Receiver = ?`)
+	CheckErr(err, "GetNotif listAskGroup, db prepare")
+	rowsAskGroup, err := stmtAskGroup.Query(UserID)
+	CheckErr(err, "GetNotif listAskGroup, db query")
+	for rowsAskGroup.Next() {
+		var currentUser User
+		var currentGroup Group
+		var currentInformation []interface{}
+		err = rowsAskGroup.Scan(&currentUser.Id, &currentUser.Firstname, &currentUser.Lastname, &currentUser.Avatar, &currentUser.Nickname, &currentGroup.IdGroup, &currentGroup.Title, &currentGroup.AboutGroup, &currentGroup.Image)
+		CheckErr(err, "listAskGroup, db rowsAskGroup.Next scan")
+		currentInformation = append(currentInformation, currentUser)  // information sur l'utilisateur
+		currentInformation = append(currentInformation, currentGroup) // information sur le groupe
+		var category = "AskGroup"
+		currentUser.Category = category
+		listAskGroup = append(listAskGroup, currentInformation)
+	}
+
+	return ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMsg, listAskGroup
 }
 
 // optionType = 'post', 'comment', 'group', 'event'

@@ -61,12 +61,15 @@ const User = ({id}) => {
         fetchFollow(dataToSend);
         users.ListFollowersToValidate && users.ListFollowersToValidate.some(user => user.id === id);
 
+        let Target = [];
+        Target.push(users.id);
+
         if (users.listfollowers && users.listfollowers.some(user => user.id === id)) {
-            sendMsg(conn, 0, {value: "New Follow"}, 'stop_follow');
+            sendMsg(conn, 0, {value: "New Follow"}, 'stop_follow', Target);
         } else if (users.ListFollowersToValidate && users.ListFollowersToValidate.some(user => user.id === id)){
-            sendMsg(conn, 0, {value: "Cancel Follow"}, 'cancel_follow');
+            sendMsg(conn, 0, {value: "Cancel Follow"}, 'cancel_follow', Target);
         } else {
-            sendMsg(conn, 0, {value: "Stop Follow"}, 'follow');
+            sendMsg(conn, 0, {value: "Stop Follow"}, 'follow', Target);
         }
 
     };
@@ -83,7 +86,7 @@ const User = ({id}) => {
     const handleCreateComment = async (formData) => {
         await createComment(formData);
         fetchUserPosts()
-        sendMsg(conn, 0, {value: "New Comment"}, 'comment')
+        console.log(formData)
     };
 
     const handlePostLike = async (postId) => {

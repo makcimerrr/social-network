@@ -80,9 +80,9 @@ export function startWS(currId, setNotifications, router) {
             var data = JSON.parse(evt.data);
             var currentURL = window.location.href;
             //console.log("Data websocket", data);
-            console.log(data.receiver_id)
+            //console.log(data.receiver_id)
 
-            fetchNotification(currId, setNotifications);
+            await fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
                 console.log("new post")
                 console.log(data)
@@ -98,59 +98,81 @@ export function startWS(currId, setNotifications, router) {
                         }
                     );
                 }
+            } else if (data.msg_type === "join_request"){
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
+                            New join request! Click <a className="custom-link" onClick={() => router.push('/notif')}>here</a>
+                        </span>,
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '❓',
+                        }
+                    );
+                }
             } else if (data.msg_type === "group") {
-                console.log("new group")
-                toast(
-                    <span>
+                //console.log("new group")
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
                         Your are invited to a new group ! Click <a className="custom-link"
                                                                    onClick={() => router.push('/notif')}>here</a>
                     </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '🫂',
-                    }
-                );
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '🫂',
+                        }
+                    );
+                }
             } else if (data.msg_type === "follow") {
                 console.log("new follow")
-                await Target(currId);
-                toast(
-                    <span>
+                //await Target(currId);
+                if (data.targets && data.targets.includes(currId)) {
+
+                    toast(
+                        <span>
                         You have a new follow ! Click <a className="custom-link"
                                                          onClick={() => router.push('/notif')}>here</a>
                     </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '🫵🏻',
-                    }
-                );
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '🫵🏻',
+                        }
+                    );
+                }
             } else if (data.msg_type === "stop_follow") {
                 console.log("stop follow")
-                toast(
-                    <span>
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
                         One follow stopped ! Click <a className="custom-link"
                                                       onClick={() => router.push('/user')}>here</a>
                     </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '👀',
-                    }
-                );
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '👀',
+                        }
+                    );
+                }
             } else if (data.msg_type === "cancel_follow") {
                 console.log("cancel follow")
-                toast(
-                    <span>
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
                         One follow canceled ! Click <a className="custom-link"
                                                        onClick={() => router.push('/user')}>here</a>
                     </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '❌',
-                    }
-                );
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '❌',
+                        }
+                    );
+                }
             } else if (data.msg_type === "groupmsg") {
                 console.log("msg groupe")
 
@@ -158,7 +180,8 @@ export function startWS(currId, setNotifications, router) {
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
                 var sender = document.createElement("div");
-                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
+                sender.classNam
+                    e = (data.sender_id == currId) ? "sender" : "receiver";
                 sender.innerText = data.content;
                 var date = document.createElement("div");
                 date.className = "chat-time";
@@ -208,17 +231,19 @@ export function startWS(currId, setNotifications, router) {
             } else if (data.msg_type === "comment") {
                 // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
                 console.log("comment now")
-                toast(
-                    <span>
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
                         New Comment on your post !Click <a className="custom-link"
                                                            onClick={() => router.push('/home')}>here</a>
                     </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '📩',
-                    }
-                );
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '📩',
+                        }
+                    );
+                }
             } else if (data.msg_type === "") {
 
             }

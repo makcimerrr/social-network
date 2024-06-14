@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {conn, sendMsg} from "@/services/useWebsocket";
 
 const useComments = (post_id) => {
   const [comments, setComments] = useState([]);
@@ -32,7 +33,9 @@ const useComments = (post_id) => {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
-
+        let Target = [];
+        Target.push(data.receiver);
+        sendMsg(conn, 0, {value: "New Comment"}, 'comment', Target )
       } else {
         console.error('Create a comment failed:', response.statusText);
       }

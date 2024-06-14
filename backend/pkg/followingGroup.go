@@ -35,7 +35,7 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	var userid int
 	var groupid int
 
-	err, groupid = GetGroupID(db, w, r)
+	err, userid = Getverif(db, w, r, invite.ID)
 	if err != nil {
 		jsonResponse := map[string]interface{}{
 			"success": false,
@@ -48,7 +48,7 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err, userid = Getverif(db, w, r, invite.ID)
+	err, groupid = GetGroupID(db, w, r)
 	if err != nil {
 		jsonResponse := map[string]interface{}{
 			"success": false,
@@ -109,7 +109,8 @@ func Inviteinmygroup(w http.ResponseWriter, r *http.Request) {
 	InsertNotif(groupid, userid, date, "groupInvite", db)
 
 	jsonResponse := map[string]interface{}{
-		"success": true,
+		"success":  true,
+		"receiver": userid,
 	}
 	err = json.NewEncoder(w).Encode(jsonResponse)
 	if err != nil {

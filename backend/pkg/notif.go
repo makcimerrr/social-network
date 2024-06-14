@@ -46,7 +46,7 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch data.TypeNotif {
 	case "get": // Récupération des notifications
-		ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMp := GetNotif(data.UserIDReceiver, db)
+		ListFollowers, listMP, listPost, listComment, listGroup, listEvent, listGroupMp, listAskGroup := GetNotif(data.UserIDReceiver, db)
 
 		jsonResponse = map[string]interface{}{
 			"success":       true,
@@ -57,6 +57,7 @@ func NotifHandler(w http.ResponseWriter, r *http.Request) {
 			"listGroup":     listGroup,
 			"listEvent":     listEvent,
 			"listGroupMp":   listGroupMp,
+			"listAskGroup":  listAskGroup,
 		}
 
 	case "post": // modification d'une notification car accepté ou refusé

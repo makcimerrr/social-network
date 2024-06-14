@@ -9,9 +9,6 @@ const NotificationFetcher = (props) => {
     const [deletedNotifications, setDeletedNotifications] = useState([]);
     const {users, userPosts, fetchUsers, fetchUserPosts} = useUsers();
 
-    useEffect(() => {
-        fetchNotification(id, setNotifications);
-    }, []);
 
     const fetchFollow = async (dataToSend, notifId, followId) => {
         try {
@@ -134,6 +131,14 @@ const NotificationFetcher = (props) => {
                                     <span role="img" aria-label="Follow Emoji">➕</span>
                                 </>
                             )}
+                            {notif.category === 'AskGroup' && (
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "askgroup", notif.group.IdGroup)}>×
+                                    </button>
+                                    <span role="img" aria-label="AskGroup Emoji">❓</span>
+                                </>
+                            )}
                             {notif.category === 'GroupMP' && (
                                 <>
                                     <button className="close-button"
@@ -183,6 +188,14 @@ const NotificationFetcher = (props) => {
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         envoyé un message dans le groupe "<b>{notif.group.Title}</b>"
                                         : <b>{notif.message.Content}</b> !</p>
+                                </>
+                            )}
+                            {notif.category === 'AskGroup' && (
+                                <>
+                                    <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
+                                    <div className="notification-date">{notif.group.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
+                                        demandé à rejoindre votre groupe <b>{notif.group.Title}</b> !</p>
                                 </>
                             )}
                             {notif.category === 'Follow' && (
@@ -250,6 +263,16 @@ const NotificationFetcher = (props) => {
                                     </button>
                                     <button className="reject-button"
                                             onClick={() => removeNotification(notif.id)}>Reject
+                                    </button>
+                                </>
+                            )}
+                            {notif.category === 'AskGroup' && (
+                                <>
+                                    <button className="accept-button"
+                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, props.id)}>Accept
+                                    </button>
+                                    <button className="reject-button"
+                                            onClick={() => removeNotification(notif.id, "askgroup", notif.group.IdGroup)}>Reject
                                     </button>
                                 </>
                             )}

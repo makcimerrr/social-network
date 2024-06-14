@@ -6,6 +6,8 @@ import GroupForm from "../components/GroupForm";
 import {createGroup, getGroup, InviteInMyGroup,askForJoinGroup} from '../services/useCreateGroup';
 import toast from "react-hot-toast";
 import groups from "emoji-picker-react/src/data/groups";
+import {scheduleOnNextTick} from "next/dist/lib/scheduler";
+import {conn, sendMsg} from "@/services/useWebsocket";
 
 const Group = (props) => {
     const [data, setData] = useState(null);
@@ -140,9 +142,7 @@ const Group = (props) => {
 
         //console.log("avant revoie dans la fonction",group.IdGroup)
         const result = await askForJoinGroup(group,props);
-      /*  if (!result.success) {
-        console.log("error handle join request")
-        }*/
+        //console.log(result)
     }
 
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -49,11 +50,87 @@ func AskForJoinGroup(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("USER ID CREATOR", UserIdCreator)
 
+	//convert the string to int
+	UserIdCreatorInt, err := strconv.Atoi(UserIdCreator)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	alreadyAsked, err := AlreadyAsked(db, UserIdCreatorInt, grp.IdGroup, grp.ID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	alreadyInvited, err := AlreadyAreInvited(db, UserIdCreatorInt, grp.IdGroup)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if alreadyInvited {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "Already invited",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			fmt.Println("Error encoding JSON response:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	if alreadyAsked {
+		jsonResponse := map[string]interface{}{
+			"success": false,
+			"message": "Already asked",
+		}
+		err := json.NewEncoder(w).Encode(jsonResponse)
+		if err != nil {
+			fmt.Println("Error encoding JSON response:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
 	_, err = db.Exec("INSERT INTO NOTIFICATIONS ( IDAsking, UserID_Sender,UserID_Receiver ,Date) VALUES (?, ?, ?, ?)", grp.IdGroup, grp.ID, UserIdCreator, date)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	w.Write([]byte("User successfully joined the group"))
+	jsonResponse := map[string]interface{}{
+		"success":  true,
+		"message":  "Request sent successfully",
+		"receiver": UserIdCreatorInt,
+	}
+	err = json.NewEncoder(w).Encode(jsonResponse)
+	if err != nil {
+		fmt.Println("Error encoding JSON response:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func AlreadyAsked(db *sql.DB, receiver int, groupId int, sender int) (bool, error) {
+	query := `SELECT COUNT(*) FROM NOTIFICATIONS WHERE UserID_Receiver = ? AND IDAsking = ? AND UserID_Sender = ?`
+	var count int
+	err := db.QueryRow(query, receiver, groupId, sender).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func AlreadyAreInvited(db *sql.DB, receiver int, groupId int) (bool, error) {
+	query := `SELECT COUNT(*) FROM NOTIFICATIONS WHERE IDGroup = ? AND UserID_Receiver = ?`
+	var count int
+	err := db.QueryRow(query, groupId, receiver).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
