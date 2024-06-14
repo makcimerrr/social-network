@@ -47,8 +47,9 @@ const NotificationFetcher = (props) => {
         fetchFollow(dataToSend, notifId, followId);
     };
 
-    const acceptGroupNotification = async (idNotif, idGroup, idUser) => {
+    const acceptGroupNotification = async (idNotif, idGroup, idUser, category = undefined) => {
         console.log(idGroup)
+        console.log(idUser)
         try {
             const data = {
                 id: idGroup,
@@ -70,7 +71,11 @@ const NotificationFetcher = (props) => {
                 'Group invitation accepted',
                 {}
             )
-            removeNotification(idNotif, "group", idGroup);
+            if (category === "group"){
+                removeNotification(idNotif, "askgroup", idGroup);
+            }else{
+                removeNotification(idNotif, "group", idGroup);
+            }
 
         } catch (error) {
             console.error('Error deleting notification:', error);
@@ -262,14 +267,14 @@ const NotificationFetcher = (props) => {
                                             onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, props.id)}>Accept
                                     </button>
                                     <button className="reject-button"
-                                            onClick={() => removeNotification(notif.id)}>Reject
+                                            onClick={() => removeNotification(notif.id, "group", notif.group.IdGroup)}>Reject
                                     </button>
                                 </>
                             )}
                             {notif.category === 'AskGroup' && (
                                 <>
                                     <button className="accept-button"
-                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, props.id)}>Accept
+                                            onClick={() => acceptGroupNotification(notif.id, notif.group.IdGroup, notif.user.id)}>Accept
                                     </button>
                                     <button className="reject-button"
                                             onClick={() => removeNotification(notif.id, "askgroup", notif.group.IdGroup)}>Reject
