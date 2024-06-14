@@ -63,6 +63,7 @@ func StartServer() {
 	r.HandleFunc("/messagegroup", pkg.GroupMessageHandler)
 	r.HandleFunc("/event", pkg.EventHandler)
 	r.HandleFunc("/comingevent", pkg.ComingEventHandler)
+	r.HandleFunc("/notcomingevent", pkg.NotComingEventHandler)
 	r.HandleFunc("/follow", pkg.FollowHandler)
 	r.HandleFunc("/logout", pkg.LogoutHandler)
 	r.HandleFunc("/session", pkg.SessionHandler)

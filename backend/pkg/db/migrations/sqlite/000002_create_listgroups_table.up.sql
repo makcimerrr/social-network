@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS EVENTGROUPS (
     Date TEXT,
     Title VARCHAR(150),
     Come INTEGER,
+    NotCome INTEGER,
     Description VARCHAR(500),
     UserID_Sender INTEGER,
     FOREIGN KEY (IDGroup) REFERENCES LISTGROUPS(IDGroup),
@@ -122,6 +123,7 @@ CREATE TABLE IF NOT EXISTS coming_event (
     event_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     come BOOL,
+    notcome BOOL,
     FOREIGN KEY (event_id) REFERENCES EVENTGROUPS(IDEvent),
     FOREIGN KEY (user_id) REFERENCES USERS(ID)
 );

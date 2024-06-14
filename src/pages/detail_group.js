@@ -80,6 +80,27 @@ const DetailGroup = (props) => {
         }
       };
 
+      const handleEventDisLike = async (eventId) => {
+        try {
+          const response = await fetch('http://localhost:8080/notcomingevent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ event_id: eventId }),
+            credentials: 'include'
+          });
+    
+          if (response.ok) {
+            fetchEvents(eventId);
+          } else {
+            console.error('Failed to dislike the post:', response.statusText);
+          }
+        } catch (error) {
+          console.error('Error while disliking the post:', error);
+        }
+      };
+
       const handleCreateEvent = async (formData) => {
         await createEvent(formData, id);
         fetchEvents(id);
@@ -97,7 +118,7 @@ const DetailGroup = (props) => {
         <CreatePostGroupForm handleCreatePost={handleCreatePostGroup}/>
         <PostGroupContainer posts={postsGroup} handleCreateGroupComment={handleCreateCommentGroup} />
         <CreateEvent handleCreateEvent={handleCreateEvent}/>
-        <EventContainer events={events} handleEventLike={handleEventLike} />
+        <EventContainer events={events} handleEventLike={handleEventLike} handleEventDisLike={handleEventDisLike} />
         </div>
         </div>
         </>

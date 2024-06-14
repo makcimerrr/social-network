@@ -142,6 +142,7 @@ type EventGroup struct {
 	Date               string `json:"date"`
 	Description        string `json:"description"`
 	Coming             int    `json:"coming"`
+	NotComing          int    `json:"notcoming"`
 }
 
 type InviteInTheGroup struct {
@@ -156,4 +157,5 @@ type Coming struct {
 	User_id  int  `json:"user_id"`
 	Event_id int  `json:"event_id"`
 	Come     bool `json:"Come"`
+	NotCome  bool `json:"NotCome"`
 }

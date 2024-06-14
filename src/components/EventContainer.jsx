@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 
 
-const EventContainer = ({ events, handleEventLike }) => {
+const EventContainer = ({ events, handleEventLike, handleEventDisLike }) => {
   const router = useRouter();
 
   return (
@@ -23,24 +23,30 @@ const EventContainer = ({ events, handleEventLike }) => {
                     {event.description}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    Posted by{' '}
-                    <Typography variant="body2" color="primary" component="a" onClick={() => router.push(`/user?id=${event.id_user}`)}>
-                    User ID: {event.id_user}
-                    </Typography>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
                     Date: {event.date}
                   </Typography>
                   <CardActions>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    Are you going ?
+                  </Typography>
                   <Button
                       variant="contained"
                       onClick={() => handleEventLike(event.id)}
                     >
-                      GO
+                      Yes
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleEventDisLike(event.id)}
+                    >
+                      No
                     </Button>
                   </CardActions>
                   <Typography variant="body2" color="textSecondary" component="p">
                     Coming: {event.coming}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    NotComing: {event.notcoming}
                   </Typography>
                 </CardContent>
               </Card>

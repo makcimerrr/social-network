@@ -102,7 +102,8 @@ func NewEvent(p EventGroup, u User) error {
 	}
 	defer db.Close()
 	p.Coming = 0
-	postInsert, err := db.Exec(`INSERT INTO EVENTGROUPS(IDGroup, Date, Title, Come, Description, UserID_Sender) VALUES (?, ?, ?, ?, ?, ?)`, p.IDGroup, p.Date, p.Title, p.Coming, p.Description, u.Id)
+	p.NotComing = 0
+	postInsert, err := db.Exec(`INSERT INTO EVENTGROUPS(IDGroup, Date, Title, Come, NotCome, Description, UserID_Sender) VALUES (?, ?, ?, ?, ?, ?, ?)`, p.IDGroup, p.Date, p.Title, p.Coming, p.NotComing, p.Description, u.Id)
 	if err != nil {
 		fmt.Println("error exec", err)
 		return err
@@ -150,7 +151,7 @@ func ConvertRowToEvent(rows *sql.Rows) ([]EventGroup, error) {
 	var events []EventGroup
 	for rows.Next() {
 		var p EventGroup
-		err := rows.Scan(&p.IDEvent, &p.IDGroup, &p.Date, &p.Title, &p.Coming, &p.Description, &p.UserIDCreatorEvent)
+		err := rows.Scan(&p.IDEvent, &p.IDGroup, &p.Date, &p.Title, &p.Coming, &p.NotComing, &p.Description, &p.UserIDCreatorEvent)
 		if err != nil {
 			break
 		}
@@ -165,7 +166,7 @@ func ConvertRowsToEvent(db *sql.DB, rows *sql.Rows, i int) ([]EventGroup, error)
 
 	for rows.Next() {
 		var p EventGroup
-		err := rows.Scan(&p.IDEvent, &p.IDGroup, &p.Date, &p.Title, &p.Coming, &p.Description, &p.UserIDCreatorEvent)
+		err := rows.Scan(&p.IDEvent, &p.IDGroup, &p.Date, &p.Title, &p.Coming, &p.NotComing, &p.Description, &p.UserIDCreatorEvent)
 		if err != nil {
 			fmt.Println("err scan ConvertRowsToPost", err)
 			break
