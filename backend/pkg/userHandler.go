@@ -114,8 +114,6 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			err = db.QueryRow("SELECT ID, Email, FirstName, LastName, DateOfBirth, Avatar, Nickname, AboutMe, PrivateProfile FROM USERS WHERE ID = ?", i).Scan(&user.Id, &user.Email, &user.Firstname, &user.Lastname, &test, &user.Avatar, &user.Nickname, &user.AboutMe, &user.PrivateProfile)
 
 			user.DateOfBirth = strings.Split(test, "T")[0]
-
-			fmt.Println(test)
 			user.ListFollowings = ListFollow(user.Id, "followings", 0)
 			user.ListFollowers = ListFollow(user.Id, "followers", 0)
 			user.ListFollowersToValidate = ListFollow(user.Id, "followers", 1)

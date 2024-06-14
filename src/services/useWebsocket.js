@@ -1,6 +1,5 @@
 import toast from "react-hot-toast";
 import {fetchNotification} from "@/services/useFetchNotif";
-import {Target} from "@/services/useTarget";
 import { getGroup } from "./useCreateGroup";
 import {useRouter} from "next/router";
 
@@ -180,8 +179,7 @@ export function startWS(currId, setNotifications, router) {
                 var senderContainer = document.createElement("div");
                 senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
                 var sender = document.createElement("div");
-                sender.classNam
-                    e = (data.sender_id == currId) ? "sender" : "receiver";
+                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
                 sender.innerText = data.content;
                 var date = document.createElement("div");
                 date.className = "chat-time";
@@ -351,11 +349,11 @@ export async function createUsers(userdata, conn, currId) {
 
     const group = await getGroupForChat(currId);
 
-    if (group.data == null) {
+    if (group.groups == null) {
         return
     }
 
-        group.data.map(({IdGroup, Title}) => {
+        group.groups.map(({IdGroup, Title}) => {
 
 
         var user = document.createElement("div");
@@ -733,7 +731,10 @@ export const fetchUsersFromAPI = async (id) => {
         }
 
         const data = await response.json(); // Convertit la réponse JSON en un objet JavaScript
-        return { success: true, data }; // Retourne l'objet JavaScript
+        const groups = data.groups;
+        const groupsWhereIamNotIn = data.groupsWhereIamNotIn;
+
+        return { success: true, groups, groupsWhereIamNotIn }; // Retourne l'objet JavaScript
     } catch (error) {
         const errorMessage = error.message ? error.message : 'An error occurred';
 
