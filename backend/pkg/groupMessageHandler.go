@@ -120,7 +120,7 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 	}
 
 	// q, err := db.Query(`SELECT * FROM groupmessages WHERE group_id = ? ORDER BY id DESC LIMIT 10`, g, firstId)
-	q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, 
+	q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, groupmessages.date,
 						USERS.FirstName, USERS.LastName, USERS.Nickname
 						FROM groupmessages 
 						INNER JOIN USERS ON groupmessages.sender_id = USERS.id
@@ -180,7 +180,7 @@ func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	var firstName, lastName, nickname string
 	for rows.Next() {
 		var m Message
-		err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date)
+		err := rows.Scan(&m.Id, &m.Sender_id, &m.Content, &m.Date, &firstName, &lastName, &nickname)
 		if err != nil {
 			break
 		}
@@ -193,3 +193,10 @@ func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	}
 	return messages, nil
 }
+
+q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, 
+USERS.FirstName, USERS.LastName, USERS.Nickname
+FROM groupmessages 
+INNER JOIN USERS ON groupmessages.sender_id = USERS.id
+WHERE group_id = ? 
+ORDER BY id DESC LIMIT 10;`, g, firstId)
