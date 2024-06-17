@@ -108,7 +108,8 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New join request! Click <a className="custom-link" onClick={() => router.push('/notif')}>here</a>
+                            New join request! Click <a className="custom-link"
+                                                       onClick={() => router.push('/notif')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -123,7 +124,7 @@ export function startWS(currId, setNotifications, router) {
                     toast(
                         <span>
                             Your are invited to a new group ! Click <a className="custom-link"
-                                onClick={() => router.push('/notif')}>here</a>
+                                                                       onClick={() => router.push('/notif')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -140,7 +141,7 @@ export function startWS(currId, setNotifications, router) {
                     toast(
                         <span>
                             You have a new follow ! Click <a className="custom-link"
-                                onClick={() => router.push('/notif')}>here</a>
+                                                             onClick={() => router.push('/notif')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -155,7 +156,7 @@ export function startWS(currId, setNotifications, router) {
                     toast(
                         <span>
                             One follow stopped ! Click <a className="custom-link"
-                                onClick={() => router.push('/user')}>here</a>
+                                                          onClick={() => router.push('/user')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -170,7 +171,7 @@ export function startWS(currId, setNotifications, router) {
                     toast(
                         <span>
                             One follow canceled ! Click <a className="custom-link"
-                                onClick={() => router.push('/user')}>here</a>
+                                                           onClick={() => router.push('/user')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -183,7 +184,8 @@ export function startWS(currId, setNotifications, router) {
                 console.log("msg groupe")
                 toast(
                     <span>
-                        You have a new message in group ! Click <a className="custom-link" onClick={() => router.push('/group')}>here</a>
+                        You have a new message in group ! Click <a className="custom-link"
+                                                                   onClick={() => router.push('/group')}>here</a>
                     </span>,
                     {
                         duration: 4000,
@@ -194,60 +196,61 @@ export function startWS(currId, setNotifications, router) {
 
 
                 if (currentURL.includes("chatgroup?id")) {
-                var senderContainer = document.createElement("div");
-                senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
-                var sender = document.createElement("div");
-                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
-                sender.innerText = data.content;
-                var date = document.createElement("div");
-                date.className = "chat-time";
-                date.innerText = data.date.slice(0, -3);
-                appendLog(senderContainer, sender, date);
+                    var senderContainer = document.createElement("div");
+                    senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
+                    var sender = document.createElement("div");
+                    sender.className = (data.sender_id == currId) ? "sender" : "receiver";
+                    sender.innerText = data.content;
+                    var date = document.createElement("div");
+                    date.className = "chat-time";
+                    date.innerText = data.date.slice(0, -3);
+                    appendLog(senderContainer, sender, date);
 
-            } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
-                if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
-                    displayChatMessage(data, currId);
-                } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
-                    displayChatMessage(data, currId);
-                } else {
-                    toast(
-                        <span>
-                            You have a new message ! Click <a className="custom-link" onClick={() => router.push('/chat')}>here</a>
+                } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
+                    if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
+                        displayChatMessage(data, currId);
+                    } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
+                        displayChatMessage(data, currId);
+                    } else {
+                        toast(
+                            <span>
+                            You have a new message ! Click <a className="custom-link"
+                                                              onClick={() => router.push('/chat')}>here</a>
                         </span>,
-                        {
-                            duration: 4000,
-                            position: 'top-center',
-                            icon: '📬',
-                        }
-                    );
-                }
+                            {
+                                duration: 4000,
+                                position: 'top-center',
+                                icon: '📬',
+                            }
+                        );
+                    }
 
 
-            } else if (data.msg_type === "online") {
-                // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
-                online = data.user_ids;
-                getUsers()
-            } else if (data.msg_type === "comment") {
-                // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
-                console.log("comment now")
-                if (data.targets && data.targets.includes(currId)) {
-                    toast(
-                        <span>
+                } else if (data.msg_type === "online") {
+                    // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
+                    online = data.user_ids;
+                    getUsers()
+                } else if (data.msg_type === "comment") {
+                    // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
+                    console.log("comment now")
+                    if (data.targets && data.targets.includes(currId)) {
+                        toast(
+                            <span>
                             New Comment on your post !Click <a className="custom-link"
-                                onClick={() => router.push('/home')}>here</a>
+                                                               onClick={() => router.push('/home')}>here</a>
                         </span>,
-                        {
-                            duration: 4000,
-                            position: 'top-center',
-                            icon: '📩',
-                        }
-                    );
-                }
-            } else if (data.msg_type === "") {
+                            {
+                                duration: 4000,
+                                position: 'top-center',
+                                icon: '📩',
+                            }
+                        );
+                    }
+                } else if (data.msg_type === "") {
 
+                }
             }
         }
-            ;
     } else {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
