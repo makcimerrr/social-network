@@ -91,9 +91,9 @@ type Like struct {
 type Message struct {
 	Id                int    `json:"id"`
 	Sender_id         int    `json:"sender_id"`
-	Sender_nickname   string `json:"Sender_nickname"`
+	Sender_nickname   string `json:"sender_nickname"`
 	Receiver_id       int    `json:"receiver_id"`
-	Receiver_nickname string `json:"Sender_nickname"`
+	Receiver_nickname string `json:"receiver_nickname"`
 	Content           string `json:"content"`
 	Date              string `json:"date"`
 	Msg_type          string `json:"msg_type"`
