@@ -5,14 +5,15 @@ import useUsers from "@/services/useUsers";
 //import {acceptGroupNotification} from "@/services/useCreateGroup";
 
 const NotificationFetcher = (props) => {
-    const {id, setNotifications, notifications} = props;
+    //const {id, setNotifications, notifications} = props;
+    const [notifications, setNotifications] = useState([]);
     const [deletedNotifications, setDeletedNotifications] = useState([]);
     const {users, userPosts, fetchUsers, fetchUserPosts} = useUsers();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const currID = id;
+                const currID = props.id;
                 const fetchedNotifications = await fetchNotification(currID, setNotifications);
             } catch (error) {
                 console.error('Error fetching notifications:', error);
@@ -21,7 +22,7 @@ const NotificationFetcher = (props) => {
         };
 
         fetchData();
-    }, [id, setNotifications]);
+    }, [props.id, setNotifications]);
 
     const fetchFollow = async (dataToSend, notifId, followId) => {
         try {
