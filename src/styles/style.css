@@ -509,7 +509,7 @@ ul {
     align-items: center;
     position: absolute;
     border-radius: 40px;
-    z-index: 0;
+    z-index: 99;
     background-color: var(--primary-yellow);
     width: 400px;
     overflow: hidden;
@@ -662,6 +662,7 @@ h2 {
     background-size: contain;
     background-repeat: no-repeat;
     width: 30px;
+    min-width: 30px;
     display: flex;
     background-position: center;
     z-index: 1;
@@ -721,7 +722,6 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
 }
 
 .commentinput {
@@ -733,21 +733,21 @@ h2 {
 }
 
 .commentbtn {
-background-image: url('../styles/media/send.png');
-background-size: contain;
-height: 30px;
-width: 30px;
-border: none;
-cursor: pointer;
-background-repeat: no-repeat;
-min-width: 30px;
-min-height: 30px;
-padding: 0;
-margin: 0 10px;
-background-color: transparent;
-box-shadow: none;
-transition: all 0.25s ease-in-out;
-scale: 0.8;
+    background-image: url('../styles/media/send.png');
+    background-size: contain;
+    height: 30px;
+    width: 30px;
+    border: none;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    margin: 0 10px;
+    background-color: transparent;
+    box-shadow: none;
+    transition: all 0.25s ease-in-out;
+    scale: 0.8;
 }
 
 .commentbtn:hover {
@@ -768,13 +768,13 @@ scale: 0.8;
 }
 
 .commentInputContainer {
-display: flex;
-align-items: center;
-width: 100%;
-max-width: 500px;
-justify-content: flex-end;
-border-radius: 25px;
-background-color: var(--white);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    justify-content: flex-end;
+    border-radius: 25px;
+    background-color: var(--white);
 }
 
 .post-header {
@@ -849,5 +849,108 @@ background-color: var(--white);
 }
 
 .post-content {
-text-align: justify;
+    text-align: justify;
+}
+
+.post-likes {
+    font-size: 0px;
+}
+
+.post-likes-count {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.commentsbtn {
+    background-image: url('../styles/media/comment.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 30px;
+    width: 30px;
+    display: block;
+    filter: invert();
+    margin-left: 70px;
+}
+
+.post-comments {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    margin-top: -38px;
+    margin-bottom: 20px;
+}
+
+.commentscount {
+    margin: 0 8px;
+}
+
+.comment-container {
+    display: flex;
+    align-items: center;
+}
+
+.time {
+    margin-top: 0;
+    opacity: 0.8;
+    font-size: 12px;
+}
+
+.username {
+    cursor: pointer;
+    font-weight: 800;
+    margin: 0;
+    margin-right: 16px;
+}
+
+.comment-content {
+    margin: 0;
+}
+
+.comment-image-input {
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: contain;
+    object-position: center;
+}
+
+.remove-image {
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    background-image: url('../styles/media/bin.png');
+    background-size: cover;
+    cursor: pointer;
+    margin-left: -65px;
+    margin-right: 40px;
+    filter: invert();
+}
+
+.comment-image-container {
+    display: flex;
+    align-items: center;
+}
+
+.comment-image {
+    max-width: 300px;
+    max-height: 300px;
+    width: 100px;
+    object-fit: contain;
+    object-position: center;
+    margin-bottom: 10px;
+    background-color: red;
+    transition: all 0.2s ease-in-out;
+}
+
+.comment-image:hover {
+    width: 300px;
+}
+
+.profilecontainer {
+    overflow: scroll;
+    height: calc(100vh - 110px);
+    margin-left: 100px;
 }

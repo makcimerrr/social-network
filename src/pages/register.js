@@ -112,7 +112,6 @@ const Register = (props) => {
     }
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-
         <RegisterForm
             form={form}
             setForm={setForm}

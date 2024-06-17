@@ -3,11 +3,11 @@ import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
 import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { parse, format } from 'date-fns';
+import { parse, formatDistanceToNow } from 'date-fns';
 
 const formatDate = (dateStr) => {
   const parsedDate = parse(dateStr, 'MM-dd-yyyy HH:mm:ss', new Date());
-  return format(parsedDate, 'd MMMM yyyy, h\'h\' mm');
+  return formatDistanceToNow(parsedDate);
 };
 
 const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
@@ -60,7 +60,7 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                     <p className="post-content">
                       {post.content}
                     </p>
-                    <CardActions>
+                    <CardActions className='post-likes'>
                       {post.likes && (
                         <>
                           <div
@@ -79,15 +79,13 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                           ></div>
                         </>
                       )}
-                      
-                      <p>{post.likes}</p>
-
+                      <p className="post-likes-count">{post.likes}</p>
                     </CardActions>
 
 
                     <div>
-                      <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
                       <CommentContainer Post_id={post.id} NbComments={post.nbcomments} />
+                      <CreateCommentForm handleCreateComment={handleCreateComment} Post_id={post.id} />
                     </div>
                   </div>
                 </div>
