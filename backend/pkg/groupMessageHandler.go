@@ -96,9 +96,9 @@ func NewGroupMessage(m Message) error {
 	groupID := m.Receiver_id // Supposant que Receiver_id est l'ID du groupe
 	listUser := WhoDisplayNotif(m.Sender_id, groupID, "groupmessage", db)
 
-	fmt.Println(listUser)
-	fmt.Println(dt)
-	fmt.Println(idMessage)
+	// fmt.Println(listUser)
+	// fmt.Println(dt)
+	// fmt.Println(idMessage)
 
 	for _, user := range listUser {
 		InsertNotif(int(idMessage), user.Id, dt, "groupmsg", db)
@@ -119,7 +119,14 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 		return []Message{}, errors.New("receiver id must be an integer")
 	}
 
-	q, err := db.Query(`SELECT * FROM groupmessages WHERE group_id = ? ORDER BY id DESC LIMIT 10`, g, firstId)
+	// q, err := db.Query(`SELECT * FROM groupmessages WHERE group_id = ? ORDER BY id DESC LIMIT 10`, g, firstId)
+	q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, 
+						USERS.FirstName, USERS.LastName, USERS.Nickname
+						FROM groupmessages 
+						INNER JOIN USERS ON groupmessages.sender_id = USERS.id
+						WHERE group_id = ? 
+						ORDER BY id DESC LIMIT 10;`, g, firstId)
+
 	if err != nil {
 		return []Message{}, errors.New("could not find chat messages")
 	}
@@ -170,11 +177,17 @@ func FindGroupLastMessage(sender, receiver string) (Message, error) {
 // Mise en forme des rows en une array de structures Message.
 func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	var messages []Message
+	var firstName, lastName, nickname string
 	for rows.Next() {
 		var m Message
 		err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date)
 		if err != nil {
 			break
+		}
+		if nickname != "" {
+			m.Sender_nickname = nickname
+		} else {
+			m.Sender_nickname = firstName + " " + lastName
 		}
 		messages = append(messages, m)
 	}

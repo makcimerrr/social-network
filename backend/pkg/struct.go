@@ -89,31 +89,30 @@ type Like struct {
 }
 
 type Message struct {
-	Id                int    `json:"id"`
-	Sender_id         int    `json:"sender_id"`
-	Sender_nickname   string `json:"sender_nickname"`
-	Receiver_id       int    `json:"receiver_id"`
-	Receiver_nickname string `json:"receiver_nickname"`
-	Content           string `json:"content"`
-	Date              string `json:"date"`
-	Msg_type          string `json:"msg_type"`
-	User_id           int    `json:"user_id"`
-	ImageData         string `json:"image_data"`
-	Targets           []int  `json:"targets"`
+	Id              int    `json:"id"`
+	Sender_id       int    `json:"sender_id"`
+	Sender_nickname string `json:"sender_nickname"`
+	Receiver_id     int    `json:"receiver_id"`
+	Content         string `json:"content"`
+	Date            string `json:"date"`
+	Msg_type        string `json:"msg_type"`
+	User_id         int    `json:"user_id"`
+	ImageData       string `json:"image_data"`
+	Targets         []int  `json:"targets"`
 }
 
-type GroupMessage struct {
-	Id          int    `json:"id"`
-	Group_id    int    `json:"group_id"`
-	Sender_id   int    `json:"sender_id"`
-	Receiver_id int    `json:"receiver_id"`
-	Content     string `json:"content"`
-	Date        string `json:"date"`
-	Msg_type    string `json:"msg_type"`
-	User_id     int    `json:"user_id"`
-	ImageData   string `json:"image_data"`
-	Targets     []int  `json:"targets"`
-}
+// type GroupMessage struct {
+// 	Id          int    `json:"id"`
+// 	Group_id    int    `json:"group_id"`
+// 	Sender_id   int    `json:"sender_id"`
+// 	Receiver_id int    `json:"receiver_id"`
+// 	Content     string `json:"content"`
+// 	Date        string `json:"date"`
+// 	Msg_type    string `json:"msg_type"`
+// 	User_id     int    `json:"user_id"`
+// 	ImageData   string `json:"image_data"`
+// 	Targets     []int  `json:"targets"`
+// }
 
 type Chat struct {
 	User_one int
