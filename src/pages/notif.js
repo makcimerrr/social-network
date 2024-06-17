@@ -9,6 +9,19 @@ const NotificationFetcher = (props) => {
     const [deletedNotifications, setDeletedNotifications] = useState([]);
     const {users, userPosts, fetchUsers, fetchUserPosts} = useUsers();
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const currID = id;
+                const fetchedNotifications = await fetchNotification(currID, setNotifications);
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                // Gérer l'erreur (affichage de message d'erreur, etc.)
+            }
+        };
+
+        fetchData();
+    }, [id, setNotifications]);
 
     const fetchFollow = async (dataToSend, notifId, followId) => {
         try {
@@ -71,9 +84,9 @@ const NotificationFetcher = (props) => {
                 'Group invitation accepted',
                 {}
             )
-            if (category === "askgroup"){
+            if (category === "askgroup") {
                 removeNotification(idNotif, "askgroup", idGroup);
-            }else{
+            } else {
                 removeNotification(idNotif, "group", idGroup);
             }
 
@@ -136,6 +149,14 @@ const NotificationFetcher = (props) => {
                                     <span role="img" aria-label="Follow Emoji">➕</span>
                                 </>
                             )}
+                            {notif.category === 'Event' && (
+                                <>
+                                    <button className="close-button"
+                                            onClick={() => removeNotification(notif.id, "event", notif.event.IdEvent,)}>×
+                                    </button>
+                                    <span role="img" aria-label="Event Emoji">🪭</span>
+                                </>
+                            )}
                             {notif.category === 'AskGroup' && (
                                 <>
                                     <button className="close-button"
@@ -193,6 +214,15 @@ const NotificationFetcher = (props) => {
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         envoyé un message dans le groupe "<b>{notif.group.Title}</b>"
                                         : <b>{notif.message.Content}</b> !</p>
+                                </>
+                            )}
+                            {notif.category === 'Event' && (
+                                <>
+                                    <p className="notification-group">Event ID: {notif.event.IdEvent}</p>
+                                    <div className="notification-date">{notif.event.date}</div>
+                                    <p className="notification-title">{notif.user.firstname} {notif.user.lastname} à
+                                        créé un événement <b>{notif.event.Title}</b> dans le groupe
+                                        "<b>{notif.group.Title}</b>" !</p>
                                 </>
                             )}
                             {notif.category === 'AskGroup' && (

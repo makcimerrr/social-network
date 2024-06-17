@@ -57,6 +57,9 @@ export async function updateUsers(currId) {
         })
 }
 
+async function fetchNotif(currId, setNotifications) {
+    await fetchNotification(currId, setNotifications);
+}
 export function startWS(currId, setNotifications, router) {
     console.log("call startWS JS")
     console.log(currId)
@@ -78,10 +81,10 @@ export function startWS(currId, setNotifications, router) {
         conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
             var currentURL = window.location.href;
+            await fetchNotif(currId, setNotifications);
             //console.log("Data websocket", data);
             //console.log(data.receiver_id)
 
-            await fetchNotification(currId, setNotifications);
             if (data.msg_type === "post") {
                 console.log("new post")
                 console.log(data)
@@ -174,7 +177,16 @@ export function startWS(currId, setNotifications, router) {
                 }
             } else if (data.msg_type === "groupmsg") {
                 console.log("msg groupe")
-
+                toast(
+                    <span>
+                        You have a new message in group ! Click <a className="custom-link" onClick={() => router.push('/group')}>here</a>
+                    </span>,
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📬',
+                    }
+                );
 
 
                 if (currentURL.includes("chatgroup?id")) {
@@ -415,7 +427,7 @@ export function GetElementToOpenChatGroup(id, currId, Title) {
     }).catch();
 }
 
-let log;    
+let log;
 
 if (typeof document !== 'undefined') {
     // Access DOM elements only if document is defined
@@ -639,8 +651,8 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
 
         let resp = getData('http://localhost:8080/messagegroup?group=' + rid + '&firstId=' + firstId);
         resp.then(value => {
-    
-    
+
+
             // Ouverture d'une fenêtre de chat.
             OpenChatGroup(rid, conn, value, currId, firstId, Title);
         }).catch();
