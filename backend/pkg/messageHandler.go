@@ -120,17 +120,7 @@ func FindChatMessages(sender, receiver string, firstId int) ([]Message, error) {
 		return []Message{}, errors.New("receiver id must be an integer")
 	}
 
-	// q, err := db.Query(`SELECT * FROM messages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND ( id <= ? ) ORDER BY id DESC LIMIT 10`, s, r, r, s, firstId)
-	q, err := db.Query(`SELECT messages.id, messages.sender_id, messages.receiver_id, messages.content, messages.date,
-							sender.Firstname AS sender_firstname, sender.Lastname AS sender_lastname, sender.Nickname AS sender_nickname,
-							receiver.Firstname AS receiver_firstname, receiver.Lastname AS receiver_lastname, receiver.Nickname AS receiver_nickname
-						FROM messages
-						INNER JOIN USERS AS sender ON messages.sender_id = sender.ID
-						INNER JOIN USERS AS receiver ON messages.receiver_id = receiver.ID
-						WHERE ((messages.sender_id = ? AND messages.receiver_id = ?) OR (messages.sender_id = ? AND messages.receiver_id = ?))AND (messages.id <= ?)
-						ORDER BY messages.id DESC LIMIT 10;`,
-		s, r, r, s, firstId)
-
+	q, err := db.Query(`SELECT * FROM messages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND ( id <= ? ) ORDER BY id DESC LIMIT 10`, s, r, r, s, firstId)
 	if err != nil {
 		return []Message{}, errors.New("could not find chat messages")
 	}

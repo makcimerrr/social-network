@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func EventHandler(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +95,50 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HowIsInGroup(p EventGroup, u User) ([]int, error) {
+	GroupId := p.IDGroup
+	OwnerUserId := u.Id
+
+	// Connexion à la base de données
+	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+	if err != nil {
+		return nil, fmt.Errorf("Erreur lors de l'ouverture de la base de données: %v", err)
+	}
+	defer db.Close()
+
+	// Préparation de la requête SQL pour récupérer les UserID
+	stmt, err := db.Prepare(`SELECT UserID FROM MEMBERSGROUPS WHERE IDGroup = ? AND UserID != ?`)
+	if err != nil {
+		return nil, fmt.Errorf("Erreur lors de la préparation de la requête SQL: %v", err)
+	}
+	defer stmt.Close()
+
+	// Exécution de la requête
+	rows, err := stmt.Query(GroupId, OwnerUserId)
+	if err != nil {
+		return nil, fmt.Errorf("Erreur lors de l'exécution de la requête SQL: %v", err)
+	}
+	defer rows.Close()
+
+	// Parcourir les résultats et les ajouter à un tableau
+	var userIds []int
+	for rows.Next() {
+		var userId int
+		err = rows.Scan(&userId)
+		if err != nil {
+			return nil, fmt.Errorf("Erreur lors de la lecture des résultats: %v", err)
+		}
+		userIds = append(userIds, userId)
+	}
+
+	// Vérification des erreurs lors de la itération
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("Erreur lors de l'itération des résultats: %v", err)
+	}
+
+	return userIds, nil
+}
+
 // Création d'un nouveau post.
 func NewEvent(p EventGroup, u User) error {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
@@ -109,6 +154,20 @@ func NewEvent(p EventGroup, u User) error {
 		return err
 	}
 	fmt.Println(postInsert)
+
+	ListUser, err := HowIsInGroup(p, u)
+	if err != nil {
+		fmt.Println("error exec", err)
+		return err
+	}
+	date := time.Now().Format("01-02-2006 15:04:05")
+
+	// convert int64 to int
+	lastInsertId, _ := postInsert.LastInsertId()
+
+	for _, user := range ListUser {
+		InsertNotif(int(lastInsertId), user, date, "event", db)
+	}
 
 	return nil
 }

@@ -114,6 +114,12 @@ type Message struct {
 // 	Targets     []int  `json:"targets"`
 // }
 
+type Event struct {
+	IdEvent int
+	Title   string
+	Date    string
+}
+
 type Chat struct {
 	User_one int
 	User_two int

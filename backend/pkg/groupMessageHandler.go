@@ -119,13 +119,13 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 		return []Message{}, errors.New("receiver id must be an integer")
 	}
 
-	// q, err := db.Query(`SELECT * FROM groupmessages WHERE group_id = ? ORDER BY id DESC LIMIT 10`, g, firstId)
+	// q, err := db.Query(`SELECT * FROM groupmessages WHERE group_id = ? ORDER BY id DESC LIMIT 10`, g)
 	q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, groupmessages.date,
 						USERS.FirstName, USERS.LastName, USERS.Nickname
-						FROM groupmessages 
-						INNER JOIN USERS ON groupmessages.sender_id = USERS.id
-						WHERE group_id = ? 
-						ORDER BY id DESC LIMIT 10;`, g, firstId)
+						FROM groupmessages
+						INNER JOIN USERS ON groupmessages.sender_id = USERS.ID
+						WHERE group_id = ?
+						ORDER BY groupmessages.id DESC LIMIT 10;`, g)
 
 	if err != nil {
 		return []Message{}, errors.New("could not find chat messages")
@@ -139,45 +139,10 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 	return messages, nil
 }
 
-// find the last message between two users
-// func FindGroupLastMessage(sender, receiver string) (Message, error) {
-// 	// Opens the database
-// 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
-// 	if err != nil {
-// 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
-// 	}
-// 	defer db.Close()
-
-// 	// Converts sender and receiver ids to integers
-// 	s, err := strconv.Atoi(sender)
-// 	if err != nil {
-// 		return Message{}, errors.New("sender id must be an integer")
-// 	}
-
-// 	r, err := strconv.Atoi(receiver)
-// 	if err != nil {
-// 		return Message{}, errors.New("receiver id must be an integer")
-// 	}
-
-// 	// search database for last message between the two users
-// 	q, err := db.Query(`SELECT * FROM groupmessages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) ORDER BY id DESC LIMIT 1`, r, r, r, s)
-// 	if err != nil {
-// 		return Message{}, errors.New("could not find chat messages")
-// 	}
-
-// 	// Converts rows to an array of message structs
-// 	messages, err := ConvertRowToGroupMessage(q)
-// 	if err != nil {
-// 		return Message{}, errors.New("failed to convert")
-// 	}
-
-// 	return messages[0], nil
-// }
-
 // Mise en forme des rows en une array de structures Message.
 func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	var messages []Message
-	var firstName, lastName, nickname string
+	var firstName, lastName, nickname, finalName string
 	for rows.Next() {
 		var m Message
 		err := rows.Scan(&m.Id, &m.Sender_id, &m.Content, &m.Date, &firstName, &lastName, &nickname)
@@ -185,10 +150,11 @@ func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 			break
 		}
 		if nickname != "" {
-			m.Sender_nickname = nickname
+			finalName = nickname
 		} else {
-			m.Sender_nickname = firstName + " " + lastName
+			finalName = firstName + " " + lastName
 		}
+		m.Sender_nickname = finalName
 		messages = append(messages, m)
 	}
 	return messages, nil
