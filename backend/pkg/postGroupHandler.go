@@ -138,67 +138,45 @@ func NewPostGroup(p PostGroup, u User) error {
 
 	return nil
 }
+func ConvertRowsToPostGroup(rows *sql.Rows) ([]PostGroup, error) {
+	var posts []PostGroup
 
-// Récupération des posts en fonction d'un paramétre, exemple filtre d'une catégorie.
+	for rows.Next() {
+		var p PostGroup
+		err := rows.Scan(&p.Id, &p.User_id, &p.Title, &p.Content, &p.Date, &p.Image, &p.Group_id, &p.Likes, &p.NbComments)
+		if err != nil {
+			fmt.Println("err scan ConvertRowsToPostGroup", err)
+			break
+		}
+		posts = append(posts, p)
+	}
+	return posts, nil
+}
+
 func FindPostByParamGroup(data string) ([]PostGroup, error) {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+		return nil, err
 	}
 	defer db.Close()
 
-	rows, err := db.Query(`SELECT * FROM POST_GROUP ORDER BY IDPost DESC`)
+	var rows *sql.Rows
+	if data != "" {
+		rows, err = db.Query(`SELECT * FROM POST_GROUP WHERE GroupID = ? ORDER BY IDPost DESC`, data)
+	} else {
+		rows, err = db.Query(`SELECT * FROM POST_GROUP ORDER BY IDPost DESC`)
+	}
+
 	if err != nil {
 		return []PostGroup{}, errors.New("failed to find posts")
 	}
-	var posts []PostGroup
-	if data != "" {
+	defer rows.Close()
 
-		i, err := strconv.Atoi(data)
-		if err != nil {
-			return []PostGroup{}, errors.New("id must be an integer")
-		}
-		posts, err = ConvertRowsToPostGroup(db, rows, i)
-		if err != nil {
-			return []PostGroup{}, errors.New("failed to convert")
-		}
-	} else {
-		posts, err = ConvertRowToPostGroup(rows)
-		if err != nil {
-			return []PostGroup{}, errors.New("failed to convert")
-		}
+	posts, err := ConvertRowsToPostGroup(rows)
+	if err != nil {
+		return []PostGroup{}, errors.New("failed to convert rows to posts")
 	}
 
-	return posts, nil
-}
-
-// Mise en forme des rows en une array de structures Post.
-func ConvertRowToPostGroup(rows *sql.Rows) ([]PostGroup, error) {
-	var posts []PostGroup
-	for rows.Next() {
-		var p PostGroup
-		err := rows.Scan(&p.Id, &p.User_id, &p.Title, &p.Content, &p.Date, &p.Image, &p.Group_id, &p.Likes, &p.NbComments)
-		if err != nil {
-			break
-		}
-		posts = append(posts, p)
-	}
-	return posts, nil
-}
-
-// Mise en forme des rows en une array de structures Post.
-func ConvertRowsToPostGroup(db *sql.DB, rows *sql.Rows, i int) ([]PostGroup, error) {
-	var posts []PostGroup
-
-	for rows.Next() {
-		var p PostGroup
-		err := rows.Scan(&p.Id, &p.User_id, &p.Title, &p.Content, &p.Date, &p.Image, &p.Group_id, &p.Likes, &p.NbComments)
-		if err != nil {
-			fmt.Println("err scan ConvertRowsToPost", err)
-			break
-		}
-		posts = append(posts, p)
-
-	}
 	return posts, nil
 }

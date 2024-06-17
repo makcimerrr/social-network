@@ -53,7 +53,6 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 
 		var newMessage Message
-		fmt.Println(newMessage)
 		// Décodage de la requête dans newMessage.
 		err := json.NewDecoder(r.Body).Decode(&newMessage)
 		if err != nil {
@@ -178,6 +177,7 @@ func ConvertRowToMessage(rows *sql.Rows) ([]Message, error) {
 		if err != nil {
 			break
 		}
+
 		messages = append(messages, m)
 	}
 	return messages, nil

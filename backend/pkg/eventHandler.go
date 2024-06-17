@@ -172,55 +172,36 @@ func NewEvent(p EventGroup, u User) error {
 	return nil
 }
 
-// Récupération des posts en fonction d'un paramétre, exemple filtre d'une catégorie.
 func FindEventByParam(data string) ([]EventGroup, error) {
 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
 	if err != nil {
 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+		return nil, err
 	}
 	defer db.Close()
 
-	rows, err := db.Query(`SELECT * FROM EVENTGROUPS ORDER BY IDEvent DESC`)
+	var rows *sql.Rows
+	if data != "" {
+		rows, err = db.Query(`SELECT * FROM EVENTGROUPS WHERE IDGroup = ? ORDER BY IDEvent DESC`, data)
+	} else {
+		rows, err = db.Query(`SELECT * FROM EVENTGROUPS ORDER BY IDEvent DESC`)
+	}
+
 	if err != nil {
 		return []EventGroup{}, errors.New("failed to find events")
 	}
-	var events []EventGroup
-	if data != "" {
+	defer rows.Close()
 
-		i, err := strconv.Atoi(data)
-		if err != nil {
-			return []EventGroup{}, errors.New("id must be an integer")
-		}
-		events, err = ConvertRowsToEvent(db, rows, i)
-		if err != nil {
-			return []EventGroup{}, errors.New("failed to convert")
-		}
-	} else {
-		events, err = ConvertRowToEvent(rows)
-		if err != nil {
-			return []EventGroup{}, errors.New("failed to convert")
-		}
+	events, err := ConvertRowsToEvent(rows)
+	if err != nil {
+		return []EventGroup{}, errors.New("failed to convert rows to events")
 	}
 
 	return events, nil
 }
 
-// Mise en forme des rows en une array de structures Post.
-func ConvertRowToEvent(rows *sql.Rows) ([]EventGroup, error) {
-	var events []EventGroup
-	for rows.Next() {
-		var p EventGroup
-		err := rows.Scan(&p.IDEvent, &p.IDGroup, &p.Date, &p.Title, &p.Coming, &p.NotComing, &p.Description, &p.UserIDCreatorEvent)
-		if err != nil {
-			break
-		}
-		events = append(events, p)
-	}
-	return events, nil
-}
-
-// Mise en forme des rows en une array de structures Post.
-func ConvertRowsToEvent(db *sql.DB, rows *sql.Rows, i int) ([]EventGroup, error) {
+// Mise en forme des rows en une array de structures Event.
+func ConvertRowsToEvent(rows *sql.Rows) ([]EventGroup, error) {
 	var events []EventGroup
 
 	for rows.Next() {
