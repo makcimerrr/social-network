@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 import {fetchNotification} from "@/services/useFetchNotif";
-import { getGroup } from "./useCreateGroup";
-import {useRouter} from "next/router";
+
 
 
 export var firstId = 512;
@@ -57,6 +56,9 @@ export async function updateUsers(currId) {
         })
 }
 
+export var currentOpenChatId = null;
+export var currentOpenChatType = null; // "user" or "group"
+
 export function startWS(currId, setNotifications, router) {
     console.log("call startWS JS")
     console.log(currId)
@@ -78,7 +80,7 @@ export function startWS(currId, setNotifications, router) {
         conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
             var currentURL = window.location.href;
-            //console.log("Data websocket", data);
+            console.log("Data websocket", data);
             //console.log(data.receiver_id)
 
             await fetchNotification(currId, setNotifications);
@@ -172,55 +174,25 @@ export function startWS(currId, setNotifications, router) {
                         }
                     );
                 }
-            } else if (data.msg_type === "groupmsg") {
-                console.log("msg groupe")
 
-                if (currentURL.includes("chatgroup?id")) {
-                var senderContainer = document.createElement("div");
-                senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
-                var sender = document.createElement("div");
-                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
-                sender.innerText = data.content;
-                var date = document.createElement("div");
-                date.className = "chat-time";
-                date.innerText = data.date.slice(0, -3);
-                appendLog(senderContainer, sender, date);
-
-                if (data.sender_id == currId) {
-                    return;
-                }
-                updateUsers(currId);
-            }
-
-            } else if (data.msg_type === "msg") {
-                console.log("new message")
-                toast(
-                    <span>
-                        You have a new message ! Click <a className="custom-link" onClick={() => router.push('/chat')}>here</a>
-                    </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '📬',
-                    }
-                );
-                if (currentURL.includes("chat?id")) {
-                // Message chat, on regarde si on est l'émetteur ou le destinataire, on créé la div correspondante, et on "append" le message.
-                var senderContainer = document.createElement("div");
-                senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
-                var sender = document.createElement("div");
-                sender.className = (data.sender_id == currId) ? "sender" : "receiver";
-                sender.innerText = data.content;
-                var date = document.createElement("div");
-                date.className = "chat-time";
-                date.innerText = data.date.slice(0, -3);
-                appendLog(senderContainer, sender, date);
-
-                if (data.sender_id == currId) {
-                    return;
-                }
-                updateUsers(currId);
-            }
+            } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
+                                if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
+                                    displayChatMessage(data, currId);
+                                } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
+                                    displayChatMessage(data, currId);
+                                } else {
+                                    toast(
+                                        <span>
+                                            You have a new message ! Click <a className="custom-link" onClick={() => router.push('/chat')}>here</a>
+                                        </span>,
+                                        {
+                                            duration: 4000,
+                                            position: 'top-center',
+                                            icon: '📬',
+                                        }
+                                    );
+                                }
+                
 
             } else if (data.msg_type === "online") {
                 // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
@@ -254,9 +226,23 @@ export function startWS(currId, setNotifications, router) {
     }
 }
 
+function displayChatMessage(data, currId) {
+    var senderContainer = document.createElement("div");
+    senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
+    var sender = document.createElement("div");
+    sender.className = (data.sender_id == currId) ? "sender" : "receiver";
+    sender.innerText = data.content;
+    var date = document.createElement("div");
+    date.className = "chat-time";
+    date.innerText = data.date.slice(0, -3);
+    appendLog(senderContainer, sender, date);
+
+    updateUsers(currId);
+}
+
 let target = [];
 // Fonction d'envoi d'un message via le WS
-export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
+export function sendMsg(conn, currId, msg, msg_type, target = undefined) {
     // Check si WS ouverte.
     if (!conn) {
         return false;
@@ -267,10 +253,18 @@ export function sendMsg(conn, rid, msg, msg_type, target = undefined) {
         return false;
     }
 
+        let rid = (currentOpenChatType === "user") ? currentOpenChatId : (currentOpenChatType === "group") ? currentOpenChatId : null;
+
+    if (!rid) {
+        return false;
+    }
+
+    console.log(rid)
+
 
     let msgData = {
         id: 0,
-        sender_id: 0,
+        sender_id: currId,
         receiver_id: rid,
         content: msg.value,
         targets: target,
@@ -376,24 +370,30 @@ export async function createUsers(userdata, conn, currId) {
 
 export function GetElementToOpenChat(id, user, currId) {
     resetScroll();
+    document.querySelector(".chat-wrapper").style.display = "none";
+
     if (typeof conn === "undefined") {
         // Protection si problème de WS.
         return;
     }
+
+    currentOpenChatId = id;
+    currentOpenChatType = "user";
+
+
+
     // On récupère les logs si ils existent.
     let resp = getData('http://localhost:8080/message?receiver=' + id + '&firstId=' + firstId);
     resp.then(value => {
-        let rIdStr = user.getAttribute("id");
-        const regex = /id/i;
-        const rId = parseInt(rIdStr.replace(regex, ''));
         if (value && value.length > 0) {
             const lastIndex = value.length - 1;
             firstId = value[lastIndex].id;
             lastFetchedId = firstId;
         }
         counter = 0;
+        console.log(id)
         // Ouverture d'une fenêtre de chat.
-        OpenChat(rId, conn, value, currId, firstId);
+        OpenChat(id, conn, value, currId, firstId);
     }).catch();
 }
 
@@ -403,6 +403,10 @@ export function GetElementToOpenChatGroup(id, currId, Title) {
         // Protection si problème de WS.
         return;
     }
+
+    currentOpenChatId = id;
+    currentOpenChatType = "group";
+
     // On récupère les logs si ils existent.
     let resp = getData('http://localhost:8080/messagegroup?group=' + id + '&firstId=' + firstId);
     resp.then(value => {
@@ -424,34 +428,34 @@ if (typeof document !== 'undefined') {
 export {log};
 
 
-export function appendLog(container, msg, date, prepend = false) {
-    // Retrieve the log element
-    var log = document.querySelector(".chat");
+export function appendLog(container, msg, date) {
+    const log = document.querySelector(".chat");
     if (!log) {
-        // Chat log element not found, cannot append log
         return;
     }
 
-    // Check if document is defined
-    if (!document) {
-        // Document is not defined, cannot append log
-        return;
-    }
+    const newMessageDate = parseDate(date.innerText);
+    const existingMessages = [...log.children];
 
-    var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-    if (prepend) {
-        if (log.firstChild) {
-            log.insertBefore(container, log.firstChild);
-        } else {
-            log.appendChild(container);
+    let inserted = false;
+    for (let i = 0; i < existingMessages.length; i++) {
+        const existingMessage = existingMessages[i];
+        const existingMessageDate = parseDate(existingMessage.querySelector('.chat-time, .chat-time-left').innerText);
+
+        if (newMessageDate < existingMessageDate) {
+            log.insertBefore(container, existingMessage);
+            inserted = true;
+            break;
         }
-    } else {
+    }
+
+    if (!inserted) {
         log.appendChild(container);
     }
+
     container.appendChild(msg);
     msg.appendChild(date);
 
-    // Scroll to bottom regardless of prepend or append
     log.scrollTop = log.scrollHeight;
 }
 
@@ -471,6 +475,8 @@ export function resetScroll() {
 
 // Fonction active si ouverture d'un chat.
 export function OpenChat(rid, conn, data, currId, firstId) {
+
+    console.log("rid", rid)
     document.getElementById('id' + rid).style.fontWeight = "400";
     var chatBox = document.querySelector('.chat');
 
@@ -504,10 +510,11 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
 
-        sendMsg(conn, rid, msg, 'msg');
+        sendMsg(conn, currId, msg, 'msg');
 
         offset = null;
         firstId = firstId + 10;
+        console.log("rid", rid)
         let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
         resp.then(value => {
             if (value && value.length > 0) {
@@ -515,7 +522,8 @@ export function OpenChat(rid, conn, data, currId, firstId) {
                 firstId = value[lastIndex].id;
                 lastFetchedId = firstId;
             }
-            OpenChat(rid, conn, value, currId, firstId)
+            console.log(value)
+            CreateMessages(value, currId);
             chatBox.scrollTop = chatBox.scrollHeight;
         }).catch();
     });
@@ -530,7 +538,7 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     var lastFetchedId = null;
 
     // Fonction pour charger les messages 10/10.
-    debouncedScrollHandler = debounce(function () {
+/*     debouncedScrollHandler = debounce(function () {
 
         if (chatBox.scrollTop === 0) {
             let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
@@ -560,28 +568,40 @@ export function OpenChat(rid, conn, data, currId, firstId) {
             clearTimeout(timer);
             timer = setTimeout(func, delay);
         };
-    }
+    } */
 
     if (data == null) {
         return;
     }
     CreateMessages(data, currId);
 }
+function parseDate(dateString) {
+    return new Date(dateString.replace(/\./g, '/')); // Replace dots with slashes for compatibility
+}
 
-export function CreateMessages(data, currId) {
+function compareMessages(a, b) {
+    return parseDate(a.date) - parseDate(b.date);
+}
+
+export function CreateMessages(data, currId, otherId) {
+    // Check if data is null or undefined
+    if (!data || !Array.isArray(data)) {
+        console.error('Data is null or not an array:', data);
+        return;
+    }
+
     const chatBox = document.querySelector('.chat');
 
-    // Iterate over the data array from the beginning
-    for (let i = 0; i < data.length; i++) {
-        const {id, sender_id, content, date} = data[i];
+    // Clear the chat box to prevent duplication
+    chatBox.innerHTML = '';
 
-        // Check for duplicates
-        if (document.getElementById(`message-${id}`)) {
-            continue;
-        }
-        // Create message elements
+    const messageElements = [];
+
+    // Create message elements
+    data.forEach(({ id, sender_id, content, date }) => {
         const messageContainer = document.createElement("div");
         messageContainer.className = sender_id === currId ? "sender-container" : "receiver-container";
+        messageContainer.id = `message-${id}`;
 
         const message = document.createElement("div");
         message.className = sender_id === currId ? "sender" : "receiver";
@@ -591,11 +611,17 @@ export function CreateMessages(data, currId) {
         messageDate.className = sender_id === currId ? "chat-time-left" : "chat-time";
         messageDate.innerText = date.slice(0, -3);
 
-        messageContainer.id = `message-${id}`;
+        messageContainer.appendChild(message);
+        message.appendChild(messageDate);
 
-        // Append message elements to the chat box
-        appendLog(messageContainer, message, messageDate, true);
-    }
+        messageElements.push({ element: messageContainer, date: date });
+    });
+
+    // Sort messages by date
+    messageElements.sort(compareMessages);
+
+    // Append sorted messages to chat box
+    messageElements.forEach(({ element }) => chatBox.appendChild(element));
 
     // Scroll to the bottom of the chat box
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -633,14 +659,14 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
     // Envoi du message si click.
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
-        sendMsg(conn, rid, msg, 'groupmsg');
+        sendMsg(conn, currId, msg, 'groupmsg');
 
         let resp = getData('http://localhost:8080/messagegroup?group=' + rid + '&firstId=' + firstId);
         resp.then(value => {
     
     
             // Ouverture d'une fenêtre de chat.
-            OpenChatGroup(rid, conn, value, currId, firstId, Title);
+            CreateMessages(value, currId);
         }).catch();
     });
 
