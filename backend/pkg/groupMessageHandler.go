@@ -140,39 +140,39 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 }
 
 // find the last message between two users
-func FindGroupLastMessage(sender, receiver string) (Message, error) {
-	// Opens the database
-	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
-	if err != nil {
-		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
-	}
-	defer db.Close()
+// func FindGroupLastMessage(sender, receiver string) (Message, error) {
+// 	// Opens the database
+// 	db, err := sql.Open("sqlite3", "backend/pkg/db/database.db")
+// 	if err != nil {
+// 		fmt.Println("Erreur lors de l'ouverture de la base de données:", err)
+// 	}
+// 	defer db.Close()
 
-	// Converts sender and receiver ids to integers
-	s, err := strconv.Atoi(sender)
-	if err != nil {
-		return Message{}, errors.New("sender id must be an integer")
-	}
+// 	// Converts sender and receiver ids to integers
+// 	s, err := strconv.Atoi(sender)
+// 	if err != nil {
+// 		return Message{}, errors.New("sender id must be an integer")
+// 	}
 
-	r, err := strconv.Atoi(receiver)
-	if err != nil {
-		return Message{}, errors.New("receiver id must be an integer")
-	}
+// 	r, err := strconv.Atoi(receiver)
+// 	if err != nil {
+// 		return Message{}, errors.New("receiver id must be an integer")
+// 	}
 
-	// search database for last message between the two users
-	q, err := db.Query(`SELECT * FROM groupmessages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) ORDER BY id DESC LIMIT 1`, r, r, r, s)
-	if err != nil {
-		return Message{}, errors.New("could not find chat messages")
-	}
+// 	// search database for last message between the two users
+// 	q, err := db.Query(`SELECT * FROM groupmessages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) ORDER BY id DESC LIMIT 1`, r, r, r, s)
+// 	if err != nil {
+// 		return Message{}, errors.New("could not find chat messages")
+// 	}
 
-	// Converts rows to an array of message structs
-	messages, err := ConvertRowToGroupMessage(q)
-	if err != nil {
-		return Message{}, errors.New("failed to convert")
-	}
+// 	// Converts rows to an array of message structs
+// 	messages, err := ConvertRowToGroupMessage(q)
+// 	if err != nil {
+// 		return Message{}, errors.New("failed to convert")
+// 	}
 
-	return messages[0], nil
-}
+// 	return messages[0], nil
+// }
 
 // Mise en forme des rows en une array de structures Message.
 func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
