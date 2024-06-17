@@ -121,7 +121,17 @@ func FindChatMessages(sender, receiver string, firstId int) ([]Message, error) {
 		return []Message{}, errors.New("receiver id must be an integer")
 	}
 
-	q, err := db.Query(`SELECT * FROM messages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND ( id <= ? ) ORDER BY id DESC LIMIT 10`, s, r, r, s, firstId)
+	// q, err := db.Query(`SELECT * FROM messages WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND ( id <= ? ) ORDER BY id DESC LIMIT 10`, s, r, r, s, firstId)
+	q, err := db.Query(`SELECT messages.id, messages.sender_id, messages.receiver_id, messages.content, messages.date,
+							sender.Firstname AS sender_firstname, sender.Lastname AS sender_lastname, sender.Nickname AS sender_nickname,
+							receiver.Firstname AS receiver_firstname, receiver.Lastname AS receiver_lastname, receiver.Nickname AS receiver_nickname
+						FROM messages
+						INNER JOIN USERS AS sender ON messages.sender_id = sender.ID
+						INNER JOIN USERS AS receiver ON messages.receiver_id = receiver.ID
+						WHERE ((messages.sender_id = ? AND messages.receiver_id = ?) OR (messages.sender_id = ? AND messages.receiver_id = ?))AND (messages.id <= ?)
+						ORDER BY messages.id DESC LIMIT 10;`,
+		s, r, r, s, firstId)
+
 	if err != nil {
 		return []Message{}, errors.New("could not find chat messages")
 	}
@@ -172,11 +182,25 @@ func FindLastMessage(sender, receiver string) (Message, error) {
 // Mise en forme des rows en une array de structures Message.
 func ConvertRowToMessage(rows *sql.Rows) ([]Message, error) {
 	var messages []Message
+	var sender_firstname, sender_lastname, sender_nickname string
+	var receiver_firstname, receiver_lastname, receiver_nickname string
 	for rows.Next() {
 		var m Message
-		err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date)
+		err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date, &sender_firstname, &sender_lastname, &sender_nickname, &receiver_firstname, &receiver_lastname, &receiver_nickname)
 		if err != nil {
 			break
+		}
+		// affichage du nickname du sender
+		if sender_nickname != "" {
+			m.Sender_nickname = sender_nickname
+		} else {
+			m.Sender_nickname = sender_firstname + " " + sender_lastname
+		}
+		// affichage du nickname du receiver
+		if receiver_nickname != "" {
+			m.Receiver_nickname = receiver_nickname
+		} else {
+			m.Receiver_nickname = receiver_firstname + " " + receiver_lastname
 		}
 		messages = append(messages, m)
 	}
