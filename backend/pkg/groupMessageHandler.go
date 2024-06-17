@@ -142,19 +142,19 @@ func FindGroupChatMessages(sender, group string, firstId int) ([]Message, error)
 // Mise en forme des rows en une array de structures Message.
 func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	var messages []Message
-	var firstName, lastName, nickname string
+	var firstName, lastName, nickname, finalName string
 	for rows.Next() {
 		var m Message
-		// err := rows.Scan(&m.Id, &m.Sender_id, &m.Receiver_id, &m.Content, &m.Date)
 		err := rows.Scan(&m.Id, &m.Sender_id, &m.Content, &m.Date, &firstName, &lastName, &nickname)
 		if err != nil {
 			break
 		}
 		if nickname != "" {
-			m.Sender_nickname = nickname
+			finalName = nickname
 		} else {
-			m.Sender_nickname = firstName + " " + lastName
+			finalName = firstName + " " + lastName
 		}
+		m.Sender_nickname = finalName
 		messages = append(messages, m)
 	}
 	return messages, nil
