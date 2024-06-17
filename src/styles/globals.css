@@ -1,8 +1,7 @@
 @import url(../styles/App.css);
 @import url(../styles/index.css);
 @import url(../styles/password.css);
-@import url(../styles/group.css);
-@import url(../styles/notif.css);
+@import url(../styles/style.css);
 
 
 .password-strength-meter {
@@ -12,13 +11,18 @@
 .password-strength-meter-progress {
     -webkit-appearance: none;
     appearance: none;
-    width: 250px;
-    height: 8px;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    border-radius: 30px;
+    margin-left: 361px;
+    margin-top: 9px;
+    transition: background-color 0.3s ease;
 }
 
 .password-strength-meter-progress::-webkit-progress-bar {
-    background-color: #eee;
-    border-radius: 3px;
+    background-color: var(--white);
+    border-radius: 30px;
 }
 
 .password-strength-meter-label {
@@ -26,33 +30,33 @@
 }
 
 .password-strength-meter-progress::-webkit-progress-value {
-    border-radius: 2px;
-    background-size: 35px 20px, 100% 100%, 100% 100%;
+    border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
 .strength-Weak::-webkit-progress-value {
-    background-color: #F25F5C;
+    background-color: var(--primary-red);
 }
 
 .strength-Fair::-webkit-progress-value {
-    background-color: #FFE066;
+    background-color: var(--primary-orange);
 }
 
 .strength-Good::-webkit-progress-value {
-    background-color: #247BA0;
+    background-color: var(--primary-yellow);
 }
 
 .strength-Strong::-webkit-progress-value {
-    background-color: #70C1B3;
+    background-color: var(--primary-green);
 }
 
 
 .chat-wrapper {
     position: fixed;
-    z-index: 999; 
+    z-index: 999;
     right: 0;
     bottom: 0;
-    margin-right: 20px; 
+    margin-right: 20px;
     margin-bottom: 20px;
     height: 750px;
     width: 40%;
@@ -64,10 +68,12 @@
 
 
 }
+
 #typing-indicator {
     display: none;
-    margin-left: -15px; /* Adjust the value as per your preference */
-  }
+    margin-left: -15px;
+    /* Adjust the value as per your preference */
+}
 
 .chat-username-wrapper {
     border-bottom: black solid 1.5px;
@@ -80,7 +86,7 @@
     justify-content: space-between;
 }
 
-.close-chat{
+.close-chat {
     cursor: pointer;
 }
 
@@ -92,11 +98,12 @@
 
 .chat {
     flex: 1;
-    overflow-y: auto; /* Change to auto to enable scrolling when the content exceeds the height */
+    overflow-y: auto;
+    /* Change to auto to enable scrolling when the content exceeds the height */
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+}
 
 .sender-container {
     width: 100%;
@@ -105,7 +112,7 @@
     position: relative;
     display: flex;
     justify-content: flex-end;
- 
+
 }
 
 .receiver-container {
@@ -117,17 +124,22 @@
 }
 
 
-.sender, .receiver {
-    height: auto; /* Change to auto to adjust the height based on the content */
-    max-width: 70%; /* Adjust the maximum width as per your preference */
+.sender,
+.receiver {
+    height: auto;
+    /* Change to auto to adjust the height based on the content */
+    max-width: 70%;
+    /* Adjust the maximum width as per your preference */
     padding: 10px;
     border: black solid 1.5px;
     border-radius: 10px;
     margin-bottom: 5px;
     margin-top: 5px;
-    word-wrap: break-word; /* Add this property to wrap long words */
-    overflow-wrap: break-word; /* Add this property to wrap long words */
-  }
+    word-wrap: break-word;
+    /* Add this property to wrap long words */
+    overflow-wrap: break-word;
+    /* Add this property to wrap long words */
+}
 
 .sender {
     border-radius: 10px 10px 0px 10px;
@@ -148,7 +160,7 @@
     font-size: 0.75rem;
     color: rgb(47, 46, 46);
     background-color: rgb(255, 254, 207);
-    
+
     padding: 8px;
     border: black solid 2px;
     border-radius: 20px;
@@ -156,21 +168,23 @@
 
 .chat-time {
     position: absolute;
-    bottom: -5px; /* Adjust the value to move the timestamp down */
+    bottom: -5px;
+    /* Adjust the value to move the timestamp down */
     left: 8px;
     color: black;
-    font-size: .8em;    
-  }
+    font-size: .8em;
+}
 
-  .chat-time-left {
+.chat-time-left {
     position: absolute;
-    bottom: -5px; /* Adjust the value to move the timestamp down */
+    bottom: -5px;
+    /* Adjust the value to move the timestamp down */
     right: 8px;
     color: black;
-    font-size: .8em;    
-  }
-  
-  
+    font-size: .8em;
+}
+
+
 
 .chat-date-wrapper {
     border-bottom: rgb(192, 192, 192) solid 1px;
@@ -198,7 +212,7 @@
     outline: none;
     border-radius: 25px;
     padding-left: 20px;
-    background-color:#f0f2f5;
+    background-color: #f0f2f5;
     border: black solid 1.5px;
     margin-left: 20px;
 }
@@ -211,8 +225,9 @@
     border: none;
     justify-content: center;
     align-items: center;
-    cursor : pointer;
+    cursor: pointer;
 }
+
 #emoji-btn {
     width: 38px;
     height: 36px;
@@ -223,7 +238,7 @@
     justify-content: center;
     align-items: center;
     margin-left: -150px;
-    cursor : pointer;
+    cursor: pointer;
 }
 
 /* USERS */
@@ -236,7 +251,7 @@
 .online-list {
     font-size: 1rem;
     font-weight: bold;
-    color: black; 
+    color: black;
 }
 
 .title-users {
@@ -271,7 +286,7 @@
 
 .online {
     padding: 4.4px;
-    background-color:  #84cd1c;
+    background-color: #84cd1c;
     border: #000000 solid 1.5px;
     border-radius: 50%;
     z-index: 1;
@@ -293,7 +308,10 @@
     cursor: pointer;
 }
 
-.test{
-    margin-top: 100px;
+.test {
+    margin-left: 65px;
+    width: 100vw;
+    height: 100vh;
+    /* background-color: red; */
+    overflow: hidden;
 }
-

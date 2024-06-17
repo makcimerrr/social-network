@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import useComments from '../services/useComments';
+import { parse, formatDistanceToNow } from 'date-fns';
+
+const formatDate = (dateStr) => {
+  const parsedDate = parse(dateStr, 'MM-dd-yyyy HH:mm:ss', new Date());
+  return formatDistanceToNow(parsedDate, { addSuffix: true });
+};
 
 const CommentContainer = ({ Post_id, NbComments }) => {
   const router = useRouter();
@@ -47,36 +52,33 @@ const CommentContainer = ({ Post_id, NbComments }) => {
 
   return (
     <div>
-      <h2>Comments</h2>
-      <Button
-        variant="contained"
-        onClick={handleFetchComments}
-        disabled={fetching}
-      >
-        Comments ({NbComments})
-      </Button>
-      {comments && comments.length > 0 ? (
+      <div className='post-comments'>
+
+        <span
+          className='commentsbtn'
+          variant="contained"
+          onClick={handleFetchComments}
+          disabled={fetching}
+        >
+        </span>
+        <span className='commentscount'>
+          {NbComments}
+        </span>
+      </div>
+      {comments && (
         <ul>
           {comments.map(comment => (
             <li key={comment.id}>
-              <p>{comment.content}</p>
-              <Typography variant="body2" color="textSecondary" component="p">
-                Commented by{' '}
-                <Typography
-                  variant="body2"
-                  color="primary"
-                  component="span"
-                  onClick={() => router.push(`/user?id=${comment.user_id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {userDetails[comment.user_id] ? userDetails[comment.user_id].nickname : `User ID: ${comment.user_id}`}
-                </Typography>
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                Date: {comment.date}
-              </Typography>
+              <div className='comment-container'>
+                <p className='username' onClick={() => router.push(`/user?id=${comment.user_id}`)}>
+                  {comment.user_id}PASTEQUITOS:
+                </p>
+                <p className='comment-content'>{comment.content}</p>
+              </div>
+              <p className='time'>{formatDate(comment.date)}</p>
               {comment.image && (
                 <img
+                className='comment-image'
                   src={`data:image/jpeg;base64,${comment.image}`}
                   alt="Comment Image"
                 />

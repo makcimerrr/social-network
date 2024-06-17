@@ -110,12 +110,10 @@ const User = ({id}) => {
         }
     };
 
-    return (
-        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-            <ProfileContainer users={users} userPosts={userPosts} follow={follow} validatefollow={validatefollow}
-                              togglePrivacy={togglePrivacy} id={id} handleCreateComment={handleCreateComment}
-                              handlePostLike={handlePostLike}/>
-        </div>
+  return (
+    <div className='test'>
+      <ProfileContainer users={users} userPosts={userPosts} follow={follow} validatefollow={validatefollow} togglePrivacy={togglePrivacy} id={id} handleCreateComment={handleCreateComment} handlePostLike={handlePostLike} />
+    </div>
     );
 };
 

@@ -5,42 +5,27 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home';
-import LoginIcon from '@mui/icons-material/Login';
-import RegisterIcon from '@mui/icons-material/HowToReg';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ChatIcon from '@mui/icons-material/Chat';
 import { cookie } from '../services/useCookie';
-import Groups2Icon from '@mui/icons-material/Groups2';
-import NotifIcon from '@mui/icons-material/Notifications';
-
+import setTransiName from '@/services/setTransiName';
+let hoveredmenu = false;
 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
+    easing: 'cubic-bezier(0.7, 0, 0.3, 1)',
+    duration: '400ms',
   }),
   overflowX: 'hidden',
 });
 const closedMixin = (theme) => ({
   transition: theme.transitions.create('width', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
+    easing: 'cubic-bezier(0.7, 0, 0.3, 1)',
+    duration: '400ms',
   }),
   overflowX: 'hidden',
   width: `calc(${theme.spacing(7)} + 1px)`,
@@ -55,26 +40,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+
+const Logo = () => (
+  <StyledLogo className="headerLogo">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-30 -50 935 1090">
+      <path stroke="#F7F9FF" strokeWidth="50" d="m479 22.528 333.013 192.265a90 90 0 0 1 45 77.942v384.53a90 90 0 0 1-45 77.942L479 947.472a90 90 0 0 1-90 0L55.987 755.207a90 90 0 0 1-45-77.942v-384.53a90 90 0 0 1 45-77.942L389 22.528a90 90 0 0 1 90 0Z" />
+    </svg>
+  </StyledLogo>
+);
+
+const StyledLogo = styled('div')`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const DrawerContainer = styled(Box)({
-  zIndex: 1, // Higher z-index to ensure content appears above the drawer
-  position: 'relative', // Make sure position is relative for z-index to work
+  zIndex: 1,
+  position: 'relative',
 });
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -93,9 +76,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const router = useRouter(); // Using Next.js's useRouter hook
+  const router = useRouter();
   const onButtonClick = async () => {
     if (loggedIn) {
       try {
@@ -107,7 +88,7 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
           toast.success('Logout successful!', {
             duration: 4000,
             position: 'top-center',
-            style: {backgroundColor: 'rgba(0,255,34,0.5)', color: 'white'},
+            style: { backgroundColor: 'rgba(0,255,34,0.5)', color: 'white' },
             icon: '👏',
           });
           setLoggedIn(false);
@@ -116,7 +97,7 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
           toast.error('Logout failed.Error: ' + responseData.message, {
             duration: 4000,
             position: 'top-center',
-            style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+            style: { backgroundColor: 'rgba(255,0,0,0.5)', color: 'white' },
           });
         }
       } catch (error) {
@@ -124,126 +105,128 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
         toast.error('Error during logout: ' + error.message, {
           duration: 4000,
           position: 'top-center',
-          style: {backgroundColor: 'rgba(255,0,0,0.5)', color: 'white'},
+          style: { backgroundColor: 'rgba(255,0,0,0.5)', color: 'white' },
         });
       }
     } else {
       router.push('/login');
     }
   };
-  const handleDrawerOpen = () => {
-    setOpen(true);
+
+  const handleHovreMenu = () => {
+    if (hoveredmenu) {
+      hoveredmenu = false;
+      document.querySelector('.headerLogo').classList.remove('active');
+      document.querySelector('.headertext').classList.remove('active');
+      document.querySelectorAll('.Menutxt').forEach((item) => {
+        item.classList.remove('active');
+      })
+    } else {
+      hoveredmenu = true;
+      document.querySelector('.headerLogo').classList.add('active');
+      document.querySelector('.headertext').classList.add('active');
+      document.querySelectorAll('.Menutxt').forEach((item) => {
+        item.classList.add('active');
+      });
+    }
+  }
+
+  const handleDrawerSelected = (event) => {
+    const listItems = document.querySelectorAll('.Menu');
+    listItems.forEach((item) => {
+      item.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
   };
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+
+
   return (
     <DrawerContainer>
       <CssBaseline />
-      <AppBar position="fixed" style={{ background: '#2E3B55' }} open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Social Network
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
+      <Drawer classes={{ paper: 'drawer' }} variant="permanent" onMouseEnter={() => {
+        handleHovreMenu();
+        hoveredmenu = true;
+      }}
+        onMouseLeave={() => {
+          handleHovreMenu();
+          hoveredmenu = false;
+        }}>
+        <DrawerHeader className='drawerHeader'>
+          <Logo />
+          <p className='headertext logotext'>HIVE</p>
         </DrawerHeader>
-        <List>
-          {loggedIn ? ( // Afficher les boutons de menu en fonction de l'état de connexion
+        <span className='headerSeparation'></span>
+        <List className='listMenu'>
+          {loggedIn ? (
             <>
-            <ListItemButton selected={router.pathname === '/'} component={Link} to="/">
+              <ListItemButton className='Menu' component={Link} href="/" onClick={setTransiName()}>
                 <ListItemIcon>
-                  <HomeIcon />
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Home" />
-              </ListItemButton>
-              <ListItemButton 
-    selected={router.pathname === '/user?id=' + id.toString()} 
-    component={Link} 
-    href={'/user?id=' + id.toString()}
->                <ListItemIcon>
-                  <AccountBoxIcon />
-                </ListItemIcon>
-                <ListItemText primary="Profile" />
-              </ListItemButton>
-              <ListItemButton 
-    selected={router.pathname === '/chat?id=' + id.toString()} 
-    component={Link} 
-    href={'/chat?id=' + id.toString()}
->                <ListItemIcon>
-                  <ChatIcon />
-                </ListItemIcon>
-                <ListItemText primary="Chat" />
-              </ListItemButton>
-              <ListItemButton 
-    selected={router.pathname === '/chatgroup?id=' + id.toString()} 
-    component={Link} 
-    href={'/chatgroup?id=' + id.toString()}
->                <ListItemIcon>
-                  <ChatIcon />
-                </ListItemIcon>
-                <ListItemText primary="Chat Group" />
+                <span className='Menutxt'>Home</span>
               </ListItemButton>
 
-              <ListItemButton selected={router.pathname === '/group'} component={Link} to="/group">
+              <ListItemButton className='Menu' component={Link} href={'/user?id=' + id.toString()}>
                 <ListItemIcon>
-                  <Groups2Icon/>
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Group" />
+                <span className='Menutxt'>Profile</span>
               </ListItemButton>
 
-              <ListItemButton selected={router.pathname === '/notif'} component={Link} to="/notif">
+              <ListItemButton className='Menu' component={Link} href={'/chat?id=' + id.toString()}>
                 <ListItemIcon>
-                  <NotifIcon/>
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Notif" />
+                <span className='Menutxt'>Chat</span>
               </ListItemButton>
 
-              <ListItemButton onClick={onButtonClick}>
+               <ListItemButton className='Menu' component={Link} href={'/group?id='}>
                 <ListItemIcon>
-                  <LogoutIcon />
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Logout" />
+                <span className='Menutxt'>Group</span>
+              </ListItemButton>
+              
+              <ListItemButton className='Menu' onClick={onButtonClick}>
+                <ListItemIcon>
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
+                </ListItemIcon>
+                <span className='Menutxt'>Log out</span>
               </ListItemButton>
 
 
             </>
           ) : (
             <>
-              <ListItemButton selected={router.pathname === '/'} component={Link} to="/">
+              <ListItemButton className='Menu' component={Link} href="/" onClick={setTransiName()}>
                 <ListItemIcon>
-                  <HomeIcon />
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Home" />
+                <span className='Menutxt'>Home</span>
               </ListItemButton>
-              <ListItemButton selected={router.pathname === '/login'} component={Link} href="/login">
+              
+              <ListItemButton className='Menu' component={Link} href="/login">
                 <ListItemIcon>
-                  <LoginIcon />
+                  <div className='LoginIcon MenuIcon'>
+                    <span className='LoginIcon LoginArrow'></span>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Login" />
+                <span className='Menutxt'>Login</span>
               </ListItemButton>
-              <ListItemButton selected={router.pathname === '/register'} component={Link} href="/register">
+
+              <ListItemButton className='Menu' component={Link} href="/register">
                 <ListItemIcon>
-                  <RegisterIcon />
+                  <div className='RegisterIcon MenuIcon'>
+                    <span className='RegisterIcon RegisterBeeIcon'></span>
+                  </div>
                 </ListItemIcon>
-                <ListItemText primary="Register" />
+                <span className='Menutxt'>Sign up</span>
               </ListItemButton>
             </>
           )}

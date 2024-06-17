@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
-const LoginForm = ({form, setForm, formErrors, setFormErrors, onButtonClick}) => {
+const LoginForm = ({ form, setForm, formErrors, setFormErrors, onButtonClick }) => {
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -9,7 +9,7 @@ const LoginForm = ({form, setForm, formErrors, setFormErrors, onButtonClick}) =>
     };
     const handlePasswordChange = (ev) => {
         const newPassword = ev.target.value;
-        setForm(prevForm => ({...prevForm, password: newPassword}))
+        setForm(prevForm => ({ ...prevForm, password: newPassword }))
 
         if (formErrors.password && newPassword !== '') {
             setFormErrors(prevErrors => ({
@@ -21,7 +21,7 @@ const LoginForm = ({form, setForm, formErrors, setFormErrors, onButtonClick}) =>
     };
     const handleDataChange = (ev) => {
         const newData = ev.target.value;
-        setForm(prevForm => ({...prevForm, data: newData}))
+        setForm(prevForm => ({ ...prevForm, data: newData }))
 
         if (formErrors.data && newData !== '') {
             setFormErrors(prevErrors => ({
@@ -33,39 +33,39 @@ const LoginForm = ({form, setForm, formErrors, setFormErrors, onButtonClick}) =>
     return (
         <div className={'mainContainer'}>
             <div className={'titleContainer'}>
-                <div>Login</div>
+                <p className='title'>Login</p>
             </div>
-            <br/>
+            <br />
             <div className={'inputContainer'}>
                 <input
+                placeholder='Username or Email'
                     value={form.data}
-                    placeholder="Enter your email or username here"
                     onChange={handleDataChange}
                     className={'inputBox'}
                 />
                 <label className="errorLabel">{formErrors.data}</label>
             </div>
-            <br/>
+            <br />
             <div className={'inputContainer'}>
                 <div className="password-input">
                     <input
                         value={form.password}
-                        placeholder="Enter your password here"
                         onChange={handlePasswordChange}
                         className={'inputBox'}
                         type={showPassword ? "text" : "password"}
+                        placeholder='Password'
                     />
                     <button className="password-toggle" onClick={toggleShowPassword}>
-                        <span style={{fontSize: '1.5em'}}>{showPassword ? "👁️" : "🫣"}</span>
+                        <span style={{ fontSize: '1.5em' }}>{showPassword ? "👁️" : "🫣"}</span>
                     </button>
                 </div>
                 <label className="errorLabel">{formErrors.password}</label>
             </div>
-            <br/>
-            <div className={'inputContainer'}>
-                <input className={'inputButton'} type="button" onClick={onButtonClick} value={'Log in'}/>
+            <br />
+            <div className={'inputContainer confirmbtn'}>
+                <input className={'inputButton'} type="button" onClick={onButtonClick} value={'Log in'} />
             </div>
-            <p>Pas encore de compte? <a href="/register">Créez-en un ici</a>.</p>
+            <p className='minitext'>Don't have an account? <a className='clicable-link' href="/register">Create one.</a>.</p>
         </div>
 
     );
