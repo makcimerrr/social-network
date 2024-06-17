@@ -194,9 +194,9 @@ func ConvertRowToGroupMessage(rows *sql.Rows) ([]Message, error) {
 	return messages, nil
 }
 
-q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content, 
+/* q, err := db.Query(`SELECT groupmessages.id, groupmessages.sender_id, groupmessages.content,
 USERS.FirstName, USERS.LastName, USERS.Nickname
-FROM groupmessages 
+FROM groupmessages
 INNER JOIN USERS ON groupmessages.sender_id = USERS.id
-WHERE group_id = ? 
-ORDER BY id DESC LIMIT 10;`, g, firstId)
+WHERE group_id = ?
+ORDER BY id DESC LIMIT 10;`, g, firstId) */

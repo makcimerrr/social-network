@@ -785,8 +785,8 @@ h2 {
 
 .pp {
     background-image: url('../styles/media/whitebee.png');
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
     background-size: 50%;
     background-position: center;
     background-repeat: no-repeat;
