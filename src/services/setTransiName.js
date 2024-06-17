@@ -11,7 +11,7 @@ function setTransiName() {
       pathArray[1] = "Profile"
     }
     transitext.innerText = pathArray[1]
-  }, 10);
+  }, 50);
   }
 
   export default setTransiName

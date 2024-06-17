@@ -82,18 +82,17 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
 
             <div className='profilecontainer'>
-                <p className='white'>Profile</p>
-                <p className='white'>Nickname: {users.nickname}</p>
+                <p className='white'>{users.nickname}</p>
                 <p className='white'>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
                 {users.privateprofile === 1 || users.id === id &&
                     <>
                         <p>Avatar: {users.avatar}</p>
-{/*                         <p className='white'>ID: {users.id}</p> */}
-{/*                         <p className='white'>Email: {users.email}</p> */}
+                        {/*                         <p className='white'>ID: {users.id}</p> */}
+                        {/*                         <p className='white'>Email: {users.email}</p> */}
                         <p className='white'>{users.firstname} {users.lastname}</p>
-{/*                         <p className='white'>Date of Birth: {users.dateofbirth}</p> */}
+                        {/*                         <p className='white'>Date of Birth: {users.dateofbirth}</p> */}
                         <p className='white'>About Me: {users.aboutme}</p>
-{/*                         <p className='white'>Point of Interest: {users.pointofinterest}</p> */}
+                        {/*                         <p className='white'>Point of Interest: {users.pointofinterest}</p> */}
                     </>
                 }
                 {users.id === id ? (
