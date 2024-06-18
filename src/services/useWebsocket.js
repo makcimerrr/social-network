@@ -520,6 +520,8 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         }
     }
 
+/*     <a onClick={() => router.push(`/user?id=${follower.id}`)}>{follower.firstname} {follower.lastname}</a> */
+
     let oldElem = document.querySelector(".send-wrapper");
     let newElem = oldElem.cloneNode(true);
     oldElem.parentNode.replaceChild(newElem, oldElem);
@@ -527,6 +529,8 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     document.querySelector(".chat-user-username").innerText = allUsers.filter(u => {
         return u.id == rid;
     })[0].nickname;
+
+    document.querySelector(".chat-user-username").id = rid;
 
     document.querySelector(".chat-wrapper").style.display = "flex";
     var msg = document.getElementById("chat-input");

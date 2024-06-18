@@ -805,6 +805,7 @@ h2 {
     font-size: 25px;
     margin: 0;
     font-weight: 500;
+    text-transform: capitalize;
 }
 
 .img-preview {
@@ -953,4 +954,50 @@ h2 {
     overflow: scroll;
     height: calc(100vh - 110px);
     margin-left: 100px;
+}
+
+.follower-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: calc(100vw - 170px);
+    overflow-x: scroll;
+    overflow-x: hidden;
+    background-color: red;
+}
+
+.follower-pp {
+    width: 50px;
+    height: 50px;
+}
+
+.follower-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+    width: 200px;
+    background-color: wheat;
+}
+
+.offline-users {
+    width: calc(100vw - 170px);
+    background-color: red;
+    display: flex;
+    overflow-x: scroll;
+    height: 200px;
+}
+
+.user {
+    width: 200px;
+    min-width: 200px;
+    background-color: blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.chat-user-username {
+cursor: pointer;
 }

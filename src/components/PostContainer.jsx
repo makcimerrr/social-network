@@ -11,6 +11,7 @@ const formatDate = (dateStr) => {
 };
 
 const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
+  const [userDetails, setUserDetails] = useState({});
   const router = useRouter();
 
   const fetchUsers = async (userIds) => {
@@ -70,7 +71,7 @@ const PostContainer = ({ posts, handleCreateComment, handlePostLike }) => {
                       <div className='post-username-container'>
                         <span className='pp'></span>
                         <p className='post-username' onClick={() => router.push(`/user?id=${post.user_id}`)}>
-                          {post.user_id} ENZO LE BOSS
+                        {userDetails[post.user_id] ? userDetails[post.user_id].nickname : `User ID: ${post.user_id}`}
                         </p>
                       </div>
                       <p>

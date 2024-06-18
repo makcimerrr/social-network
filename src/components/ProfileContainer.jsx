@@ -37,14 +37,15 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
     };
 
     const followList = (title, list) => (
-        <details>
-            <summary>{title}</summary>
+        <div className='follower-list-container'>
             {list.map(follower => (
-                <div key={follower.id}>
-                    <a onClick={() => router.push(`/user?id=${follower.id}`)}>• {follower.firstname} {follower.lastname} {follower.nickname ? `(${follower.nickname})` : ''}</a>
+                <div key={follower.id} className='follower-container'>
+                    <div className='follower-pp pp'></div>
+                    <a onClick={() => router.push(`/user?id=${follower.id}`)}>{follower.firstname} {follower.lastname}</a>
+                    <p>{follower.nickname}</p>
                 </div>
             ))}
-        </details>
+        </div>
     );
 
     const followRequestList = (list) => (
