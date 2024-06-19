@@ -10,6 +10,7 @@ import usePosts from '@/services/usePosts';
 import useEvents from '@/services/useEvents';
 import { conn, sendMsg } from '../services/useWebsocket';
 import useComments from '@/services/useComments';
+import {Target} from "@/services/useTarget";
 
 
 const DetailGroup = (props) => {
@@ -23,8 +24,8 @@ const DetailGroup = (props) => {
 
 
     useEffect(() => {
-        console.log("id: ",id)
-        console.log("user_id: ", user_id)
+        //console.log("id: ",id)
+        //console.log("user_id: ", user_id)
         
         if (!id) return; // Exit early if id is not available
         const fetchData = async () => {
@@ -41,7 +42,7 @@ const DetailGroup = (props) => {
             }
             fetchPostsGroup(id);
             fetchEvents(id)
-            console.log(events)
+            //console.log(events)
         };
 
         fetchData();
@@ -102,9 +103,12 @@ const DetailGroup = (props) => {
       };
 
       const handleCreateEvent = async (formData) => {
-        await createEvent(formData, id);
+        let response = await createEvent(formData, id);
         fetchEvents(id);
-        sendMsg(conn, 0, { value: "New Event" }, 'event')
+
+        let Target = response.target
+
+        sendMsg(conn, 0, { value: "New Event" }, 'event', Target )
       };
 
 

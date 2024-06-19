@@ -85,7 +85,6 @@ export function startWS(currId, setNotifications, router) {
             var currentURL = window.location.href;
             await fetchNotif(currId, setNotifications);
             //console.log("Data websocket", data);
-            console.log("Data websocket", data);
             //console.log(data.receiver_id)
 
             await fetchNotification(currId, setNotifications);
@@ -130,6 +129,20 @@ export function startWS(currId, setNotifications, router) {
                             duration: 4000,
                             position: 'top-center',
                             icon: '🫂',
+                        }
+                    );
+                }
+            } else if (data.msg_type === "event") {
+                console.log("new event")
+                if (data.targets && data.targets.includes(currId)) {
+                    toast(
+                        <span>
+                            New event! Click <a className="custom-link" onClick={() => router.push('/home')}>here</a>
+                        </span>,
+                        {
+                            duration: 4000,
+                            position: 'top-center',
+                            icon: '🎉',
                         }
                     );
                 }
@@ -287,7 +300,7 @@ export function sendMsg(conn, currId, msg, msg_type, target = undefined) {
 
     let rid = (currentOpenChatType === "user") ? currentOpenChatId : (currentOpenChatType === "group") ? currentOpenChatId : null;
 
-    if (!rid) {
+    if (!rid && target === null) {
         return false;
     }
 

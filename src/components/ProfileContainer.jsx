@@ -4,7 +4,7 @@ import PostContainer from '../components/PostContainer';
 import { conn, sendMsg } from "@/services/useWebsocket";
 
 const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefollow, id, handleCreateComment, handlePostLike }) => {
-    console.log('users in ProfileContainer :', users)
+    //console.log('users in ProfileContainer :', users)
     const router = useRouter();
     const getPrivacyLabel = (privateprofile) => {
         privateprofile = parseInt(privateprofile);

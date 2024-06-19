@@ -80,8 +80,14 @@ func EventHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		ListUser, err := HowIsInGroup(newEvent, curr)
+		if err != nil {
+			fmt.Println("error exec", err)
+			return
+		}
+
 		// Send response indicating success
-		msg := Resp{Msg: "New EventGroup added"}
+		msg := Resp{Msg: "New EventGroup added", Target: ListUser}
 		resp, err := json.Marshal(msg)
 		if err != nil {
 			http.Error(w, "500 internal server error", http.StatusInternalServerError)
