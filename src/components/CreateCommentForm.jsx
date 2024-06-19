@@ -16,6 +16,9 @@ const CreateCommentForm = ({ handleCreateComment, Post_id }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (content.trim() === "") {
+      return
+    }
     const formData = new FormData();
     formData.append('content', content);
     formData.append('post_id', Post_id)

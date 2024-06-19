@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import {fetchNotification} from "@/services/useFetchNotif";
+import { fetchNotification } from "@/services/useFetchNotif";
 
 
 
@@ -59,6 +59,9 @@ export async function updateUsers(currId) {
 export var currentOpenChatId = null;
 export var currentOpenChatType = null; // "user" or "group"
 
+async function fetchNotif(currId, setNotifications) {
+    await fetchNotification(currId, setNotifications);
+}
 export function startWS(currId, setNotifications, router) {
     console.log("call startWS JS")
     console.log(currId)
@@ -80,6 +83,8 @@ export function startWS(currId, setNotifications, router) {
         conn.onmessage = async function (evt) {
             var data = JSON.parse(evt.data);
             var currentURL = window.location.href;
+            await fetchNotif(currId, setNotifications);
+            //console.log("Data websocket", data);
             console.log("Data websocket", data);
             //console.log(data.receiver_id)
 
@@ -99,11 +104,12 @@ export function startWS(currId, setNotifications, router) {
                         }
                     );
                 }
-            } else if (data.msg_type === "join_request"){
+            } else if (data.msg_type === "join_request") {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New join request! Click <a className="custom-link" onClick={() => router.push('/notif')}>here</a>
+                            New join request! Click <a className="custom-link"
+                                                       onClick={() => router.push('/notif')}>here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -117,9 +123,9 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                        Your are invited to a new group ! Click <a className="custom-link"
-                                                                   onClick={() => router.push('/notif')}>here</a>
-                    </span>,
+                            Your are invited to a new group ! Click <a className="custom-link"
+                                                                       onClick={() => router.push('/notif')}>here</a>
+                        </span>,
                         {
                             duration: 4000,
                             position: 'top-center',
@@ -134,9 +140,9 @@ export function startWS(currId, setNotifications, router) {
 
                     toast(
                         <span>
-                        You have a new follow ! Click <a className="custom-link"
-                                                         onClick={() => router.push('/notif')}>here</a>
-                    </span>,
+                            You have a new follow ! Click <a className="custom-link"
+                                                             onClick={() => router.push('/notif')}>here</a>
+                        </span>,
                         {
                             duration: 4000,
                             position: 'top-center',
@@ -149,9 +155,9 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                        One follow stopped ! Click <a className="custom-link"
-                                                      onClick={() => router.push('/user')}>here</a>
-                    </span>,
+                            One follow stopped ! Click <a className="custom-link"
+                                                          onClick={() => router.push('/user')}>here</a>
+                        </span>,
                         {
                             duration: 4000,
                             position: 'top-center',
@@ -164,9 +170,9 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                        One follow canceled ! Click <a className="custom-link"
-                                                       onClick={() => router.push('/user')}>here</a>
-                    </span>,
+                            One follow canceled ! Click <a className="custom-link"
+                                                           onClick={() => router.push('/user')}>here</a>
+                        </span>,
                         {
                             duration: 4000,
                             position: 'top-center',
@@ -174,51 +180,77 @@ export function startWS(currId, setNotifications, router) {
                         }
                     );
                 }
-
-            } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
-                                if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
-                                    displayChatMessage(data, currId);
-                                } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
-                                    displayChatMessage(data, currId);
-                                } else {
-                                    toast(
-                                        <span>
-                                            You have a new message ! Click <a className="custom-link" onClick={() => router.push('/chat')}>here</a>
-                                        </span>,
-                                        {
-                                            duration: 4000,
-                                            position: 'top-center',
-                                            icon: '📬',
-                                        }
-                                    );
-                                }
-                
-
-            } else if (data.msg_type === "online") {
-                // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
-                online = data.user_ids;
-                getUsers()
-            } else if (data.msg_type === "comment") {
-                // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
-                console.log("comment now")
-                if (data.targets && data.targets.includes(currId)) {
-                    toast(
-                        <span>
-                        New Comment on your post !Click <a className="custom-link"
-                                                           onClick={() => router.push('/home')}>here</a>
+            } else if (data.msg_type === "groupmsg") {
+                console.log("msg groupe")
+                toast(
+                    <span>
+                        You have a new message in group ! Click <a className="custom-link"
+                                                                   onClick={() => router.push('/group')}>here</a>
                     </span>,
-                        {
-                            duration: 4000,
-                            position: 'top-center',
-                            icon: '📩',
-                        }
-                    );
-                }
-            } else if (data.msg_type === "") {
+                    {
+                        duration: 4000,
+                        position: 'top-center',
+                        icon: '📬',
+                    }
+                );
 
+
+                if (currentURL.includes("chatgroup?id")) {
+                    var senderContainer = document.createElement("div");
+                    senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
+                    var sender = document.createElement("div");
+                    sender.className = (data.sender_id == currId) ? "sender" : "receiver";
+                    sender.innerText = data.content;
+                    var date = document.createElement("div");
+                    date.className = "chat-time";
+                    date.innerText = data.date.slice(0, -3);
+                    appendLog(senderContainer, sender, date);
+
+                } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
+                    if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
+                        displayChatMessage(data, currId);
+                    } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
+                        displayChatMessage(data, currId);
+                    } else {
+                        toast(
+                            <span>
+                            You have a new message ! Click <a className="custom-link"
+                                                              onClick={() => router.push('/chat')}>here</a>
+                        </span>,
+                            {
+                                duration: 4000,
+                                position: 'top-center',
+                                icon: '📬',
+                            }
+                        );
+                    }
+
+
+                } else if (data.msg_type === "online") {
+                    // Connexion d'un utilisateur, on met à jour des liste des contacts, et les statuts.
+                    online = data.user_ids;
+                    getUsers()
+                } else if (data.msg_type === "comment") {
+                    // Nouveau commentaire, on notifie les autres utilisateurs d'un nouveau commentaire.
+                    console.log("comment now")
+                    if (data.targets && data.targets.includes(currId)) {
+                        toast(
+                            <span>
+                            New Comment on your post !Click <a className="custom-link"
+                                                               onClick={() => router.push('/home')}>here</a>
+                        </span>,
+                            {
+                                duration: 4000,
+                                position: 'top-center',
+                                icon: '📩',
+                            }
+                        );
+                    }
+                } else if (data.msg_type === "") {
+
+                }
             }
         }
-        ;
     } else {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
@@ -253,7 +285,7 @@ export function sendMsg(conn, currId, msg, msg_type, target = undefined) {
         return false;
     }
 
-        let rid = (currentOpenChatType === "user") ? currentOpenChatId : (currentOpenChatType === "group") ? currentOpenChatId : null;
+    let rid = (currentOpenChatType === "user") ? currentOpenChatId : (currentOpenChatType === "group") ? currentOpenChatId : null;
 
     if (!rid) {
         return false;
@@ -299,29 +331,29 @@ export async function createUsers(userdata, conn, currId) {
         return
     }
 
-    userdata.map(({id, nickname, privateprofile}) => {
+    userdata.map(({ id, nickname, privateprofile }) => {
 
         // Pour ne pas s'afficher soit même
         if (id == currId) {
             return
         }
-            if (privateprofile == 0) {
-                if (!list.listfollowers && !list.listfollowings ) {
-                    return
-                }
-                if (list.listfollowers) {
+        if (privateprofile == 0) {
+            if (!list.listfollowers && !list.listfollowings) {
+                return
+            }
+            if (list.listfollowers) {
                 if (list.listfollowers.some(follower => follower.id === id)) {
                 } else {
                     return
                 }
+            }
+            if (list.listfollowings) {
+                if (list.listfollowings.some(follower => follower.id === id)) {
+                } else {
+                    return
                 }
-                if (list.listfollowings) {
-                    if (list.listfollowings.some(follower => follower.id === id)) {
-                    } else {
-                        return
-                    }
-                }
-              }
+            }
+        }
 
         var user = document.createElement("div");
         user.className = "user"
@@ -347,7 +379,7 @@ export async function createUsers(userdata, conn, currId) {
         return
     }
 
-        group.groups.map(({IdGroup, Title}) => {
+    group.groups.map(({ IdGroup, Title }) => {
 
 
         var user = document.createElement("div");
@@ -364,7 +396,7 @@ export async function createUsers(userdata, conn, currId) {
         user.addEventListener("click", function (e) {
             GetElementToOpenChatGroup(IdGroup, currId, Title)
         });
-        })
+    })
 
 }
 
@@ -417,7 +449,7 @@ export function GetElementToOpenChatGroup(id, currId, Title) {
     }).catch();
 }
 
-let log;    
+let log;
 
 if (typeof document !== 'undefined') {
     // Access DOM elements only if document is defined
@@ -425,7 +457,7 @@ if (typeof document !== 'undefined') {
     log = document.querySelector(".chat")
 }
 
-export {log};
+export { log };
 
 
 export function appendLog(container, msg, date) {
@@ -509,7 +541,9 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     // Envoi du message si click.
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
-
+        if (msg.value.trim() === "") {
+            return
+        }
         sendMsg(conn, currId, msg, 'msg');
 
         offset = null;
@@ -538,37 +572,37 @@ export function OpenChat(rid, conn, data, currId, firstId) {
     var lastFetchedId = null;
 
     // Fonction pour charger les messages 10/10.
-/*     debouncedScrollHandler = debounce(function () {
+    /*     debouncedScrollHandler = debounce(function () {
 
-        if (chatBox.scrollTop === 0) {
-            let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
-            resp.then(value => {
-                value = value.filter(message => message.id !== lastFetchedId);
+            if (chatBox.scrollTop === 0) {
+                let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=' + firstId + '&offset=' + offset);
+                resp.then(value => {
+                    value = value.filter(message => message.id !== lastFetchedId);
 
-                if (value.length > 0) {
-                    const lastIndex = value.length - 1;
-                    firstId = value[lastIndex].id;
-                    lastFetchedId = firstId;
-                }
-                currentScrollPos = chatBox.scrollHeight - chatBox.scrollTop;
-                CreateMessages(value, currId);
-                var newScrollPos = chatBox.scrollHeight - currentScrollPos;
-                chatBox.scrollTop = newScrollPos;
+                    if (value.length > 0) {
+                        const lastIndex = value.length - 1;
+                        firstId = value[lastIndex].id;
+                        lastFetchedId = firstId;
+                    }
+                    currentScrollPos = chatBox.scrollHeight - chatBox.scrollTop;
+                    CreateMessages(value, currId);
+                    var newScrollPos = chatBox.scrollHeight - currentScrollPos;
+                    chatBox.scrollTop = newScrollPos;
 
-                offset += value.length;
-            }).catch();
-        }
-    }, 300);
+                    offset += value.length;
+                }).catch();
+            }
+        }, 300);
 
-    chatBox.addEventListener("scroll", debouncedScrollHandler);
+        chatBox.addEventListener("scroll", debouncedScrollHandler);
 
-    function debounce(func, delay) {
-        let timer;
-        return function () {
-            clearTimeout(timer);
-            timer = setTimeout(func, delay);
-        };
-    } */
+        function debounce(func, delay) {
+            let timer;
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(func, delay);
+            };
+        } */
 
     if (data == null) {
         return;
@@ -597,8 +631,10 @@ export function CreateMessages(data, currId, otherId) {
 
     const messageElements = [];
 
+    console.log('data : ', data);
+
     // Create message elements
-    data.forEach(({ id, sender_id, content, date }) => {
+    data.forEach(({ id, sender_id, content, date, sender_nickname }) => {
         const messageContainer = document.createElement("div");
         messageContainer.className = sender_id === currId ? "sender-container" : "receiver-container";
         messageContainer.id = `message-${id}`;
@@ -609,7 +645,11 @@ export function CreateMessages(data, currId, otherId) {
 
         const messageDate = document.createElement("div");
         messageDate.className = sender_id === currId ? "chat-time-left" : "chat-time";
-        messageDate.innerText = date.slice(0, -3);
+        if (sender_nickname != "") {
+            messageDate.innerText = date.slice(0, -3) + ' FROM ' + sender_nickname;
+        } else {
+            messageDate.innerText = date.slice(0, -3);
+        }
 
         messageContainer.appendChild(message);
         message.appendChild(messageDate);
@@ -659,12 +699,15 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
     // Envoi du message si click.
     document.querySelector("#send-btn").addEventListener("click", function () {
         // On fait un envoi msg via WS avec le type "msg" (donc message chat)
+        if (msg.value.trim() === "") {
+            return
+        }
         sendMsg(conn, currId, msg, 'groupmsg');
 
         let resp = getData('http://localhost:8080/messagegroup?group=' + rid + '&firstId=' + firstId);
         resp.then(value => {
-    
-    
+
+
             // Ouverture d'une fenêtre de chat.
             CreateMessages(value, currId);
         }).catch();
@@ -702,15 +745,15 @@ export function OpenChatGroup(rid, conn, data, currId, firstId, Title) {
         }
     }, 300); */
 
-/*     chatBox.addEventListener("scroll", debouncedScrollHandler);
+    /*     chatBox.addEventListener("scroll", debouncedScrollHandler);
 
-    function debounce(func, delay) {
-        let timer;
-        return function () {
-            clearTimeout(timer);
-            timer = setTimeout(func, delay);
-        };
-    } */
+        function debounce(func, delay) {
+            let timer;
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(func, delay);
+            };
+        } */
 
     if (data == null) {
         return;
@@ -725,22 +768,22 @@ function sleep(ms) {
 
 export const fetchUsersFromAPI = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8080/user?id=${id}`, {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      } else {
-        throw new Error('Failed to fetch users: ' + response.statusText);
-      }
+        const response = await fetch(`http://localhost:8080/user?id=${id}`, {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            throw new Error('Failed to fetch users: ' + response.statusText);
+        }
     } catch (error) {
-      throw new Error('Error fetching users: ' + error.message);
+        throw new Error('Error fetching users: ' + error.message);
     }
-  };
+};
 
 
-  export const getGroupForChat = async (id) => {
+export const getGroupForChat = async (id) => {
     try {
         const response = await fetch('http://localhost:8080/getallgroups', {
             method: 'POST',
@@ -766,7 +809,7 @@ export const fetchUsersFromAPI = async (id) => {
 
         console.error('Error:', errorMessage);
 
-        return {success: false, message: errorMessage};
+        return { success: false, message: errorMessage };
     }
 }
 

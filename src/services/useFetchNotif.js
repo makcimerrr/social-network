@@ -16,7 +16,7 @@ export const fetchNotification = async (id, setNotifications) => {
         const text = await response.text(); // Lire la réponse comme du texte
 
         const data = JSON.parse(text); // Analyser le texte en JSON
-        //console.log("notif", data);
+        console.log("notif", data);
 
         if (data.success) {
             const allNotifications = [];
@@ -29,6 +29,20 @@ export const fetchNotification = async (id, setNotifications) => {
                         user: element[0],
                         message: element[1],
                         group: element[2]
+                    };
+                    //console.log("Notification Group: ", notification);
+                    allNotifications.push(notification);
+                });
+            }
+
+            if (data.listEvent) {
+                data.listEvent.forEach(element => {
+                    const notification = {
+                        id: idCounter++, // Assign a unique ID
+                        category: 'Event',
+                        user: element[0],
+                        group: element[1],
+                        event: element[2]
                     };
                     //console.log("Notification Group: ", notification);
                     allNotifications.push(notification);

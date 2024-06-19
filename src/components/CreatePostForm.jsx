@@ -20,6 +20,9 @@ const CreatePostForm = ({ handleCreatePost, fetchUsers, id, users }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (title.trim() === "" || content.trim() === "") {
+      return
+    }
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
