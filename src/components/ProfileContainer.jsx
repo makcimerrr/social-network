@@ -61,7 +61,7 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
     let filteredPosts
     if (userPosts !== null) {
-        filteredPosts = userPosts.filter(post => post.user_id === id);
+        filteredPosts = userPosts.filter(post => post.user_id === users.id);
 
     }
 
