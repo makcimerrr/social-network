@@ -193,34 +193,11 @@ export function startWS(currId, setNotifications, router) {
                         }
                     );
                 }
-            } else if (data.msg_type === "groupmsg") {
-                console.log("msg groupe")
-                toast(
-                    <span>
-                        You have a new message in group ! Click <a className="custom-link"
-                                                                   onClick={() => router.push('/group')}>here</a>
-                    </span>,
-                    {
-                        duration: 4000,
-                        position: 'top-center',
-                        icon: '📬',
-                    }
-                );
-
-
-                if (currentURL.includes("chatgroup?id")) {
-                    var senderContainer = document.createElement("div");
-                    senderContainer.className = (data.sender_id == currId) ? "sender-container" : "receiver-container";
-                    var sender = document.createElement("div");
-                    sender.className = (data.sender_id == currId) ? "sender" : "receiver";
-                    sender.innerText = data.content;
-                    var date = document.createElement("div");
-                    date.className = "chat-time";
-                    date.innerText = data.date.slice(0, -3);
-                    appendLog(senderContainer, sender, date);
 
                 } else if (data.msg_type === "msg" || data.msg_type === "groupmsg") {
+                    console.log(currentOpenChatId, currentOpenChatType, data.msg_type, data.sender_id)
                     if (data.msg_type === "msg" && currentOpenChatType === "user" && currentOpenChatId === data.sender_id) {
+                        console.log("here")
                         displayChatMessage(data, currId);
                     } else if (data.msg_type === "groupmsg" && currentOpenChatType === "group" && currentOpenChatId === data.receiver_id) {
                         displayChatMessage(data, currId);
@@ -262,7 +239,7 @@ export function startWS(currId, setNotifications, router) {
                 } else if (data.msg_type === "") {
 
                 }
-            }
+            
         }
     } else {
         var item = document.createElement("div");
@@ -303,8 +280,6 @@ export function sendMsg(conn, currId, msg, msg_type, target = undefined) {
     if (!rid && target === null) {
         return false;
     }
-
-    console.log(rid)
 
 
     let msgData = {
@@ -436,7 +411,6 @@ export function GetElementToOpenChat(id, user, currId) {
             lastFetchedId = firstId;
         }
         counter = 0;
-        console.log(id)
         // Ouverture d'une fenêtre de chat.
         OpenChat(id, conn, value, currId, firstId);
     }).catch();
@@ -561,8 +535,8 @@ export function OpenChat(rid, conn, data, currId, firstId) {
 
         offset = null;
         firstId = firstId + 10;
-        console.log("rid", rid)
-        let resp = getData('http://localhost:8080/message?receiver=' + rid + '&firstId=512' + '&offset=10');
+        console.log("currentopenchatid : ", currentOpenChatId)
+        let resp = getData('http://localhost:8080/message?receiver=' + currentOpenChatId + '&firstId=512' + '&offset=10');
         resp.then(value => {
             if (value && value.length > 0) {
                 const lastIndex = value.length - 1;
