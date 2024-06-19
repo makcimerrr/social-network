@@ -79,6 +79,7 @@ type Followers struct {
 type Resp struct {
 	Msg      string `json:"msg"`
 	Receiver int    `json:"receiver"`
+	Target   []int  `json:"target"`
 }
 
 type Like struct {

@@ -16,7 +16,7 @@ export const fetchNotification = async (id, setNotifications) => {
         const text = await response.text(); // Lire la réponse comme du texte
 
         const data = JSON.parse(text); // Analyser le texte en JSON
-        console.log("notif", data);
+        //console.log("notif", data);
 
         if (data.success) {
             const allNotifications = [];
