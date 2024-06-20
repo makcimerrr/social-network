@@ -957,18 +957,22 @@ h2 {
 }
 
 .follower-list-container {
+    width: calc(100vw - 300px);
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: calc(100vw - 170px);
     overflow-x: scroll;
-    overflow-x: hidden;
-    background-color: red;
+    height: 200px;
+}
+.follower-list-container::-webkit-scrollbar {
+height: 1px;
 }
 
+.follower-list-container::-webkit-scrollbar-track {
+    background: transparent;
+    }
+
 .follower-pp {
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
 }
 
 .follower-container {
@@ -977,27 +981,85 @@ h2 {
     align-items: center;
     margin: 10px 0;
     width: 200px;
-    background-color: wheat;
+    min-width: 200px;
 }
 
 .offline-users {
     width: calc(100vw - 170px);
-    background-color: red;
     display: flex;
     overflow-x: scroll;
     height: 200px;
 }
 
+.offline-users::-webkit-scrollbar {
+    height: 1px;
+    }
+    
+    .offline-users::-webkit-scrollbar-track {
+        background: transparent;
+        }
+
 .user {
     width: 200px;
     min-width: 200px;
-    background-color: blue;
+    border: 0px solid var(--white);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 10px 0;
+    border: transparent;
+}
+
+.user > * {
+text-transform: capitalize;
 }
 
 .chat-user-username {
 cursor: pointer;
+color: var(--white);
+text-transform: capitalize;
+}
+
+.privacy {
+    margin: 0;
+    font-size: 12px;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    width: 100px;
+    height: 30px;
+    justify-content: center;
+    border-radius: 10px;
+    white-space: nowrap;
+    text-transform: capitalize;
+}
+
+.toggleprivacy {
+    background-color: transparent;
+    border: 0px;
+    border-radius: 30px;
+    color: var(--white);
+}
+
+
+.pp-profile {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.emoji-icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    filter: invert();
+}
+.picker-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 20px;
 }

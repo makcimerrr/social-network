@@ -54,7 +54,7 @@ const ChatContainer = () => {
             alt="Emoji Picker"
             onClick={() => setShowPicker((val) => !val)}
           />
-          <button id="send-btn" aria-label="Send" onClick={sendMessage}>Send</button>
+          <button id="send-btn" aria-label="Send" onClick={sendMessage}></button>
         </div>
       </div>
     </div>

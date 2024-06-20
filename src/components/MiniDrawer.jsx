@@ -190,6 +190,14 @@ export default function MiniDrawer({ loggedIn, setLoggedIn, id }) {
                 </ListItemIcon>
                 <span className='Menutxt'>Group</span>
               </ListItemButton>
+
+              <ListItemButton className='Menu' component={Link} href={'/notif'}>
+                <ListItemIcon>
+                  <div className='HomeIcon MenuIcon'>
+                  </div>
+                </ListItemIcon>
+                <span className='Menutxt'>Notifications</span>
+              </ListItemButton>
               
               <ListItemButton className='Menu' onClick={onButtonClick}>
                 <ListItemIcon>

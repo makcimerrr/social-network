@@ -84,10 +84,20 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
             <div className='profilecontainer'>
                 <p className='white'>{users.nickname}</p>
-                <p className='white'>Private Profile: {getPrivacyLabel(users.privateprofile)}</p>
+                <div className='privacy'>
+
+                <p className='white'>Profile :</p>
+                <button className='toggleprivacy' onClick={togglePrivacy}>{getPrivacyLabel(users.privateprofile)}</button>
+                </div>
                 {users.privateprofile === 1 || users.id === id &&
                     <>
-                        <p>Avatar: {users.avatar}</p>
+                        {users.avatar && (
+                    <img
+                      className='pp-profile pp'
+                      src={`data:image/jpeg;base64,${users.avatar}`}
+                      alt="Selected Image"
+                    />
+                    )}
                         {/*                         <p className='white'>ID: {users.id}</p> */}
                         {/*                         <p className='white'>Email: {users.email}</p> */}
                         <p className='white'>{users.firstname} {users.lastname}</p>
@@ -98,7 +108,6 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                 }
                 {users.id === id ? (
                     <>
-                        <button className='' onClick={togglePrivacy}>Toggle Privacy</button>
                         <p>Follow Section</p>
                         {users.listfollowers && (
                             <div>{followList("List of followers", users.listfollowers)}</div>

@@ -359,6 +359,7 @@ export async function createUsers(userdata, conn, currId) {
         user.className = "user"
         user.setAttribute("id", ('id' + id))
 
+
         // Répartition des users selon leur statut.
 
 
@@ -520,7 +521,6 @@ export function OpenChat(rid, conn, data, currId, firstId) {
         }
     }
 
-/*     <a onClick={() => router.push(`/user?id=${follower.id}`)}>{follower.firstname} {follower.lastname}</a> */
 
     let oldElem = document.querySelector(".send-wrapper");
     let newElem = oldElem.cloneNode(true);
