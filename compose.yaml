@@ -1,0 +1,21 @@
+# Documentation docker compose :
+# https://docs.docker.com/compose/compose-application-model/
+
+services:
+  back:
+    build:
+      context: ./back
+    volumes:
+      - ./back:/app
+    ports:
+      - "8080:8080"
+
+  front:  
+    build:
+      context: ./front
+    volumes:
+      - ./front:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - back

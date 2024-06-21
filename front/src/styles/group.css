@@ -1,0 +1,102 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    position: relative;
+    display: flex;
+}
+
+.groupPage {
+    overflow-x: hidden;
+}
+
+
+
+.inviteinmygroup {
+}
+
+.group-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+.allform {
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100vw - 140px);
+    margin-top: 50px;
+}
+
+.creategroupContainer {
+    border-right: 1px solid white;
+}
+
+.group-list div {
+    background-color: var(--primary-yellow);
+    color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.2);
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.group-list div:hover {
+    transform: scale(1.05);
+}
+
+.group-list h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--white);
+    
+}
+
+.group-list button:focus {
+    outline: none;
+}
+
+.divaskforjoin {
+    background: green !important;
+    /* width: 170px; */
+    display: flex;
+    margin-top: 10px;
+}
+
+.asktojoinButton {
+    text-align: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+    padding: 10px;
+    width: 100%;
+    color: var(--white);
+}
+
+.groupwhereiamnotin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    width: 170px;
+    height: 170px;
+    background-color: var(--primary-yellow);
+}
+@media (max-width: 1250px) {
+    .allform {
+        flex-direction: column;
+    }
+
+    .creategroupContainer {
+        border-right: none;
+        border-bottom: 1px solid white;
+        padding-bottom: 30px;
+    }
+
+}
