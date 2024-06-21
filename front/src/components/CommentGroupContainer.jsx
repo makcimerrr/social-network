@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import useComments from '../services/useComments';
-import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { parse, formatDistanceToNow } from 'date-fns';
-
 
 const formatDate = (dateStr) => {
   const parsedDate = parse(dateStr, 'MM-dd-yyyy HH:mm:ss', new Date());
@@ -13,8 +10,10 @@ const formatDate = (dateStr) => {
 
 const CommentGroupContainer = ({ Post_id, NbComments }) => {
   const router = useRouter();
+  const [userDetails, setUserDetails] = useState({});
   const [fetching, setFetching] = useState(false);
   const { commentsGroup, fetchCommentsGroup } = useComments(Post_id)
+
   const handleFetchComments = () => {
     console.log(Post_id)
     setFetching(true);
@@ -22,6 +21,32 @@ const CommentGroupContainer = ({ Post_id, NbComments }) => {
       .then(() => setFetching(false))
       .catch(() => setFetching(false));
   };
+
+  const fetchUsers = async (userIds) => {
+    try {
+      const userResponses = await Promise.all(
+        userIds.map(id =>
+          fetch(`http://localhost:8080/user?id=${id}`, {
+            credentials: 'include'
+          }).then(response => response.json())
+        )
+      );
+      const usersData = userResponses.reduce((acc, userData) => {
+        acc[userData.id] = userData;
+        return acc;
+      }, {});
+      setUserDetails(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+  useEffect(() => {
+    if (comments && comments.length > 0) {
+      const userIds = comments.map(comment => comment.user_id);
+      const uniqueUserIds = [...new Set(userIds)];
+      fetchUsers(uniqueUserIds);
+    }
+  }, [comments]);
 
   return (
     <div>
@@ -43,7 +68,7 @@ const CommentGroupContainer = ({ Post_id, NbComments }) => {
             <li key={comment.id}>
               <div className='comment-container'>
                 <p className='username' onClick={() => router.push(`/user?id=${comment.user_id}`)}>
-                  {comment.user_id}PASTEQUITOS:
+                {userDetails[comment.user_id] ? userDetails[comment.user_id].nickname : `User ID: ${comment.user_id}`}
                 </p>
                 <p className='comment-content'>{comment.content}</p>
               </div>

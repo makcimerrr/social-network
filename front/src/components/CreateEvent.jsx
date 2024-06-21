@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button } from '@mui/material';
+import { Button } from '@mui/material';
 
 const CreateEvent = ({ handleCreateEvent }) => {
   const [title, setTitle] = useState('');

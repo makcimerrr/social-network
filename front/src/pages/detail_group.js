@@ -20,7 +20,6 @@ const DetailGroup = (props) => {
   const { createCommentGroup } = useComments();
   const [SingleForm, setSingleForm] = useState(null);
   const { events, createEvent, fetchEvents } = useEvents();
-  const [user_id, setUser_id] = useState(props.id)
 
 
   useEffect(() => {
@@ -72,7 +71,7 @@ const DetailGroup = (props) => {
       });
 
       if (response.ok) {
-        fetchEvents(eventId);
+        fetchEvents(id);
       } else {
         console.error('Failed to like the post:', response.statusText);
       }
@@ -93,7 +92,7 @@ const DetailGroup = (props) => {
       });
 
       if (response.ok) {
-        fetchEvents(eventId);
+        fetchEvents(id);
       } else {
         console.error('Failed to dislike the post:', response.statusText);
       }

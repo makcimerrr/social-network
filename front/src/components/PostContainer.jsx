@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import CreateCommentForm from '../components/CreateCommentForm';
 import CommentContainer from '../components/CommentContainer';
-import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
+import { CardActions } from '@mui/material';
 import { useRouter } from 'next/router';
 import { parse, formatDistanceToNow } from 'date-fns';
 

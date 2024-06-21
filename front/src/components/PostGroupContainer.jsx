@@ -2,7 +2,6 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import CommentGroupContainer from './CommentGroupContainer';
 import CreateCommentGroupForm from './CreateCommentGroupForm';
-import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { parse, formatDistanceToNow } from 'date-fns';
 

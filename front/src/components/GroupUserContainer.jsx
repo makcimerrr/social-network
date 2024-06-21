@@ -4,7 +4,7 @@ const GroupUserContainer = () => {
   return (
     <div>
       <div className="users">
-        <p className="title">Groups</p>
+        <p className="pagetitle">Groups</p>
         <div className="group-list"></div>
       </div>
     </div>

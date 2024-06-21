@@ -1,11 +1,7 @@
 import React from 'react';
-import { Button, Card, CardContent, CardActions, Typography } from '@mui/material';
-import { useRouter } from 'next/router';
-
-
+import { Button, CardActions } from '@mui/material';
 
 const EventContainer = ({ events, handleEventLike, handleEventDisLike }) => {
-  const router = useRouter();
 
   return (
     <div>

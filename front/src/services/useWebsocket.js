@@ -94,7 +94,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New post! Click <a className="custom-link" onClick={() => router.push('/home')}>here</a>
+                            New post! Click <a className="custom-link" href="/home">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -107,8 +107,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New join request! Click <a className="custom-link"
-                                                       onClick={() => router.push('/notif')}>here</a>
+                            New join request! Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -122,8 +121,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            Your are invited to a new group ! Click <a className="custom-link"
-                                                                       onClick={() => router.push('/notif')}>here</a>
+                            You are invited to a new group! Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -137,7 +135,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            New event! Click <a className="custom-link" onClick={() => router.push('/home')}>here</a>
+                            New event! Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -153,8 +151,7 @@ export function startWS(currId, setNotifications, router) {
 
                     toast(
                         <span>
-                            You have a new follow ! Click <a className="custom-link"
-                                                             onClick={() => router.push('/notif')}>here</a>
+                            You have a new follow ! Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -168,8 +165,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            One follow stopped ! Click <a className="custom-link"
-                                                          onClick={() => router.push('/user')}>here</a>
+                            One follow stopped !
                         </span>,
                         {
                             duration: 4000,
@@ -183,8 +179,7 @@ export function startWS(currId, setNotifications, router) {
                 if (data.targets && data.targets.includes(currId)) {
                     toast(
                         <span>
-                            One follow canceled ! Click <a className="custom-link"
-                                                           onClick={() => router.push('/user')}>here</a>
+                            One follow canceled ! Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                         {
                             duration: 4000,
@@ -204,8 +199,7 @@ export function startWS(currId, setNotifications, router) {
                     } else {
                         toast(
                             <span>
-                            You have a new message ! Click <a className="custom-link"
-                                                              onClick={() => router.push('/chat')}>here</a>
+                            You have a new message !
                         </span>,
                             {
                                 duration: 4000,
@@ -226,8 +220,7 @@ export function startWS(currId, setNotifications, router) {
                     if (data.targets && data.targets.includes(currId)) {
                         toast(
                             <span>
-                            New Comment on your post !Click <a className="custom-link"
-                                                               onClick={() => router.push('/home')}>here</a>
+                            New Comment on your post !Click <a className="custom-link" href="/notif">here</a>
                         </span>,
                             {
                                 duration: 4000,
