@@ -35,6 +35,10 @@
     margin: 10px;
 }
 
+h2 {
+    margin-top: 20px;
+}
+
 .title {
     font-weight: 100;
     font-size: clamp(20px, 5vw, 60px);
@@ -462,6 +466,7 @@
 }
 
 .createpostbtn {
+    z-index: 2;
     cursor: pointer;
     pointer-events: all;
     display: flex;
@@ -483,7 +488,7 @@
 
 .addpostplus {
     user-select: none;
-    z-index: 10;
+    z-index: 1;
     background-image: url('./media/plus.png');
     background-position: center;
     background-size: contain;
@@ -511,7 +516,7 @@ ul {
     align-items: center;
     position: absolute;
     border-radius: 40px;
-    z-index: 99;
+    z-index: 1;
     background-color: var(--primary-yellow);
     width: 400px;
     overflow: hidden;
@@ -964,17 +969,29 @@ h2 {
     overflow-x: scroll;
     height: 200px;
 }
+
 .follower-list-container::-webkit-scrollbar {
-height: 1px;
+    height: 1px;
 }
 
 .follower-list-container::-webkit-scrollbar-track {
     background: transparent;
-    }
+}
 
 .follower-pp {
     width: 100px;
     height: 100px;
+    margin-bottom: 20px;
+}
+
+.follower-name {
+    margin: 0;
+    text-transform: capitalize;
+    color: var(--white);
+}
+
+.nickname {
+    opacity: 0.7;
 }
 
 .follower-container {
@@ -995,11 +1012,11 @@ height: 1px;
 
 .offline-users::-webkit-scrollbar {
     height: 1px;
-    }
-    
-    .offline-users::-webkit-scrollbar-track {
-        background: transparent;
-        }
+}
+
+.offline-users::-webkit-scrollbar-track {
+    background: transparent;
+}
 
 .user {
     width: 200px;
@@ -1012,14 +1029,15 @@ height: 1px;
     border: transparent;
 }
 
-.user > * {
-text-transform: capitalize;
+.user>* {
+    text-transform: capitalize;
 }
 
 .chat-user-username {
-cursor: pointer;
-color: var(--white);
-text-transform: capitalize;
+    cursor: pointer;
+    color: var(--white);
+    text-transform: capitalize;
+    font-size: 25px;
 }
 
 .privacy {
@@ -1038,9 +1056,36 @@ text-transform: capitalize;
 
 .toggleprivacy {
     background-color: transparent;
+    /*     background-color: red; */
     border: 0px;
     border-radius: 30px;
     color: var(--white);
+}
+
+.profileusername {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.aboutme {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+    opacity: 0.7;
+}
+
+.follow-section {
+    margin-top: 30px;
+}
+
+.followtitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
 }
 
 
@@ -1057,11 +1102,85 @@ text-transform: capitalize;
     cursor: pointer;
     filter: invert();
 }
+
 .picker-container {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: absolute;
     width: 100%;
-    height: 100%;
-    margin-bottom: 20px;
+    height: 200px;
+    bottom: 200px;
+
+}
+
+
+
+/* .mainContainer {
+    height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-top: 200px;
+} */
+
+
+.creategroupContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.inviteinmygroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.group-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+
+hr {
+    margin: 0;
+    width: 100%;
+    height: 1px;
+    margin-bottom: 30px;
+    background-color: var(--white);
+}
+
+.group-mini {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+    background-color: var(--primary-yellow);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.o5 {
+    opacity: 0.5;
+}
+
+.grouptitle {
+    display: flex;
+    flex-direction: column;
+    width: calc(100vw - 100px);
+    padding-left: 50px;
+}
+
+.profilename {
+    margin: 0;
+}
+
+.profileis {
+    margin: 5px;
 }

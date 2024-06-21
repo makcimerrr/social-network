@@ -39,8 +39,9 @@ const ChatContainer = () => {
       <div className="app">
         <div className="picker-container">
         {showPicker && (
-          <Picker pickerStyle={{ width: "100%", backgroundColor: "transparent" }} onEmojiClick={onEmojiClick} />
+          <Picker className='emoji-picker' pickerStyle={{ width: "100%", backgroundColor: "transparent" }} onEmojiClick={onEmojiClick} />
                     )}
+            </div>
           <input
             className="chat-input"
             id="chat-input"
@@ -55,7 +56,6 @@ const ChatContainer = () => {
             onClick={() => setShowPicker((val) => !val)}
           />
           <button id="send-btn" aria-label="Send" onClick={sendMessage}></button>
-        </div>
       </div>
     </div>
   );

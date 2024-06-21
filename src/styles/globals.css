@@ -2,6 +2,8 @@
 @import url(../styles/index.css);
 @import url(../styles/password.css);
 @import url(../styles/style.css);
+@import url(../styles/notif.css);
+@import url(../styles/group.css);
 
 
 .password-strength-meter {
@@ -53,7 +55,7 @@
 
 .chat-wrapper {
     position: fixed;
-    z-index: 999;
+    z-index: 1;
     right: 0;
     bottom: 0;
     margin-right: 20px;
@@ -80,10 +82,11 @@
     top: 0;
     height: 60px;
     padding: 18px;
-    border-radius: 20px 20px 0px 0px;
+    border-radius: 16px 16px 0px 0px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: var(--primary-yellow);
 }
 
 .close-chat {

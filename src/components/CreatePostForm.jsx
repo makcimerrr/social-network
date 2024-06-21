@@ -85,7 +85,7 @@ const CreatePostForm = ({ handleCreatePost, fetchUsers, id, users }) => {
             {!image && (
               <div>
                 <input id='file' className={'inputBox file-input'} type="file" onChange={handleImageChange} />
-                <label className="input-file-label" for="file">Add a picture</label>
+                <label className="input-file-label" for="file"></label>
               </div>
             )}
             {image && (

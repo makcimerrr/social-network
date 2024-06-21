@@ -6,6 +6,7 @@ import usePosts from '../services/usePosts';
 import useComments from '../services/useComments';
 import useUsers from '../services/useUsers';
 import { conn, sendMsg } from '../services/useWebsocket';
+import { TargetUsers } from '@/services/useTarget';
 
 const Home = ({loggedIn, id}) => {
     const router = useRouter();

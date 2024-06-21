@@ -41,8 +41,8 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
             {list.map(follower => (
                 <div key={follower.id} className='follower-container'>
                     <div className='follower-pp pp'></div>
-                    <a onClick={() => router.push(`/user?id=${follower.id}`)}>{follower.firstname} {follower.lastname}</a>
-                    <p>{follower.nickname}</p>
+                    <a className='follower-name' onClick={() => router.push(`/user?id=${follower.id}`)}>{follower.firstname} {follower.lastname}</a>
+                    <p className='follower-name nickname'>{follower.nickname}</p>
                 </div>
             ))}
         </div>
@@ -83,32 +83,32 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
 
 
             <div className='profilecontainer'>
-                <p className='white'>{users.nickname}</p>
+                <p className='pagetitle white profilename'>{users.nickname}</p>
                 <div className='privacy'>
 
-                <p className='white'>Profile :</p>
-                <button className='toggleprivacy' onClick={togglePrivacy}>{getPrivacyLabel(users.privateprofile)}</button>
+                    <p className='white profileis'>Profile :</p>
+                    <button className='toggleprivacy' onClick={togglePrivacy}>{getPrivacyLabel(users.privateprofile)}</button>
                 </div>
                 {users.privateprofile === 1 || users.id === id &&
                     <>
                         {users.avatar && (
-                    <img
-                      className='pp-profile pp'
-                      src={`data:image/jpeg;base64,${users.avatar}`}
-                      alt="Selected Image"
-                    />
-                    )}
+                            <img
+                                className='pp-profile'
+                                src={`data:image/jpeg;base64,${users.avatar}`}
+                                alt="Selected Image"
+                            />
+                        )}
                         {/*                         <p className='white'>ID: {users.id}</p> */}
                         {/*                         <p className='white'>Email: {users.email}</p> */}
-                        <p className='white'>{users.firstname} {users.lastname}</p>
+                        <p className='white profileusername'>{users.firstname} {users.lastname}</p>
                         {/*                         <p className='white'>Date of Birth: {users.dateofbirth}</p> */}
-                        <p className='white'>About Me: {users.aboutme}</p>
+                        <p className='white aboutme'>{users.aboutme}</p>
                         {/*                         <p className='white'>Point of Interest: {users.pointofinterest}</p> */}
                     </>
                 }
                 {users.id === id ? (
-                    <>
-                        <p>Follow Section</p>
+                    <div className='follow-section'>
+                        <p className='white followtitle'>Followers</p>
                         {users.listfollowers && (
                             <div>{followList("List of followers", users.listfollowers)}</div>
                         )}
@@ -122,7 +122,7 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                                 <div>{followRequestList(users.ListFollowersToValidate)}</div>
                             </div>
                         )}
-                    </>
+                    </div>
                 ) : (
                     <>
                         {followButton()}

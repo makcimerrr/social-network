@@ -140,7 +140,7 @@ const NotificationFetcher = (props) => {
             <div id="notifications">
                 {sortedNotifications && sortedNotifications.length > 0 ? sortedNotifications.map((notif) => (
                     <div key={notif.id} className="notification">
-                        <div>Id : {notif.id}</div>
+{/*                         <div>Id : {notif.id}</div> */}
                         <div className="emoji-container">
                             {notif.category === 'Follow' && (
                                 <>
@@ -210,34 +210,33 @@ const NotificationFetcher = (props) => {
                         <div className="notification-details">
                             {notif.category === 'GroupMP' && (
                                 <>
-                                    <p className="notification-group">Message ID: {notif.message.ID}</p>
-                                    <div className="notification-date">{notif.message.Date}</div>
+{/*                                     <p className="notification-group">Message ID: {notif.message.ID}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         envoyé un message dans le groupe "<b>{notif.group.Title}</b>"
                                         : <b>{notif.message.Content}</b> !</p>
+                                    <div className="notification-date">{notif.message.Date}</div>
                                 </>
                             )}
                             {notif.category === 'Event' && (
                                 <>
-                                    <p className="notification-group">Event ID: {notif.event.IdEvent}</p>
-                                    <div className="notification-date">{notif.event.date}</div>
+{/*                                     <p className="notification-group">Event ID: {notif.event.IdEvent}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} à
                                         créé un événement <b>{notif.event.Title}</b> dans le groupe
                                         "<b>{notif.group.Title}</b>" !</p>
+                                    <div className="notification-date">{notif.event.date}</div>
                                 </>
                             )}
                             {notif.category === 'AskGroup' && (
                                 <>
-                                    <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
-                                    <div className="notification-date">{notif.group.date}</div>
+{/*                                     <p className="notification-group">Group ID: {notif.group.IdGroup}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         demandé à rejoindre votre groupe <b>{notif.group.Title}</b> !</p>
+                                        <div className="notification-date">{notif.group.date}</div>
                                 </>
                             )}
                             {notif.category === 'Follow' && (
                                 <>
-                                    <p className="notification-group">Follow ID: {notif.follow.id}</p>
-                                    <div className="notification-date">{notif.follow.datefollow}</div>
+{/*                                     <p className="notification-group">Follow ID: {notif.follow.id}</p> */}
                                     {notif.follow.validatefollow ? (
                                         <p className="notification-title">
                                             <b>{notif.user.firstname} {notif.user.lastname} </b>demande à vous suivre !
@@ -246,30 +245,31 @@ const NotificationFetcher = (props) => {
                                         <p className="notification-title">
                                             <b>{notif.user.firstname} {notif.user.lastname} </b>vous a
                                             suivis !</p>)}
+                                            <div className="notification-date">{notif.follow.datefollow}</div>
                                 </>
                             )}
                             {notif.category === 'Post' && (
                                 <>
-                                    <p className="notification-group">Post ID: {notif.post.id}</p>
-                                    <div className="notification-date">{notif.post.date}</div>
+{/*                                     <p className="notification-group">Post ID: {notif.post.id}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         crée un post <b>{notif.post.title}</b> !</p>
+                                    <div className="notification-date">{notif.post.date}</div>
                                 </>
                             )}
                             {notif.category === 'Group' && (
                                 <>
-                                    <p className="notification-group">Group ID: {notif.group.IdGroup}</p>
-                                    <div className="notification-date">{notif.group.date}</div>
+{/*                                     <p className="notification-group">Group ID: {notif.group.IdGroup}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous
                                         a invité au groupe <b>{notif.group.Title}</b> !</p>
+                                    <div className="notification-date">{notif.group.date}</div>
                                 </>
                             )}
                             {notif.category === 'MP' && (
                                 <>
-                                    <p className="notification-group">Message ID: {notif.message.id}</p>
-                                    <div className="notification-date">{notif.message.date}</div>
+{/*                                     <p className="notification-group">Message ID: {notif.message.id}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} vous
                                         a envoyé un message privé :</p>
+                                    <div className="notification-date">{notif.message.date}</div>
                                     <div className="comment-content">
                                         <b><p>{notif.message.content}</p></b>
                                     </div>
@@ -277,13 +277,13 @@ const NotificationFetcher = (props) => {
                             )}
                             {notif.category === 'Comment' && (
                                 <>
-                                    <p className="notification-group">Post ID: {notif.comment.post_id}</p>
-                                    <div className="notification-date">{notif.comment.date}</div>
+{/*                                     <p className="notification-group">Post ID: {notif.comment.post_id}</p> */}
                                     <p className="notification-title">{notif.user.firstname} {notif.user.lastname} a
                                         commenté :</p>
                                     <div className="comment-content">
                                         <b><p>{notif.comment.content}</p></b>
                                     </div>
+                                    <div className="notification-date">{notif.comment.date}</div>
                                 </>
                             )}
                         </div>

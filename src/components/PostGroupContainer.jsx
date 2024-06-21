@@ -11,13 +11,13 @@ const PostGroupContainer = ({ posts, handleCreateGroupComment }) => {
 
   return (
     <div>
-      <h2>Posts</h2>
+      <h2 className='pagetitle'>Posts</h2>
       {posts && (
         <ul>
           {posts.map(post => (
             <li key={post.id}>
-              <Card>
-                <CardContent>
+             <div className='post'>
+                <div>
                   <Typography variant="h5" component="h2">
                     {post.title}
                   </Typography>
@@ -46,8 +46,8 @@ const PostGroupContainer = ({ posts, handleCreateGroupComment }) => {
                     <CreateCommentGroupForm handleCreateGroupComment={handleCreateGroupComment} Post_id={post.id} />
                     <CommentGroupContainer Post_id={post.id} NbComments={post.nbcomments} />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
