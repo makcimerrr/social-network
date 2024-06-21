@@ -22,28 +22,40 @@ const CreateEvent = ({ handleCreateEvent }) => {
   return (
     <div>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <h2>Create a New Event</h2>
-        <TextField
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <TextField
-          label="Content"
+        <h2 className='pagetitle'>Create a New Event</h2>
+        <div className='createEvent-form'>
+
+        <div className='inputContainer'>
+          <input
+            className={'inputBox autosize'}
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            />
+        </div>
+        <div className='inputContainer'>
+        <input
+          className={'inputBox autosize'}
+          placeholder="Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           multiline
-        />
-        <TextField
-          label="Date"
+          />
+        </div>
+        <div className='inputContainer'>
+        <input
+          className={'inputBox autosize'}
+          placeholder="Date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           multiline
-        />
+          />
+        </div>
 
-        <Button type="submit" variant="contained">
-          Create Event
+        <Button className='createEventbtn' type="submit" variant="contained">
+          +
         </Button>
+          </div>
       </form>
     </div>
   );

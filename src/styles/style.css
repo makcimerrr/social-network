@@ -858,6 +858,7 @@ h2 {
 
 .post-content {
     text-align: justify;
+    word-break: break-word;
 }
 
 .post-likes {
@@ -1183,4 +1184,75 @@ hr {
 
 .profileis {
     margin: 5px;
+}
+
+.commentgroup-section {
+    margin-bottom: 45px;
+}
+
+.groupcommentsbtn {
+    margin-left: 0;
+    cursor: pointer;
+}
+
+.commentposts-container {
+    height: calc(100vh - 290px);
+}
+
+.createEvent-form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.autosize {
+    width: 100%;
+}
+
+.createEventbtn {
+    cursor: pointer;
+    background-color: var(--primary-yellow);
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
+    margin-right: 10px;
+    font-size: 35px;
+    font-weight: 700;
+    transition: all 0.2s ease-in-out;
+}
+
+.createEventbtn:hover {
+    transform: scale(1.1);
+    background-color: var(--primary-blue);
+}
+
+.eventsContainer {
+margin: 0;
+height: calc(100vh - 478px);
+overflow-x: hidden;
+overflow-y: scroll;
+}
+
+.eventdate {
+    opacity: 0.7;
+}
+
+.yesnobtn {
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.commingornot {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+/*     background-color: red; */
+    justify-content: space-between;
 }

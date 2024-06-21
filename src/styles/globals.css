@@ -318,3 +318,33 @@
     /* background-color: red; */
     overflow: hidden;
 }
+
+.test2 {
+    margin-right: 50vw;
+    overflow-y: hidden;
+}
+
+.test3 {
+    width: 48vw;
+    position: absolute;
+    top: 0;
+    left: 50vw;
+    margin: 20px;
+    margin-top: 190px;
+/*     height: calc(100vh - 700px); */
+    overflow-y: scroll;
+}
+
+.test3::-webkit-scrollbar {
+    width: 3px;
+}
+
+.test3::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.test3::-webkit-scrollbar-thumb {
+    background-color: var(--primary-yellow);
+    border-radius: 3px;
+    width: 3px;
+}
