@@ -1,6 +1,5 @@
 function setTransiName() {
   setTimeout(() => {
-    console.log('coucou')
     let transitext = document.querySelector('.transitext')
     var pathArray = window.location.pathname.split('/');
     console.log(pathArray, transitext)
