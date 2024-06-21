@@ -83,7 +83,6 @@ const PostGroupContainer = ({ posts, handleCreateGroupComment }) => {
                       {post.content}
                     </p>
                     <div className='commentgroup-section'></div>
-
                     <div>
                       <CommentGroupContainer Post_id={post.id} NbComments={post.nbcomments} />
                       <CreateCommentGroupForm handleCreateGroupComment={handleCreateGroupComment} Post_id={post.id} />
