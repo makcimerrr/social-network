@@ -98,9 +98,9 @@ const ProfileContainer = ({ users, togglePrivacy, userPosts, follow, validatefol
                             />
                         )}
                         {/*                         <p className='white'>ID: {users.id}</p> */}
-                        {/*                         <p className='white'>Email: {users.email}</p> */}
                         <p className='white profileusername'>{users.firstname} {users.lastname}</p>
-                        {/*                         <p className='white'>Date of Birth: {users.dateofbirth}</p> */}
+                        <p className='white'>Email: {users.email}</p>
+                        <p className='white'>Date of Birth: {users.dateofbirth}</p>
                         <p className='white aboutme'>{users.aboutme}</p>
                         {/*                         <p className='white'>Point of Interest: {users.pointofinterest}</p> */}
                     </>

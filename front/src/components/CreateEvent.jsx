@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 
 const CreateEvent = ({ handleCreateEvent }) => {
   const [title, setTitle] = useState('');
@@ -12,10 +12,14 @@ const CreateEvent = ({ handleCreateEvent }) => {
     formData.append('title', title);
     formData.append('content', content);
     formData.append('date', date)
-    handleCreateEvent(formData);
-    setTitle('');
-    setContent('');
-    setDate('');
+    if (title.trim() != "" && content.trim() != "" && date.trim() != "") {
+      handleCreateEvent(formData);
+      setTitle('');
+      setContent('');
+      setDate('');
+    } else {
+      alert('Please complete all fields');
+    }
   };
 
 
